@@ -1,0 +1,196 @@
+@startuml SmartRent_UseCase_Phase1
+' Sơ đồ Use Case — Phase 1
+' Phạm vi: BP-01, BP-02, BP-03, BP-04, BP-06, BP-07, BP-10
+' Các use case thuộc Phase 2 và Phase 3 không có trong sơ đồ này.
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam shadowing false
+
+actor "Khách truy cập" as Guest
+actor "Người thuê" as Tenant
+actor "Chủ trọ" as Landlord
+actor "Quản trị viên" as Admin
+
+Guest <|-- Tenant
+
+rectangle "Hệ thống SmartRent" {
+
+  package "Tài khoản và phân quyền" {
+    usecase "Đăng ký tài khoản" as UC01
+    usecase "Đăng nhập" as UC02
+    usecase "Đổi mật khẩu" as UC03
+    usecase "Quên mật khẩu" as UC04
+    usecase "Cập nhật thông tin cá nhân" as UC45
+    usecase "Nộp hồ sơ đăng ký Chủ trọ" as UC05
+    usecase "Duyệt hồ sơ Chủ trọ" as UC06
+    usecase "Từ chối hồ sơ Chủ trọ" as UC07
+    usecase "Khóa / mở khóa tài khoản" as UC08
+  }
+
+  package "Khu trọ và phòng trọ" {
+    usecase "Quản lý khu trọ" as UC09
+    usecase "Quản lý phòng trọ" as UC10
+    usecase "Bật / tắt hiển thị tin" as UC11
+    usecase "Lưu trữ phòng / khu trọ" as UC12
+    usecase "Ẩn tin vi phạm" as UC13
+  }
+
+  package "Tìm kiếm" {
+    usecase "Tìm kiếm phòng bằng bộ lọc" as UC14
+    usecase "Xem chi tiết phòng" as UC15
+  }
+
+  package "Yêu cầu thuê và hợp đồng" {
+    usecase "Gửi yêu cầu thuê" as UC16
+    usecase "Hủy yêu cầu thuê" as UC17
+    usecase "Duyệt yêu cầu thuê" as UC18
+    usecase "Từ chối yêu cầu thuê" as UC19
+    usecase "Lập hợp đồng" as UC20
+    usecase "Xác nhận điều khoản hợp đồng" as UC21
+    usecase "Xác nhận đã nhận tiền cọc" as UC22
+    usecase "Tự từ chối các yêu cầu\ncòn lại của cùng phòng" as UC23
+    usecase "Hủy hợp đồng\ntrước ngày bắt đầu" as UC41
+    usecase "Yêu cầu chỉnh sửa hợp đồng" as UC44
+  }
+
+  package "Hóa đơn và thanh toán" {
+    usecase "Chốt chỉ số điện nước" as UC24
+    usecase "Phát hành hóa đơn" as UC25
+    usecase "Xem hóa đơn" as UC26
+    usecase "Báo đã thanh toán\nkèm minh chứng" as UC27
+    usecase "Xác nhận đã thu tiền" as UC28
+    usecase "Từ chối xác nhận thanh toán" as UC29
+    usecase "Lập hóa đơn điều chỉnh" as UC30
+    usecase "Sửa hóa đơn\nchưa thanh toán" as UC42
+    usecase "Hủy hóa đơn\nchưa thanh toán" as UC43
+    usecase "Khai báo tài khoản\nngân hàng nhận tiền" as UC39
+    usecase "Xem mã VietQR\nđể chuyển khoản" as UC40
+  }
+
+  package "Chấm dứt hợp đồng" {
+    usecase "Gửi thông báo trả phòng" as UC31
+    usecase "Lập hóa đơn thanh lý" as UC32
+    usecase "Xác nhận bảng thanh lý" as UC33
+    usecase "Hoàn tất thanh lý\nvà tất toán cọc" as UC34
+  }
+
+  package "Thông báo, nhật ký, thống kê" {
+    usecase "Xem thông báo" as UC35
+    usecase "Xem dashboard" as UC36
+    usecase "Tra cứu nhật ký hệ thống" as UC37
+    usecase "Ghi nhật ký hệ thống" as UC38
+  }
+}
+
+' --- Khách truy cập ---
+Guest --> UC01
+Guest --> UC02
+Guest --> UC04
+Guest --> UC14
+Guest --> UC15
+
+' --- Người thuê ---
+Tenant --> UC03
+Tenant --> UC45
+Tenant --> UC05
+Tenant --> UC16
+Tenant --> UC17
+Tenant --> UC21
+Tenant --> UC44
+Tenant --> UC41
+Tenant --> UC26
+Tenant --> UC27
+Tenant --> UC40
+Tenant --> UC31
+Tenant --> UC33
+Tenant --> UC35
+Tenant --> UC36
+
+' --- Chủ trọ ---
+Landlord --> UC02
+Landlord --> UC03
+Landlord --> UC45
+Landlord --> UC09
+Landlord --> UC10
+Landlord --> UC11
+Landlord --> UC12
+Landlord --> UC18
+Landlord --> UC19
+Landlord --> UC20
+Landlord --> UC22
+Landlord --> UC41
+Landlord --> UC24
+Landlord --> UC25
+Landlord --> UC26
+Landlord --> UC28
+Landlord --> UC29
+Landlord --> UC30
+Landlord --> UC42
+Landlord --> UC43
+Landlord --> UC39
+Landlord --> UC31
+Landlord --> UC32
+Landlord --> UC34
+Landlord --> UC35
+Landlord --> UC36
+
+' --- Quản trị viên ---
+Admin --> UC02
+Admin --> UC03
+Admin --> UC45
+Admin --> UC06
+Admin --> UC07
+Admin --> UC08
+Admin --> UC13
+Admin --> UC36
+Admin --> UC37
+
+' --- Quan hệ giữa các use case ---
+UC18 ..> UC23 : <<include>>
+UC25 ..> UC24 : <<include>>
+UC32 ..> UC24 : <<include>>
+
+UC06 ..> UC38 : <<include>>
+UC07 ..> UC38 : <<include>>
+UC08 ..> UC38 : <<include>>
+UC10 ..> UC38 : <<include>>
+UC13 ..> UC38 : <<include>>
+UC22 ..> UC38 : <<include>>
+UC25 ..> UC38 : <<include>>
+UC28 ..> UC38 : <<include>>
+UC30 ..> UC38 : <<include>>
+UC32 ..> UC38 : <<include>>
+UC34 ..> UC38 : <<include>>
+UC41 ..> UC38 : <<include>>
+UC42 ..> UC38 : <<include>>
+UC43 ..> UC38 : <<include>>
+UC39 ..> UC38 : <<include>>
+
+note bottom of UC23
+  BR-06: khi một yêu cầu thuê được duyệt,
+  toàn bộ yêu cầu khác đang chờ duyệt
+  của cùng phòng tự chuyển sang Từ chối.
+end note
+
+note bottom of UC28
+  BR-06b: chỉ Chủ trọ sở hữu mới xác nhận
+  được hóa đơn đã thu. Admin không có
+  quyền này.
+end note
+
+note bottom of UC40
+  BR-26: mã VietQR chỉ hỗ trợ chuyển khoản.
+  Hiển thị khi Chủ trọ đã khai báo tài khoản,
+  cho tiền cọc, hóa đơn chưa trả đủ và số dư
+  thanh lý dương. Không đổi trạng thái hóa đơn.
+end note
+
+note bottom of UC38
+  BR-23: các thao tác ảnh hưởng tới tiền
+  hoặc quyền đều bắt buộc ghi nhật ký,
+  gồm giá trị trước và sau.
+end note
+
+@enduml
