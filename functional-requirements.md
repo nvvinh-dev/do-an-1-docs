@@ -149,7 +149,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-63** | Nhật ký hệ thống **không** sửa và **không** xóa được bằng bất kỳ chức năng nào, kể cả với vai trò Admin | QR-03 | Chỉ có endpoint đọc |
 | **FR-64** | Admin tra cứu được nhật ký theo đối tượng, người thực hiện và khoảng thời gian | BP-01 | `GET /admin/audit-logs` |
 | **FR-65** | Admin xem được dashboard tổng quan: tổng người dùng, chủ trọ, người thuê, khu trọ, phòng và số hồ sơ chờ duyệt | BP-01 | `GET /dashboard/admin` |
-| **FR-66** | Chủ trọ xem được dashboard: số phòng trống và đang thuê, hóa đơn chưa thu, doanh thu theo tháng | BP-02, BP-07 | `GET /dashboard/landlord` |
+| **FR-66** | Chủ trọ xem được dashboard: số phòng trống và đang thuê, hóa đơn chưa thu, doanh thu theo tháng của 6 tháng gần nhất tính cả tháng hiện tại | BP-02, BP-07 | `GET /dashboard/landlord` |
 | **FR-67** | Doanh thu trên dashboard **chỉ** tính các khoản đã được Chủ trọ xác nhận thu, gom theo tháng của thời điểm xác nhận; tiền cọc không phải doanh thu | BP-07 | `payment_reports.confirmed_amount`, `confirmed_at` |
 | **FR-68** | Người thuê xem được dashboard: hợp đồng hiện tại, hóa đơn chưa thanh toán và tổng đã thanh toán (không tính tiền cọc) | BP-07 | `GET /dashboard/tenant` |
 
