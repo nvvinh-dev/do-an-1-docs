@@ -58,7 +58,6 @@ Một hệ quả thứ hai: khóa tài khoản không cắt được phiên đan
 | Khóa / mở khóa tài khoản | ✗ | ✗ | ✗ | ✓ |
 | Tạo, sửa, lưu trữ khu trọ và phòng | ✗ | ✗ | Sở hữu | ✗ |
 | Bật / tắt hiển thị tin | ✗ | ✗ | Sở hữu | ✗ |
-| Ẩn tin vi phạm | ✗ | ✗ | ✗ | ✓ |
 | Gửi / hủy yêu cầu thuê | ✗ | ✓ | ✗ | ✗ |
 | Duyệt / từ chối yêu cầu thuê | ✗ | ✗ | Sở hữu | ✗ |
 | Lập và sửa hợp đồng | ✗ | ✗ | Sở hữu | ✗ |
@@ -81,6 +80,8 @@ Một hệ quả thứ hai: khóa tài khoản không cắt được phiên đan
 
 - **Admin không xác nhận thanh toán.** Chỉ Chủ trọ sở hữu mới xác nhận được một hóa đơn đã thu đủ. Admin có quyền cao nhất về quản trị nhưng không có quyền động vào tiền của người khác.
 - **Admin không đọc hợp đồng và hóa đơn.** Phase 1 không có endpoint nào cho phép việc này. Quyền đọc chỉ mở khi xử lý khiếu nại, và cơ chế đó thuộc Phase 2.
+
+Ẩn tin vi phạm theo từng phòng cũng thuộc Phase 2. Phase 1 Admin xử lý vi phạm bằng khóa tài khoản Chủ trọ.
 
 ---
 

@@ -37,7 +37,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-13** | Chủ trọ không thao tác được trên khu trọ hoặc phòng không thuộc mình | BR-04 | Kiểm tra sở hữu ở mọi endpoint |
 | **FR-14** | Chủ trọ sửa được giá thuê và đơn giá điện nước của phòng; thay đổi này **không** làm đổi giá của hợp đồng đang hiệu lực và hóa đơn đã phát hành | BR-12, BR-13 | `PUT /rooms/{id}` · `contracts`, `invoices` lưu bản sao giá |
 | **FR-15** | Chủ trọ bật và tắt được trạng thái hiển thị của phòng; phòng mới tạo ở trạng thái Đã ẩn bởi Chủ trọ cho tới khi Chủ trọ bật | BP-03 | `PATCH /rooms/{id}/visibility` · `rooms.visibility_status` |
-| **FR-16** | Phòng bị Admin ẩn thì Chủ trọ **không** tự bật hiển thị lại được | BP-03 A1 | `rooms.visibility_status = DaAnBoiAdmin` |
+| **FR-16** | Admin khóa tài khoản Chủ trọ thì toàn bộ phòng của Chủ trọ đó rời khỏi kết quả tìm kiếm ngay; mở khóa thì các phòng đủ điều kiện BR-05 hiển thị lại. Ẩn từng tin vi phạm thuộc Phase 2 (BP-03 A1, làm cùng BP-13) | BP-03, BR-05 | Điều kiện truy vấn `users.is_locked` |
 | **FR-17** | Hệ thống tự gỡ phòng khỏi kết quả tìm kiếm khi phòng chuyển sang Đang giữ chỗ, Đang thuê hoặc Bảo trì | BP-03 A2, BR-05 | `rooms.occupancy_status` |
 | **FR-18** | Hệ thống từ chối chuyển phòng về trạng thái Trống khi hợp đồng hiện tại của phòng chưa ở Đã thanh lý hoặc Đã hủy | BR-08 | `PATCH /rooms/{id}/occupancy-status` |
 | **FR-89** | Chủ trọ chỉ tự chuyển được trạng thái khai thác của phòng giữa Trống và Bảo trì; các trạng thái khai thác còn lại do hệ thống chuyển theo yêu cầu thuê, hợp đồng và thanh lý, ngoài thao tác lưu trữ | BP-02 | `PATCH /rooms/{id}/occupancy-status` |

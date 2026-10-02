@@ -137,7 +137,7 @@ Hồ sơ đăng ký làm Chủ trọ.
 | `occupancy_status` | text | NOT NULL, CHECK | `Trong` / `DangGiuCho` / `DangThue` / `BaoTri` / `LuuTru` |
 | `visibility_status` | text | NOT NULL, CHECK | `DangHienThi` / `DaAnBoiChuTro` / `DaAnBoiAdmin` |
 
-**Hai chiều trạng thái là độc lập.** `occupancy_status` mô tả tình trạng khai thác thực tế; `visibility_status` mô tả việc phòng có được quảng bá hay không. Phòng mới tạo có `visibility_status = 'DaAnBoiChuTro'` cho tới khi Chủ trọ bật hiển thị (BP-03).
+**Hai chiều trạng thái là độc lập.** `occupancy_status` mô tả tình trạng khai thác thực tế; `visibility_status` mô tả việc phòng có được quảng bá hay không. Phòng mới tạo có `visibility_status = 'DaAnBoiChuTro'` cho tới khi Chủ trọ bật hiển thị (BP-03). Giá trị `DaAnBoiAdmin` giữ sẵn trong ràng buộc nhưng chỉ phát sinh từ Phase 2, khi Admin ẩn tin vi phạm cùng BP-13.
 
 **Chuyển `occupancy_status` thủ công:** Chủ trọ chỉ chuyển được giữa `Trong` và `BaoTri`, và sang `LuuTru` khi lưu trữ. `DangGiuCho` và `DangThue` do hệ thống đặt theo yêu cầu thuê, hợp đồng và thanh lý.
 

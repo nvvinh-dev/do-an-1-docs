@@ -984,7 +984,7 @@ Mục tiêu: **một vòng đời thuê phòng chạy được trọn vẹn từ
 |---|---|
 | BP-01 | Đăng ký, xác thực, duyệt Chủ trọ |
 | BP-02 | Quản lý Khu trọ và Phòng trọ (đầy đủ giá và đơn giá) |
-| BP-03 | Đăng/ẩn tin cho thuê |
+| BP-03 | Đăng/ẩn tin cho thuê (Chủ trọ tự bật/tắt; Admin xử lý vi phạm bằng khóa tài khoản Chủ trọ) |
 | BP-04 | Tìm kiếm bằng **bộ lọc truyền thống** (chưa có AI) |
 | BP-06 | Yêu cầu thuê, đặt cọc, lập Hợp đồng |
 | BP-07 | Chốt số, lập Hóa đơn, xác nhận thanh toán, thanh toán một phần và theo dõi công nợ |
@@ -999,6 +999,7 @@ Mục tiêu: **một vòng đời thuê phòng chạy được trọn vẹn từ
 
 | BP | Nội dung |
 |---|---|
+| BP-03 A1 | Admin ẩn tin vi phạm, làm cùng BP-13 |
 | BP-04 A1 | Tìm kiếm bằng ngôn ngữ tự nhiên (AI) |
 | BP-08 | Báo cáo sự cố và sửa chữa |
 | BP-11 | Tìm người ở ghép + điểm phù hợp + giải thích bằng AI |
@@ -1099,6 +1100,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Kết chuyển công nợ cũ vào Hóa đơn thanh lý | Tiền cọc trước hết dùng để trừ nợ còn lại; để hóa đơn cũ tồn tại song song với dòng công nợ sẽ tính nợ hai lần |
 | Bảng thanh lý đi qua bước gửi — đồng ý — khóa | Thực tế hai bên trao đổi và sửa bảng tới khi thống nhất; Phase 1 chưa có khiếu nại nên cần đường quay lại để Chủ trọ sửa |
 | Người thuê hủy sau khi đặt cọc có thể mất cọc (BR-22) | Thực tế người thuê đổi ý sau khi đặt cọc thì mất cọc, vì phòng đã được giữ và gỡ khỏi tìm kiếm cho họ; khớp với vế "Người thuê đơn phương chấm dứt" vốn có trong BR-22 |
+| Admin ẩn tin vi phạm (BP-03 A1) dời sang Phase 2 | Phase 1 chưa có kênh báo cáo nên Admin không có căn cứ tìm tin vi phạm; khóa tài khoản Chủ trọ đã gỡ được toàn bộ tin của người đó theo BR-05 |
 
 ---
 

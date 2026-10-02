@@ -2,6 +2,7 @@
 ' Sơ đồ Use Case — Phase 1
 ' Phạm vi: BP-01, BP-02, BP-03, BP-04, BP-06, BP-07, BP-10
 ' Các use case thuộc Phase 2 và Phase 3 không có trong sơ đồ này.
+' Ẩn tin vi phạm (BP-03 A1) thuộc Phase 2, làm cùng khiếu nại BP-13.
 
 left to right direction
 skinparam packageStyle rectangle
@@ -34,7 +35,6 @@ rectangle "Hệ thống SmartRent" {
     usecase "Quản lý phòng trọ" as UC10
     usecase "Bật / tắt hiển thị tin" as UC11
     usecase "Lưu trữ phòng / khu trọ" as UC12
-    usecase "Ẩn tin vi phạm" as UC13
   }
 
   package "Tìm kiếm" {
@@ -145,7 +145,6 @@ Admin --> UC45
 Admin --> UC06
 Admin --> UC07
 Admin --> UC08
-Admin --> UC13
 Admin --> UC36
 Admin --> UC37
 
@@ -158,7 +157,6 @@ UC06 ..> UC38 : <<include>>
 UC07 ..> UC38 : <<include>>
 UC08 ..> UC38 : <<include>>
 UC10 ..> UC38 : <<include>>
-UC13 ..> UC38 : <<include>>
 UC22 ..> UC38 : <<include>>
 UC25 ..> UC38 : <<include>>
 UC28 ..> UC38 : <<include>>

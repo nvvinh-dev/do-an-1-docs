@@ -168,7 +168,6 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 | `PATCH` | `/api/v1/rooms/{id}/occupancy-status` | Landlord (chủ sở hữu) | Chuyển sang `BaoTri` hoặc về `Trong` |
 | `POST` | `/api/v1/rooms/{id}/archive` | Landlord (chủ sở hữu) | Lưu trữ phòng |
 | `POST` | `/api/v1/rooms/{id}/images` | Landlord (chủ sở hữu) | Tải ảnh phòng |
-| `POST` | `/api/v1/admin/rooms/{id}/hide` | Admin | Ẩn tin vi phạm, đặt `DaAnBoiAdmin` |
 
 **Quy tắc quan trọng:**
 
@@ -177,6 +176,7 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 - `PATCH /rooms/{id}/visibility` chỉ nhận `DangHienThi` và `DaAnBoiChuTro`. Phòng đang ở `DaAnBoiAdmin` trả `403` — Chủ trọ không tự bật lại được.
 - `PATCH /rooms/{id}/occupancy-status` chỉ nhận hai chuyển tiếp `Trong` → `BaoTri` và `BaoTri` → `Trong`; chuyển tiếp khác trả `409`. Chuyển về `Trong` mà hợp đồng hiện tại chưa ở `DaThanhLy` hoặc `DaHuy` cũng trả `409` (BR-08).
 - Không có endpoint `DELETE /rooms/{id}` (BR-09).
+- Ẩn tin vi phạm theo từng phòng (`DaAnBoiAdmin`) thuộc Phase 2, làm cùng khiếu nại BP-13. Phase 1 Admin xử lý vi phạm bằng cách khóa tài khoản Chủ trọ — toàn bộ phòng của Chủ trọ đó rời khỏi kết quả tìm kiếm theo BR-05.
 
 ---
 
