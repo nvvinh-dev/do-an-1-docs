@@ -479,7 +479,7 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 }
 ```
 
-Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của kỳ liền trước, kỳ đầu tiên lấy chỉ số đầu ghi trong hợp đồng — client không gửi lên. Đơn giá lấy từ hợp đồng, không lấy từ phòng (BR-13). Server tính `electricityAmount`, `waterAmount`, `rentAmount`, `serviceFeeAmount` và `totalAmount`; client không được gửi các giá trị này.
+Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của kỳ liền trước, kỳ đầu tiên lấy chỉ số đầu ghi trong hợp đồng — client không gửi lên. Đơn giá lấy từ hợp đồng, không lấy từ phòng (BR-13). Server tính `electricityAmount`, `waterAmount`, `rentAmount`, `serviceFeeAmount` và `totalAmount`; client không được gửi các giá trị này. Ảnh đồng hồ tùy chọn (`purpose = AnhDongHo`), phải qua kiểm tra ở Mục 14, sai trả `422`. Trả `201` kèm chi tiết hóa đơn ở `Nhap`.
 
 **Kỳ hóa đơn do server xác định (BR-15, BR-17):** endpoint luôn tạo hóa đơn cho **kỳ kế tiếp** của hợp đồng — tháng liền sau kỳ chưa hủy gần nhất, hoặc từ `startDate` tới cuối tháng đó nếu hợp đồng chưa có hóa đơn. Client không gửi `periodStart`, `periodEnd`; response trả về hai trường này.
 
@@ -497,8 +497,16 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 
 **Sửa và điều chỉnh:**
 
-- `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan`, hoặc `QuaHan` mà chưa thu đồng nào (`paidAmount` = 0); `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới; hóa đơn đã phát hành thì gửi thêm thông báo cho người thuê — hóa đơn `Nhap` người thuê chưa thấy nên không thông báo.
+- `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` và `cancel` cùng nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan`, hoặc `QuaHan` mà chưa thu đồng nào (`paidAmount` = 0) — FR-49, FR-52; trạng thái khác, trong đó có `DaThanhToan`, trả `409` (BR-16). `PUT` có body giống lúc tạo, server tính lại toàn bộ số tiền và trả `200` kèm chi tiết. `cancel` có body `reason` (bắt buộc), trả `204`; hủy hóa đơn `Nhap` không gửi thông báo vì người thuê chưa thấy hóa đơn đó. Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới; hóa đơn đã phát hành thì gửi thêm thông báo cho người thuê — hóa đơn `Nhap` người thuê chưa thấy nên không thông báo.
 - Hóa đơn cũ hơn hoặc đã thanh toán có sai sót: Chủ trọ thêm một dòng `DieuChinhKhac` có `relatedInvoiceId` vào `adjustmentLines` của hóa đơn kỳ kế tiếp, hoặc vào `lines` của hóa đơn thanh lý. `relatedInvoiceId` phải thuộc cùng hợp đồng, sai thì trả `422`.
+
+**`POST /invoices/{id}/issue`** — không có body. Chỉ nhận hóa đơn ở `Nhap`, trạng thái khác trả `409`. Hóa đơn sang `ChuaThanhToan`, `issuedAt` = lúc phát hành, `dueDate` = ngày phát hành (giờ Việt Nam) cộng `paymentDueDays` của hợp đồng; người thuê nhận thông báo mức Cao. Trả `204`.
+
+**Danh sách và chi tiết:**
+
+- `GET /contracts/{contractId}/invoices` — không phân trang (mỗi hợp đồng chỉ vài chục hóa đơn), kỳ mới trước. Mỗi dòng gồm `id`, `type`, `periodStart`, `periodEnd`, `totalAmount`, `paidAmount`, `status`, `issuedAt`, `dueDate`.
+- `GET /invoices` — cùng các trường trên, cộng `contractId`, `roomCode`, `propertyName`, `tenantName`; có phân trang.
+- `GET /invoices/{id}` — kỳ; chỉ số cũ, chỉ số mới và đơn giá điện, nước; `electricityAmount`, `waterAmount`, `rentAmount`, `serviceFeeAmount`, `totalAmount`, `paidAmount`, `status`, `issuedAt`, `dueDate`, `settledAt`, `cancelReason`; ảnh đồng hồ (URL theo Mục 14). Để người thuê hiểu cách tính (FR-44): `daysCharged` và `daysInMonth` — tỷ lệ ngày dùng tính tiền phòng và phí dịch vụ (BR-15) — cùng `serviceFees` là các phí đã chốt trong hợp đồng (`name`, `amount` theo tháng). Kèm `lines` (`category`, `description`, `amount`, `evidenceUrl`, `relatedInvoiceId`), `paymentReports` — mọi lượt báo thanh toán (`id`, `reportedAmount`, `proofImageUrl`, `reportedAt`, `status`, `confirmedAmount`, `confirmedAt`, `rejectReason`) — và `paymentQr` (Mục 9.1). Hóa đơn thanh lý có thêm `sentAt`, `tenantConfirmedAt`, `changeRequestReason`, `landlordFinalizeNote`.
 
 **`GET /invoices`** — danh sách hóa đơn của mọi hợp đồng: Chủ trọ thấy hóa đơn trên khu trọ của mình, Người thuê thấy hóa đơn của các hợp đồng mình đứng tên (FR-103). Query `status` (lặp lại được), `month` (`YYYY-MM`, theo tháng của `periodStart`), `propertyId` và `roomId` (chỉ Chủ trọ), `type` (`DinhKy` / `ThanhLy`), `page`, `pageSize`; tất cả tùy chọn; kỳ mới trước. Dùng cho trang "Hóa đơn" của hai vai trò và cho lối tắt từ mục việc cần xử lý trên dashboard — ví dụ `status=ChoXacNhan`.
 
@@ -506,8 +514,8 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 
 **Luồng thanh toán:**
 
-1. Người thuê gọi `/payment-reports` kèm `proofImagePath` (bắt buộc, BR-06b) khi hóa đơn ở `ChuaThanhToan`, `ThanhToanMotPhan` hoặc `QuaHan` → hóa đơn chuyển `ChoXacNhan`. Trạng thái khác trả `409`.
-2. Chủ trọ gọi `/confirm` với `confirmedAmount` — lớn hơn 0 và không vượt phần còn phải trả, sai trả `422`; server cộng vào `paidAmount`. Đủ tổng hóa đơn → `DaThanhToan`. Còn thiếu → `QuaHan` nếu đã qua `dueDate`, ngược lại `ThanhToanMotPhan`.
+1. Người thuê gọi `/payment-reports` kèm `reportedAmount` — lớn hơn 0 và không vượt phần còn phải trả, sai trả `422` — và `proofImagePath` (bắt buộc, BR-06b; `purpose = MinhChungThanhToan`, qua kiểm tra ở Mục 14) khi hóa đơn ở `ChuaThanhToan`, `ThanhToanMotPhan` hoặc `QuaHan` → hóa đơn chuyển `ChoXacNhan`, trả `201` kèm lượt báo. Trạng thái khác trả `409`.
+2. `/confirm` và `/reject` chỉ nhận lượt báo ở `ChoXacNhan`, khác trả `409`; hai thao tác trả `204`. Chủ trọ gọi `/confirm` với `confirmedAmount` — lớn hơn 0 và không vượt phần còn phải trả, sai trả `422`; server cộng vào `paidAmount`. Đủ tổng hóa đơn → `DaThanhToan`. Còn thiếu → `QuaHan` nếu đã qua `dueDate`, ngược lại `ThanhToanMotPhan`.
 3. Chủ trọ gọi `/reject` → hóa đơn về `QuaHan` nếu đã qua `dueDate`; ngược lại về `ThanhToanMotPhan` nếu `paidAmount` > 0; còn lại về `ChuaThanhToan`.
 
 Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai trò khác trả `403` (BR-06b). Thao tác xác nhận ghi `audit_logs`.

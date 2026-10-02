@@ -362,7 +362,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 - **A1 — Quá hạn:** Quá hạn thanh toán ghi trong Hợp đồng mà hóa đơn chưa được trả đủ (*Chưa thanh toán* hoặc *Thanh toán một phần*), hệ thống tự gắn cờ **Quá hạn** và gửi thông báo nhắc nhở tự động cho cả hai bên.
 - **A2 — Thanh toán một phần:** Chủ trọ ghi nhận số tiền đã thu < tổng hóa đơn → trạng thái **Thanh toán một phần**, phần còn lại vẫn theo dõi công nợ.
 - **A3 — Nhập sai chỉ số:** Với hóa đơn **mới nhất** của hợp đồng và **chưa** được xác nhận thanh toán, Chủ trọ được sửa; hệ thống ghi nhật ký giá trị cũ/mới, và thông báo cho Người thuê nếu hóa đơn đã phát hành. Hóa đơn cũ hơn, hoặc hóa đơn **đã** thanh toán, **không được sửa** — sai sót được điều chỉnh bằng một dòng *Điều chỉnh* ở hóa đơn kỳ kế tiếp hoặc Hóa đơn thanh lý, ghi rõ hóa đơn gốc (xem BR-16).
-- **A4 — Hủy hóa đơn:** Chỉ áp dụng cho hóa đơn **mới nhất** của hợp đồng, chưa thanh toán, và bắt buộc nhập lý do.
+- **A4 — Hủy hóa đơn:** Chỉ áp dụng cho hóa đơn **mới nhất** của hợp đồng khi chưa thu đồng nào — kể cả hóa đơn còn *Nháp* hoặc đã *Quá hạn* — và bắt buộc nhập lý do.
 
 **Kết quả:** Chi phí được tính minh bạch, có đầy đủ dữ liệu đối chứng cho mọi tranh chấp.
 
@@ -741,7 +741,7 @@ Nháp ──► [ Chưa thanh toán · Thanh toán một phần · Quá hạn ]
                 │                       │
                 │                       └──► Đã chuyển vào thanh lý  (khi lập Hóa đơn thanh lý)
                 │
-                └──► Đã hủy  (chỉ từ Chưa thanh toán)
+                └──► Đã hủy  (hóa đơn mới nhất chưa thu đồng nào: Nháp, Chưa thanh toán, Quá hạn)
 ```
 
 Các chuyển trạng thái hợp lệ:
@@ -749,7 +749,7 @@ Các chuyển trạng thái hợp lệ:
 | Từ | Sang | Khi nào |
 |---|---|---|
 | Nháp | Chưa thanh toán | Chủ trọ phát hành |
-| Chưa thanh toán | Đã hủy | Chủ trọ hủy, bắt buộc có lý do |
+| Nháp, Chưa thanh toán, Quá hạn (chưa thu đồng nào) | Đã hủy | Chủ trọ hủy hóa đơn định kỳ mới nhất, bắt buộc có lý do |
 | Chưa thanh toán, Thanh toán một phần, Quá hạn | Chờ xác nhận | Người thuê báo đã thanh toán kèm minh chứng |
 | Chờ xác nhận | Đã thanh toán | Chủ trọ xác nhận và tổng đã thu bằng tổng hóa đơn |
 | Chờ xác nhận | Thanh toán một phần hoặc Quá hạn | Chủ trọ xác nhận nhưng tổng đã thu còn thiếu: *Quá hạn* nếu đã qua hạn thanh toán, ngược lại *Thanh toán một phần* |
