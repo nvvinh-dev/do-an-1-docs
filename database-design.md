@@ -382,7 +382,67 @@ Phase 1 chỉ gửi thông báo trong ứng dụng, và chỉ cho các sự ki�
 
 **BR-23 — các thao tác bắt buộc ghi nhật ký:** thay đổi giá thuê hoặc đơn giá điện nước; tạo, sửa, hủy hóa đơn; nhập hoặc sửa chỉ số điện nước; xác nhận thanh toán; xác nhận nhận cọc và hoàn cọc; khai báo hoặc sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt, từ chối, thu hồi vai trò Chủ trọ; khóa và mở khóa tài khoản; ẩn tin đăng.
 
+Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của chúng thuộc danh sách BR-23 — nên `actor_user_id` luôn là một người dùng thật.
+
 **QR-03 — bảng này chỉ được INSERT.** Không có endpoint nào cho phép UPDATE hoặc DELETE, kể cả với vai trò Admin. Ở mức database, trigger `trg_audit_logs_chi_them` chặn mọi lệnh `UPDATE`, `DELETE` và `TRUNCATE` trên bảng này bằng một lỗi — kể cả khi lệnh đến từ code của ứng dụng. Trigger được tạo trong migration nên áp dụng cho mọi database chạy migration.
+
+### 7.3 Danh mục mã
+
+`notifications.event_type` và `audit_logs.action` lưu mã dạng PascalCase không dấu. Cả hai thành viên đều ghi vào hai bảng này, nên mọi mã phải lấy từ danh mục dưới đây; cần mã mới thì thêm vào bảng này trước rồi mới dùng trong code.
+
+**Mã sự kiện thông báo — Phase 1, đều ở mức Cao:**
+
+| `event_type` | Sự kiện | Người nhận | `related_entity_type` |
+|---|---|---|---|
+| `HoSoChuTroDuocDuyet` | Hồ sơ Chủ trọ được duyệt | Người nộp | `LandlordApplication` |
+| `HoSoChuTroBiTuChoi` | Hồ sơ Chủ trọ bị từ chối | Người nộp | `LandlordApplication` |
+| `TaiKhoanBiKhoa` | Tài khoản bị khóa | Người bị khóa | `AppUser` |
+| `TaiKhoanDuocMoKhoa` | Tài khoản được mở khóa | Người được mở khóa | `AppUser` |
+| `YeuCauThueMoi` | Có yêu cầu thuê mới | Chủ trọ | `RentalRequest` |
+| `YeuCauThueDuocDuyet` | Yêu cầu thuê được duyệt | Người thuê | `RentalRequest` |
+| `YeuCauThueBiTuChoi` | Yêu cầu thuê bị từ chối, kể cả tự từ chối theo BR-06 | Người thuê | `RentalRequest` |
+| `HopDongChoXacNhan` | Hợp đồng được gửi để xác nhận | Người thuê | `Contract` |
+| `HopDongCanChinhSua` | Người thuê yêu cầu chỉnh sửa hợp đồng | Chủ trọ | `Contract` |
+| `NhacNopCoc` | Hạn giữ chỗ còn dưới 24 giờ; chỉ gửi khi hợp đồng đã được lập | Người thuê | `Contract` |
+| `HopDongCoHieuLuc` | Hợp đồng có hiệu lực | Cả hai bên | `Contract` |
+| `HopDongBiHuy` | Hợp đồng bị hủy | Bên còn lại; cả hai bên khi hệ thống hủy do hết hạn giữ chỗ | `Contract` |
+| `ChiSoDauDuocSua` | Chỉ số đầu của hợp đồng được sửa | Người thuê | `Contract` |
+| `HoanCocDuocGhiNhan` | Chủ trọ ghi nhận đã hoàn cọc | Người thuê | `Contract` |
+| `HoaDonMoi` | Hóa đơn được phát hành | Người thuê | `Invoice` |
+| `HoaDonDuocSua` | Hóa đơn chưa thanh toán được sửa | Người thuê | `Invoice` |
+| `HoaDonBiHuy` | Hóa đơn bị hủy | Người thuê | `Invoice` |
+| `HoaDonQuaHan` | Hóa đơn quá hạn | Cả hai bên | `Invoice` |
+| `BaoDaThanhToan` | Người thuê báo đã thanh toán | Chủ trọ | `Invoice` |
+| `ThanhToanDuocXacNhan` | Thanh toán được xác nhận | Người thuê | `Invoice` |
+| `ThanhToanBiTuChoi` | Thanh toán bị từ chối xác nhận | Người thuê | `Invoice` |
+| `HopDongSapHetHan` | Hợp đồng còn 15 ngày tới ngày kết thúc | Cả hai bên | `Contract` |
+| `ThongBaoTraPhong` | Một bên gửi thông báo trả phòng | Bên còn lại | `Contract` |
+| `BangThanhLyChoXacNhan` | Bảng thanh lý được gửi | Người thuê | `Invoice` |
+| `BangThanhLyCanChinhSua` | Người thuê chưa đồng ý bảng thanh lý | Chủ trọ | `Invoice` |
+| `HoanTatThanhLy` | Hoàn tất thanh lý | Cả hai bên | `Contract` |
+
+**Mã thao tác nhật ký — BR-23:**
+
+| `action` | Thao tác | `entity_type` |
+|---|---|---|
+| `DuyetHoSoChuTro` | Duyệt hồ sơ, cấp vai trò Chủ trọ | `LandlordApplication` |
+| `TuChoiHoSoChuTro` | Từ chối hồ sơ Chủ trọ | `LandlordApplication` |
+| `KhoaTaiKhoan` | Khóa tài khoản | `AppUser` |
+| `MoKhoaTaiKhoan` | Mở khóa tài khoản | `AppUser` |
+| `KhaiBaoTaiKhoanNhanTien` | Khai báo tài khoản ngân hàng nhận tiền lần đầu | `AppUser` |
+| `SuaTaiKhoanNhanTien` | Sửa tài khoản ngân hàng nhận tiền | `AppUser` |
+| `SuaGiaPhong` | Sửa giá thuê, đơn giá điện hoặc đơn giá nước của phòng | `Room` |
+| `SuaChiSoDau` | Sửa chỉ số đầu của hợp đồng đã hiệu lực | `Contract` |
+| `XacNhanNhanCoc` | Xác nhận đã nhận cọc | `Contract` |
+| `GhiNhanHoanCoc` | Ghi nhận đã hoàn cọc cho hợp đồng bị hủy | `Contract` |
+| `TaoHoaDon` | Tạo hóa đơn định kỳ hoặc thanh lý, gồm chỉ số điện nước | `Invoice` |
+| `SuaHoaDon` | Sửa hóa đơn, gồm sửa chỉ số | `Invoice` |
+| `HuyHoaDon` | Hủy hóa đơn | `Invoice` |
+| `XacNhanThanhToan` | Chủ trọ xác nhận đã thu | `Invoice` |
+| `TuChoiThanhToan` | Chủ trọ từ chối xác nhận thanh toán | `Invoice` |
+| `HoanTatThanhLy` | Hoàn tất thanh lý, gồm thông tin hoàn cọc nếu có | `Contract` |
+
+Mã dành cho Phase 2: `ThuHoiVaiTroChuTro`, `AnTinDang`.
 
 ---
 

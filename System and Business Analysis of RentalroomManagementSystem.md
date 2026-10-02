@@ -831,19 +831,24 @@ Chờ xử lý ──► Đang xem xét ──► Đã xử lý
 | Người thuê yêu cầu chỉnh sửa hợp đồng (kèm lý do) | Chủ trọ | Cao |
 | Nhắc nộp tiền cọc (còn 1 ngày) | Người thuê | Cao |
 | Tiền cọc được xác nhận, hợp đồng có hiệu lực | Cả hai bên | Cao |
+| Hợp đồng bị hủy | Bên còn lại (cả hai bên khi hệ thống hủy do hết hạn giữ chỗ) | Cao |
+| Chỉ số đầu của hợp đồng được sửa | Người thuê | Cao |
+| Chủ trọ ghi nhận đã hoàn cọc | Người thuê | Cao |
 | Hóa đơn mới được phát hành | Người thuê | Cao |
 | Hóa đơn sắp đến hạn (trước 3 ngày) | Người thuê | Thường |
 | Hóa đơn quá hạn | Cả hai bên | Cao |
 | Người thuê báo đã thanh toán | Chủ trọ | Cao |
 | Thanh toán được xác nhận / bị từ chối xác nhận | Người thuê | Cao |
 | Hóa đơn được điều chỉnh | Người thuê | Cao |
+| Hóa đơn bị hủy | Người thuê | Cao |
 | Sự cố mới được báo | Chủ trọ | Cao |
 | Sự cố đổi trạng thái | Người thuê | Thường |
 | Sự cố quá 72 giờ chưa tiếp nhận | Người thuê (gợi ý leo thang) | Cao |
 | Hợp đồng sắp hết hạn (trước 15 ngày) | Cả hai bên | Cao |
 | Đề nghị gia hạn được gửi / được phản hồi | Bên còn lại | Cao |
 | Thông báo trả phòng được gửi | Bên còn lại | Cao |
-| Hóa đơn thanh lý được lập | Người thuê | Cao |
+| Bảng thanh lý được gửi để xác nhận | Người thuê | Cao |
+| Người thuê chưa đồng ý bảng thanh lý (kèm lý do) | Chủ trọ | Cao |
 | Hoàn tất thanh lý và tất toán cọc | Cả hai bên | Cao |
 | Lời mời kết nối ở ghép / được chấp nhận | Người nhận lời mời / người gửi | Thường |
 | Khiếu nại được tiếp nhận / có kết quả xử lý | Người khiếu nại và người bị khiếu nại | Cao |

@@ -75,7 +75,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-34** | Hợp đồng **chỉ** chuyển sang Đang hiệu lực khi người thuê đã xác nhận điều khoản **và**, nếu tiền cọc lớn hơn 0, Chủ trọ đã xác nhận nhận đủ cọc. Chủ trọ chỉ xác nhận cọc được sau khi người thuê đã đồng ý; ngày nhận cọc do Chủ trọ nhập và không được sau hôm nay. Tiền cọc bằng 0 thì hợp đồng có hiệu lực ngay khi người thuê đồng ý | BR-21 | `POST /contracts/{id}/confirm`, `/deposit/confirm` |
 | **FR-84** | Người thuê yêu cầu chỉnh sửa được hợp đồng đang chờ mình xác nhận và **bắt buộc** nhập lý do; hợp đồng quay về Nháp và Chủ trọ nhận thông báo kèm lý do | BP-06 | `POST /contracts/{id}/request-changes` |
 | **FR-35** | Khi hợp đồng có hiệu lực, hệ thống tự chuyển phòng sang Đang thuê | BP-06 | `rooms.occupancy_status` |
-| **FR-94** | Hạn giữ chỗ còn dưới 24 giờ mà hợp đồng chưa có hiệu lực thì người thuê nhận đúng một thông báo nhắc hoàn tất hợp đồng và nộp cọc | BP-06 A3 | Tác vụ định kỳ · `notifications` |
+| **FR-94** | Hạn giữ chỗ còn dưới 24 giờ mà hợp đồng đã lập chưa có hiệu lực thì người thuê nhận đúng một thông báo nhắc hoàn tất hợp đồng và nộp cọc | BP-06 A3 | Tác vụ định kỳ · `notifications` |
 | **FR-36** | Quá 72 giờ (3 ngày) kể từ khi Chủ trọ duyệt yêu cầu thuê mà hợp đồng chưa có hiệu lực thì hợp đồng (nếu đã lập) tự hủy, yêu cầu thuê chưa được lập hợp đồng chuyển sang Hết hạn, phòng trở lại Trống và hiển thị lại | BP-06 A3 | Tác vụ định kỳ · `rental_requests.processed_at` |
 | **FR-37** | Tại một thời điểm, một phòng **chỉ** có tối đa một hợp đồng ở trạng thái Đang hiệu lực, Sắp hết hạn hoặc Đang thanh lý | BR-07 | Unique index có điều kiện trên `contracts.room_id` |
 
@@ -133,7 +133,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 
 | Mã | Yêu cầu | Nguồn | Hiện thực |
 |---|---|---|---|
-| **FR-60** | Hệ thống gửi thông báo trong ứng dụng cho các sự kiện mức Cao thuộc phạm vi Phase 1 | Danh mục sự kiện thông báo | `notifications` |
+| **FR-60** | Hệ thống gửi thông báo trong ứng dụng cho các sự kiện mức Cao thuộc phạm vi Phase 1 | Danh mục sự kiện thông báo | `notifications` · danh mục mã ở [Thiết kế CSDL](database-design.md) mục 7.3 |
 | **FR-61** | Người dùng xem được danh sách thông báo của mình, số lượng chưa đọc, và đánh dấu được đã đọc | BP-07, BP-06 | `GET /notifications` |
 | **FR-62** | Hệ thống ghi nhật ký cho **mọi** thao tác thuộc danh sách BR-23, gồm người thực hiện, thời điểm, giá trị trước và sau | BR-23 | `audit_logs` |
 | **FR-63** | Nhật ký hệ thống **không** sửa và **không** xóa được bằng bất kỳ chức năng nào, kể cả với vai trò Admin | QR-03 | Chỉ có endpoint đọc |
