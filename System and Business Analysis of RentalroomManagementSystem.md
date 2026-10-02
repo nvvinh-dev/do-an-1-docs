@@ -181,7 +181,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 **Luồng nghiệp vụ chính:**
 
 1. Khách truy cập đăng ký tài khoản và mặc định nhận vai trò **Người thuê**.
-2. Người dùng muốn làm Chủ trọ gửi **Hồ sơ đăng ký Chủ trọ**, gồm: họ tên, số CCCD kèm ảnh hai mặt, số điện thoại, và ít nhất một giấy tờ chứng minh quyền sở hữu/quản lý bất động sản (sổ đỏ, hợp đồng thuê lại, hoặc giấy phép kinh doanh nhà trọ).
+2. Người dùng muốn làm Chủ trọ gửi **Hồ sơ đăng ký Chủ trọ**, gồm: họ tên, số CCCD kèm ảnh hai mặt, số điện thoại, và ít nhất một giấy tờ chứng minh quyền sở hữu/quản lý bất động sản (sổ đỏ, hợp đồng thuê lại, hoặc giấy phép kinh doanh nhà trọ). Người đang thuê phòng phải kết thúc hợp đồng và các yêu cầu thuê đang mở trước khi nộp (BR-01).
 3. Hồ sơ chuyển sang trạng thái **Chờ duyệt**; hệ thống thông báo cho Admin.
 4. Admin xem xét hồ sơ, gọi điện xác minh số điện thoại của người nộp, rồi quyết định:
    - **Duyệt** → tài khoản chuyển từ vai trò Người thuê sang vai trò Chủ trọ, số điện thoại được ghi nhận là đã xác thực; ghi nhật ký người duyệt và thời điểm duyệt.
@@ -579,7 +579,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 | ID | Quy tắc |
 |---|---|
-| **BR-01** | Người dùng muốn đóng vai trò Chủ trọ bắt buộc phải gửi hồ sơ và được Admin duyệt. Hồ sơ phải có tối thiểu: CCCD, số điện thoại, và một giấy tờ chứng minh quyền sở hữu/quản lý bất động sản. Admin xác minh số điện thoại trong lúc duyệt; duyệt xong số điện thoại được ghi nhận là đã xác thực, và người dùng đổi số điện thoại thì trạng thái này bị bỏ. Mỗi tài khoản có đúng một vai trò: khi được duyệt, tài khoản chuyển từ Người thuê sang Chủ trọ. |
+| **BR-01** | Người dùng muốn đóng vai trò Chủ trọ bắt buộc phải gửi hồ sơ và được Admin duyệt. Hồ sơ phải có tối thiểu: CCCD, số điện thoại, và một giấy tờ chứng minh quyền sở hữu/quản lý bất động sản. Admin xác minh số điện thoại trong lúc duyệt; duyệt xong số điện thoại được ghi nhận là đã xác thực, và người dùng đổi số điện thoại thì trạng thái này bị bỏ. Mỗi tài khoản có đúng một vai trò: khi được duyệt, tài khoản chuyển từ Người thuê sang Chủ trọ. Vì vậy tài khoản còn hợp đồng chưa kết thúc (chưa *Đã thanh lý* hoặc *Đã hủy*) hoặc còn yêu cầu thuê đang mở (*Chờ duyệt*, *Đã duyệt*) thì chưa được nộp hồ sơ; Admin cũng không duyệt được hồ sơ nếu tình trạng này phát sinh trong lúc hồ sơ chờ duyệt. |
 | **BR-02** | Một Khu trọ chỉ thuộc về một Chủ trọ; một Phòng trọ chỉ thuộc về một Khu trọ. |
 | **BR-03** | AI không có quyền tự ý: duyệt Chủ trọ, duyệt Người thuê, thay đổi giá, tạo/xóa hợp đồng, xác nhận thanh toán. AI là **read-only** trong mọi luồng nghiệp vụ lõi. |
 | **BR-04** | Chủ trọ chỉ thao tác được trên dữ liệu thuộc Khu trọ do chính mình quản lý. Người thuê chỉ xem được hợp đồng, hóa đơn và sự cố của chính mình. |
@@ -1112,6 +1112,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Chủ trọ tự chốt bảng thanh lý sau 7 ngày; hoàn tất thanh lý khi người thuê còn nợ | Thực tế người thuê dọn đi rồi không phản hồi hoặc không trả nốt tiền là chuyện thường gặp; nếu phải chờ người thuê thì hợp đồng kẹt ở *Đang thanh lý* và BR-08 khiến phòng không cho thuê lại được |
 | Tháng trả phòng không có hóa đơn định kỳ; báo gấp sau khi đã lập thì thanh lý không tính tiền phòng | Quy tắc lập hóa đơn từ ngày 25 có thể đụng tháng trả phòng; thông báo dưới 30 ngày vẫn được chấp nhận, nên người thuê báo gấp đã trả trọn tháng — phù hợp với việc báo trước không đủ |
 | Ghi nhận bên gửi thông báo trả phòng; phí phạt chỉ khi Người thuê báo gấp (BR-22) | Không biết ai chấm dứt thì không kiểm được điều kiện phạt. "Chủ trọ chấm dứt phải hoàn toàn bộ cọc" được hiểu là không có phí phạt, vì tiền nợ và hư hỏng vẫn phải trừ |
+| Chưa được làm Chủ trọ khi còn hợp đồng hoặc yêu cầu thuê đang mở (BR-01) | Mỗi tài khoản một vai trò: đổi sang Chủ trọ giữa chừng làm người dùng mất quyền báo thanh toán, đồng ý thanh lý trên hợp đồng của chính mình |
 
 ---
 

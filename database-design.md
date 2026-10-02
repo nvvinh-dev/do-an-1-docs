@@ -77,7 +77,7 @@ Các cột kỹ thuật khác của Identity (`security_stamp`, `concurrency_sta
 
 Do ASP.NET Identity quản lý. Ba vai trò: `Admin`, `Landlord`, `Tenant`.
 
-Mỗi tài khoản có đúng một vai trò. Người dùng mới đăng ký mặc định nhận vai trò `Tenant` (BP-01). Vai trò `Landlord` chỉ được cấp sau khi Admin duyệt hồ sơ, và thay cho vai trò `Tenant` (BR-01).
+Mỗi tài khoản có đúng một vai trò. Người dùng mới đăng ký mặc định nhận vai trò `Tenant` (BP-01). Vai trò `Landlord` chỉ được cấp sau khi Admin duyệt hồ sơ, và thay cho vai trò `Tenant` (BR-01). Tài khoản còn hợp đồng chưa kết thúc hoặc yêu cầu thuê đang mở thì chưa được nộp hoặc được duyệt hồ sơ — đổi vai trò lúc đó sẽ làm người dùng mất quyền thao tác trên hợp đồng của chính mình.
 
 ### 3.3 `landlord_applications`
 

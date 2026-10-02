@@ -122,7 +122,7 @@ Cả ba trường bắt buộc. `bankBin` phải là mã BIN 6 chữ số có tr
 }
 ```
 
-Ba đường dẫn là giá trị `path` nhận được từ `POST /files` với `purpose = GiayToNhanThan`, và phải do chính người nộp tải lên (Mục 14); sai thì trả `422`. Tài khoản chưa có số điện thoại trả `422`. Đã có hồ sơ ở `ChoDuyet` trả `409`.
+Ba đường dẫn là giá trị `path` nhận được từ `POST /files` với `purpose = GiayToNhanThan`, và phải do chính người nộp tải lên (Mục 14); sai thì trả `422`. Tài khoản chưa có số điện thoại trả `422`. Đã có hồ sơ ở `ChoDuyet` trả `409`. Tài khoản còn hợp đồng chưa kết thúc (khác `DaThanhLy`, `DaHuy`) hoặc còn yêu cầu thuê ở `ChoDuyet`, `DaDuyet` trả `409` (BR-01, FR-97); `/approve` kiểm tra lại điều kiện này.
 
 **`POST /approve`** — Admin xác minh số điện thoại của người nộp trước khi duyệt. Duyệt thì tài khoản được cấp vai trò `Landlord` thay cho `Tenant`, và số điện thoại được ghi nhận là đã xác thực (BR-01). Người nộp phải đăng nhập lại để token mang vai trò mới.
 
