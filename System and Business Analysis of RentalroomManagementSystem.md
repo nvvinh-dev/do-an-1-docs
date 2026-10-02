@@ -1140,6 +1140,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 | Chủ trọ hủy duyệt yêu cầu thuê khi chưa lập hợp đồng (BP-06 A5) | Thực tế người thuê được duyệt rồi không đến hoặc không liên lạc được; không có đường này thì phòng bị giữ vô ích tới hết 72 giờ, hoặc Chủ trọ phải lập hợp đồng rồi hủy cho nhanh |
+| Danh sách hóa đơn của mọi phòng, lọc theo trạng thái và tháng | Đầu tháng Chủ trọ cần biết ngay phòng nào chưa đóng tiền mà không phải mở từng hợp đồng; Người thuê cần một chỗ xem mọi hóa đơn của mình |
 | Mục "việc cần xử lý" trên dashboard Chủ trọ và Người thuê | Việc cần làm ngay là phần được mở dashboard xem nhiều nhất; chỉ là các con số đếm dẫn tới danh sách tương ứng, không cần thêm bảng dữ liệu |
 | Dashboard Chủ trọ hiện doanh thu 6 tháng gần nhất | Chủ trọ nhỏ chủ yếu xem tháng này và so với vài tháng gần đây; 6 tháng đủ thấy xu hướng mà biểu đồ vẫn gọn |
 | Báo Chủ trọ khi Người thuê đồng ý bảng thanh lý | Đây là lúc Chủ trọ phải làm tiếp — hoàn cọc dư hoặc chờ thu số dư rồi hoàn tất thanh lý; không có thông báo thì Chủ trọ chỉ biết khi tự mở lại hợp đồng |

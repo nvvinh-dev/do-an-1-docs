@@ -456,6 +456,7 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 | `POST` | `/api/v1/contracts/{contractId}/invoices` | Landlord (chủ sở hữu) | Chốt chỉ số và tạo hóa đơn nháp |
 | `GET` | `/api/v1/contracts/{contractId}/invoices` | Bên liên quan | Danh sách hóa đơn của hợp đồng |
 | `GET` | `/api/v1/contracts/{contractId}/meter-readings/latest` | Landlord (chủ sở hữu) | Chỉ số cũ của kỳ kế tiếp: chỉ số mới của hóa đơn chưa hủy gần nhất, hoặc chỉ số đầu của hợp đồng nếu chưa có hóa đơn |
+| `GET` | `/api/v1/invoices` | Tenant / Landlord | Danh sách hóa đơn của mọi hợp đồng theo vai trò người gọi |
 | `GET` | `/api/v1/invoices/{id}` | Bên liên quan | Chi tiết, gồm chỉ số, đơn giá và cách tính |
 | `PUT` | `/api/v1/invoices/{id}` | Landlord (chủ sở hữu) | Sửa hóa đơn mới nhất của hợp đồng khi chưa thanh toán |
 | `POST` | `/api/v1/invoices/{id}/issue` | Landlord (chủ sở hữu) | Phát hành |
@@ -497,6 +498,8 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 
 - `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan`, hoặc `QuaHan` mà chưa thu đồng nào (`paidAmount` = 0); `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới; hóa đơn đã phát hành thì gửi thêm thông báo cho người thuê — hóa đơn `Nhap` người thuê chưa thấy nên không thông báo.
 - Hóa đơn cũ hơn hoặc đã thanh toán có sai sót: Chủ trọ thêm một dòng `DieuChinhKhac` có `relatedInvoiceId` vào `adjustmentLines` của hóa đơn kỳ kế tiếp, hoặc vào `lines` của hóa đơn thanh lý. `relatedInvoiceId` phải thuộc cùng hợp đồng, sai thì trả `422`.
+
+**`GET /invoices`** — danh sách hóa đơn của mọi hợp đồng: Chủ trọ thấy hóa đơn trên khu trọ của mình, Người thuê thấy hóa đơn của các hợp đồng mình đứng tên (FR-103). Query `status` (lặp lại được), `month` (`YYYY-MM`, theo tháng của `periodStart`), `propertyId` và `roomId` (chỉ Chủ trọ), `type` (`DinhKy` / `ThanhLy`), `page`, `pageSize`; tất cả tùy chọn; kỳ mới trước. Dùng cho trang "Hóa đơn" của hai vai trò và cho lối tắt từ mục việc cần xử lý trên dashboard — ví dụ `status=ChoXacNhan`.
 
 **Người thuê không thấy hóa đơn Nháp:** hóa đơn ở `Nhap` không có trong danh sách của người thuê, và `GET /invoices/{id}` trả `404` với người thuê. Người thuê thấy hóa đơn từ khi phát hành.
 
