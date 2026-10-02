@@ -46,7 +46,7 @@ Frontend hiện mới có khung dự án và lớp gọi API. Toàn bộ giao di
 | 5 | Frontend Admin — duyệt hồ sơ, quản lý tài khoản, tra cứu nhật ký, dashboard Admin | 08/11 |
 | 6 | Frontend thanh lý · dashboard Người thuê · ghép nối end-to-end | 15/11 |
 
-**Tác vụ định kỳ phụ trách:** hết hạn yêu cầu thuê quá 7 ngày; nhắc nộp cọc khi hạn giữ chỗ còn dưới 24 giờ; hết hạn giữ chỗ quá 3 ngày kể từ khi duyệt yêu cầu thuê; đánh dấu hợp đồng sắp hết hạn trước 15 ngày. Các tác vụ chạy mỗi giờ, xem [Kiến trúc](architecture.md) mục 7.
+**Tác vụ định kỳ phụ trách:** nhắc Chủ trọ xử lý yêu cầu thuê sắp hết hạn; hết hạn yêu cầu thuê quá 7 ngày; nhắc bên đang phải thao tác khi hạn giữ chỗ còn dưới 24 giờ; hết hạn giữ chỗ quá 3 ngày kể từ khi duyệt yêu cầu thuê; đánh dấu hợp đồng sắp hết hạn trước 15 ngày. Các tác vụ chạy mỗi giờ, xem [Kiến trúc](architecture.md) mục 7.
 
 ### Vinh
 

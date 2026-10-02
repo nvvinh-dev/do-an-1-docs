@@ -326,8 +326,8 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 **Luồng thay thế:**
 
 - **A1 — Người thuê rút yêu cầu:** Trước khi Chủ trọ xử lý, hoặc sau khi được duyệt nhưng Chủ trọ chưa lập hợp đồng, Người thuê chủ động hủy → trạng thái **Đã hủy**. Nếu yêu cầu đã được duyệt, phòng trở lại **Trống** ngay và Chủ trọ nhận thông báo.
-- **A2 — Yêu cầu hết hạn:** Yêu cầu thuê không được Chủ trọ xử lý trong **7 ngày** (tính đủ 168 giờ kể từ lúc gửi) tự động chuyển sang **Hết hạn**; phòng không bị giữ chỗ.
-- **A3 — Quá hạn giữ chỗ:** Hạn giữ chỗ là **3 ngày** (tính đủ 72 giờ) kể từ khi Chủ trọ duyệt yêu cầu thuê, gồm cả thời gian lập hợp đồng, xác nhận điều khoản và nộp cọc. Khi hạn giữ chỗ còn dưới 24 giờ, hệ thống nhắc Người thuê một lần. Hết hạn mà Hợp đồng chưa *Đang hiệu lực* thì: hợp đồng (nếu đã lập) chuyển sang **Đã hủy**; yêu cầu thuê chưa được lập hợp đồng chuyển sang **Hết hạn**; phòng trở lại **Trống** và hiển thị lại.
+- **A2 — Yêu cầu hết hạn:** Yêu cầu thuê không được Chủ trọ xử lý trong **7 ngày** (tính đủ 168 giờ kể từ lúc gửi) tự động chuyển sang **Hết hạn**; phòng không bị giữ chỗ. Còn dưới 24 giờ tới hạn thì Chủ trọ nhận một thông báo nhắc.
+- **A3 — Quá hạn giữ chỗ:** Hạn giữ chỗ là **3 ngày** (tính đủ 72 giờ) kể từ khi Chủ trọ duyệt yêu cầu thuê, gồm cả thời gian lập hợp đồng, xác nhận điều khoản và nộp cọc. Khi hạn giữ chỗ còn dưới 24 giờ, hệ thống nhắc một lần bên đang phải thao tác: Chủ trọ khi chưa lập hợp đồng hoặc hợp đồng còn *Nháp*; Người thuê khi hợp đồng chờ mình xác nhận; cả hai khi hợp đồng chờ nhận cọc — Người thuê nộp cọc, Chủ trọ xác nhận nếu đã nhận. Hết hạn mà Hợp đồng chưa *Đang hiệu lực* thì: hợp đồng (nếu đã lập) chuyển sang **Đã hủy**; yêu cầu thuê chưa được lập hợp đồng chuyển sang **Hết hạn**; phòng trở lại **Trống** và hiển thị lại.
 - **A4 — Thuê ở ghép nhiều người:** Xem giới hạn tại BR-11 và Mục 13.2.
 - **A5 — Chủ trọ hủy duyệt:** Sau khi duyệt nhưng chưa lập hợp đồng — chẳng hạn người thuê không đến hoặc không liên lạc được — Chủ trọ hủy duyệt, bắt buộc nhập lý do → yêu cầu chuyển sang **Từ chối**, phòng trở lại **Trống** ngay và Người thuê nhận thông báo.
 
@@ -842,7 +842,8 @@ Chờ xử lý ──► Đang xem xét ──► Đã xử lý
 | Yêu cầu thuê sắp hết hạn xử lý (còn 1 ngày) | Chủ trọ | Thường |
 | Hợp đồng nháp được gửi để xác nhận | Người thuê | Cao |
 | Người thuê yêu cầu chỉnh sửa hợp đồng (kèm lý do) | Chủ trọ | Cao |
-| Nhắc nộp tiền cọc (còn 1 ngày) | Người thuê | Cao |
+| Nhắc xác nhận hợp đồng và nộp tiền cọc (hạn giữ chỗ còn 1 ngày) | Người thuê | Cao |
+| Nhắc lập, gửi hợp đồng hoặc xác nhận cọc (hạn giữ chỗ còn 1 ngày) | Chủ trọ | Cao |
 | Tiền cọc được xác nhận, hợp đồng có hiệu lực | Cả hai bên | Cao |
 | Hợp đồng bị hủy | Bên còn lại (cả hai bên khi hệ thống hủy do hết hạn giữ chỗ) | Cao |
 | Chỉ số đầu của hợp đồng được sửa | Người thuê | Cao |
@@ -1135,6 +1136,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 | Chủ trọ hủy duyệt yêu cầu thuê khi chưa lập hợp đồng (BP-06 A5) | Thực tế người thuê được duyệt rồi không đến hoặc không liên lạc được; không có đường này thì phòng bị giữ vô ích tới hết 72 giờ, hoặc Chủ trọ phải lập hợp đồng rồi hủy cho nhanh |
+| Nhắc bên đang phải thao tác khi hạn giữ chỗ còn dưới 24 giờ (BP-06 A3) | Chỉ nhắc Người thuê là nhắc nhầm người khi Chủ trọ chưa lập hoặc chưa gửi hợp đồng; tệ nhất là Người thuê đã chuyển cọc mà Chủ trọ quên xác nhận, hết 72 giờ hệ thống tự hủy hợp đồng dù tiền đã chuyển |
 | Một Người thuê chỉ giữ một phòng tại một thời điểm (BR-28) | Thực tế người tìm phòng gửi yêu cầu nhiều nơi cùng lúc; nếu mấy Chủ trọ cùng duyệt thì một người giữ mấy phòng suốt 72 giờ và các phòng kia mất khách |
 | Kiểm tra ngày vào ở và số người ngay khi gửi yêu cầu thuê | Số người vượt sức chứa thì đằng nào cũng không lập được hợp đồng (BR-11); chặn từ đầu để Chủ trọ không duyệt rồi giữ phòng vô ích |
 

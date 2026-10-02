@@ -423,10 +423,12 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `YeuCauThueDuocDuyet` | Yêu cầu thuê được duyệt | Người thuê | `RentalRequest` |
 | `YeuCauThueBiTuChoi` | Yêu cầu thuê bị từ chối, kể cả tự từ chối theo BR-06 và Chủ trọ hủy duyệt | Người thuê | `RentalRequest` |
 | `YeuCauThueBiRut` | Người thuê rút yêu cầu thuê đã được duyệt | Chủ trọ | `RentalRequest` |
+| `YeuCauThueSapHetHan` | Yêu cầu thuê còn dưới 24 giờ tới hạn xử lý 168 giờ | Chủ trọ | `RentalRequest` |
 | `YeuCauThueHetHan` | Yêu cầu thuê hết hạn — quá 7 ngày chưa xử lý, hoặc đã duyệt mà hết hạn giữ chỗ khi chưa lập hợp đồng | Người thuê; thêm Chủ trọ khi hết hạn giữ chỗ | `RentalRequest` |
 | `HopDongChoXacNhan` | Hợp đồng được gửi để xác nhận | Người thuê | `Contract` |
 | `HopDongCanChinhSua` | Người thuê yêu cầu chỉnh sửa hợp đồng | Chủ trọ | `Contract` |
-| `NhacNopCoc` | Hạn giữ chỗ còn dưới 24 giờ; chỉ gửi khi hợp đồng đã được lập | Người thuê | `Contract` |
+| `NhacNopCoc` | Hạn giữ chỗ còn dưới 24 giờ, hợp đồng chờ người thuê xác nhận hoặc chờ nhận cọc — nhắc xác nhận điều khoản và nộp cọc | Người thuê | `Contract` |
+| `NhacHoanTatHopDong` | Hạn giữ chỗ còn dưới 24 giờ, yêu cầu đã duyệt mà chưa lập hợp đồng, hợp đồng còn Nháp, hoặc hợp đồng chờ nhận cọc — nhắc lập và gửi hợp đồng, hoặc xác nhận cọc nếu đã nhận | Chủ trọ | `RentalRequest` |
 | `HopDongCoHieuLuc` | Hợp đồng có hiệu lực | Cả hai bên | `Contract` |
 | `HopDongBiHuy` | Hợp đồng bị hủy | Bên còn lại; cả hai bên khi hệ thống hủy do hết hạn giữ chỗ | `Contract` |
 | `ChiSoDauDuocSua` | Chỉ số đầu của hợp đồng được sửa | Người thuê | `Contract` |
