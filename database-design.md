@@ -250,7 +250,7 @@ Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập 
 
 **Rút thông báo trả phòng (BP-10 A4):** khi hợp đồng chưa có hóa đơn `ThanhLy`, bên đã gửi được rút; `move_out_notice_at`, `move_out_notice_by_user_id`, `expected_move_out_date`, `termination_reason` được xóa, hợp đồng về `SapHetHan` nếu còn 15 ngày hoặc ít hơn tới `end_date`, ngược lại về `DangHieuLuc`.
 
-**Quá `end_date`:** hợp đồng chưa có thông báo trả phòng vẫn giữ trạng thái hiện tại và tiếp tục hiệu lực theo điều khoản đã chốt; hóa đơn định kỳ vẫn được lập cho tới khi một bên gửi thông báo trả phòng.
+**Quá `end_date`:** hợp đồng chưa có thông báo trả phòng vẫn giữ trạng thái hiện tại và tiếp tục hiệu lực theo điều khoản đã chốt; hóa đơn định kỳ vẫn được lập như thường; khi có thông báo trả phòng thì dừng ở tháng trước tháng trả phòng.
 
 ### 5.3 `contract_service_fees` — Phí dịch vụ đã chốt trong hợp đồng
 
@@ -390,7 +390,7 @@ Phase 1 chỉ gửi thông báo trong ứng dụng, và chỉ cho các sự ki�
 | `new_value` | jsonb | | Giá trị sau |
 | `occurred_at` | timestamptz | NOT NULL | |
 
-**BR-23 — các thao tác bắt buộc ghi nhật ký:** thay đổi giá thuê hoặc đơn giá điện nước; tạo, sửa, hủy hóa đơn; nhập hoặc sửa chỉ số điện nước; xác nhận thanh toán; xác nhận nhận cọc và hoàn cọc; khai báo hoặc sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt, từ chối, thu hồi vai trò Chủ trọ; khóa và mở khóa tài khoản; ẩn tin đăng.
+**BR-23 — các thao tác bắt buộc ghi nhật ký:** thay đổi giá thuê hoặc đơn giá điện nước; tạo, sửa, hủy hóa đơn; nhập hoặc sửa chỉ số điện nước; xác nhận và từ chối xác nhận thanh toán; xác nhận nhận cọc và hoàn cọc; Chủ trọ tự chốt bảng thanh lý; khai báo hoặc sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt, từ chối, thu hồi vai trò Chủ trọ; khóa và mở khóa tài khoản; ẩn tin đăng.
 
 Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của chúng thuộc danh sách BR-23 — nên `actor_user_id` luôn là một người dùng thật.
 
@@ -421,7 +421,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `ChiSoDauDuocSua` | Chỉ số đầu của hợp đồng được sửa | Người thuê | `Contract` |
 | `HoanCocDuocGhiNhan` | Chủ trọ ghi nhận đã hoàn cọc | Người thuê | `Contract` |
 | `HoaDonMoi` | Hóa đơn được phát hành | Người thuê | `Invoice` |
-| `HoaDonDuocSua` | Hóa đơn chưa thanh toán được sửa | Người thuê | `Invoice` |
+| `HoaDonDuocSua` | Hóa đơn đã phát hành, chưa thanh toán được sửa | Người thuê | `Invoice` |
 | `HoaDonBiHuy` | Hóa đơn bị hủy | Người thuê | `Invoice` |
 | `HoaDonQuaHan` | Hóa đơn quá hạn | Cả hai bên | `Invoice` |
 | `BaoDaThanhToan` | Người thuê báo đã thanh toán | Chủ trọ | `Invoice` |

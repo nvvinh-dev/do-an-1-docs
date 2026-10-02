@@ -18,7 +18,7 @@ Tài liệu này đi cùng [Thiết kế Cơ sở dữ liệu](database-design.m
 | **Tài khoản nhận tiền** | Ngân hàng, số tài khoản và tên chủ tài khoản của Chủ trọ |
 | **Hợp đồng** | Điều khoản, giá đã chốt, số tiền cọc |
 | **Hóa đơn và thanh toán** | Chỉ số điện nước, đơn giá, số tiền, minh chứng thanh toán |
-| **Tiền cọc** | Số tiền cọc và toàn bộ khoản khấu trừ khi thanh lý |
+| **Tiền cọc** | Số tiền cọc, toàn bộ khoản khấu trừ khi thanh lý, và phần cọc giữ lại khi Người thuê hủy hợp đồng |
 | **Doanh thu** | Số liệu doanh thu của từng Chủ trọ |
 | **Nhật ký hệ thống** | Bản ghi đối chứng khi xảy ra tranh chấp |
 
@@ -190,7 +190,7 @@ Các luồng có thể bị lợi dụng trong hệ thống này và cách thi�
 | Người thuê chụp màn hình mã VietQR rồi coi như đã trả tiền | Quét mã hay chuyển khoản không đổi trạng thái hóa đơn; tiền chỉ được ghi nhận khi Chủ trọ xác nhận (BR-06b, BR-26) |
 | Chủ trọ đánh dấu đã thu đủ trong khi người thuê mới trả một phần | Số tiền xác nhận được so với tổng hóa đơn; thiếu thì trạng thái là *Thanh toán một phần*, phần còn lại vẫn là công nợ |
 | Chủ trọ sửa chỉ số sau khi người thuê đã trả tiền | Hóa đơn ở *Đã thanh toán* không sửa được; sai sót chỉ được điều chỉnh bằng một dòng riêng ở kỳ sau, có mô tả, tham chiếu tới hóa đơn gốc và được ghi nhật ký |
-| Khấu trừ hết tiền cọc mà không giải thích | Mỗi khoản khấu trừ bắt buộc là một dòng riêng có mô tả lý do |
+| Khấu trừ hết tiền cọc mà không giải thích | Mỗi khoản khấu trừ trong hóa đơn thanh lý bắt buộc là một dòng riêng có mô tả lý do; khi Người thuê hủy trước ngày bắt đầu, phần cọc Chủ trọ giữ lại bắt buộc kèm lý do và được ghi nhật ký |
 | Chủ trọ tự chấm dứt hợp đồng rồi vẫn thu phí phạt của người thuê | Hệ thống ghi nhận bên gửi thông báo trả phòng; dòng phí phạt chỉ hợp lệ khi người thuê là bên gửi và báo trước dưới 30 ngày (BR-22) |
 | Chủ trọ tự chốt bảng thanh lý để ép người thuê chịu các khoản khấu trừ | Chỉ tự chốt được sau 7 ngày người thuê không phản hồi, bắt buộc ghi chú, ghi nhật ký và thông báo cho người thuê; mọi khoản khấu trừ vẫn là dòng riêng có mô tả. Từ Phase 2 người thuê khiếu nại được |
 | Tạo hai hóa đơn cho cùng một kỳ để thu tiền hai lần | Kỳ hóa đơn do server xác định, client không gửi ngày kỳ; unique index trên hợp đồng và kỳ là lớp chặn cuối |

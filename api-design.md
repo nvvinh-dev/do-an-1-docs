@@ -338,11 +338,11 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 - Hợp đồng ở `DangThanhLy` mà kỳ kế tiếp là tháng chứa `expectedMoveOutDate` trả `409` — tháng đó thuộc hóa đơn thanh lý.
 - Unique index BR-17 là lớp chặn cuối khi hai request tạo cùng một kỳ chạy song song; vi phạm trả `409`.
 - Kỳ đầu tiên và kỳ cuối không trọn tháng: `rentAmount` và `serviceFeeAmount` = giá × số ngày ở ÷ số ngày của tháng, tính cả ngày vào ở và ngày trả phòng, làm tròn đến đồng (BR-15). Ví dụ vào ở 15/10, giá 3.000.000 → 3.000.000 × 17 ÷ 31 = 1.645.161.
-- Kỳ nằm sau `endDate` vẫn lập được khi hợp đồng chưa có thông báo trả phòng — hợp đồng tiếp tục hiệu lực theo điều khoản đã chốt (FR-88).
+- Kỳ nằm sau `endDate` vẫn lập được — hợp đồng tiếp tục hiệu lực theo điều khoản đã chốt (FR-88); khi đã có thông báo trả phòng thì áp quy tắc tháng trả phòng ở trên.
 
 **Sửa và điều chỉnh:**
 
-- `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan`, hoặc `QuaHan` mà chưa thu đồng nào (`paidAmount` = 0); `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới, và gửi thông báo cho người thuê.
+- `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan`, hoặc `QuaHan` mà chưa thu đồng nào (`paidAmount` = 0); `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới; hóa đơn đã phát hành thì gửi thêm thông báo cho người thuê — hóa đơn `Nhap` người thuê chưa thấy nên không thông báo.
 - Hóa đơn cũ hơn hoặc đã thanh toán có sai sót: Chủ trọ thêm một dòng `DieuChinhKhac` có `relatedInvoiceId` vào `adjustmentLines` của hóa đơn kỳ kế tiếp, hoặc vào `lines` của hóa đơn thanh lý. `relatedInvoiceId` phải thuộc cùng hợp đồng, sai thì trả `422`.
 
 **Người thuê không thấy hóa đơn Nháp:** hóa đơn ở `Nhap` không có trong danh sách của người thuê, và `GET /invoices/{id}` trả `404` với người thuê. Người thuê thấy hóa đơn từ khi phát hành.

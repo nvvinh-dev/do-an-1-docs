@@ -210,7 +210,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 1. Chủ trọ tạo **Khu trọ**: tên, địa chỉ, mô tả, tiện ích chung, hình ảnh.
 2. Chủ trọ thêm các **Phòng** thuộc Khu trọ: mã/tên phòng, diện tích, số người tối đa, tiện ích riêng, hình ảnh, **giá thuê**, **đơn giá điện**, **đơn giá nước**, **các khoản phí dịch vụ cố định** (rác, internet, giữ xe, phí quản lý).
-3. Chủ trọ cập nhật **trạng thái khai thác** của phòng (Trống / Đang giữ chỗ / Đang thuê / Bảo trì) — xem Mục 8.2.
+3. Chủ trọ chuyển **trạng thái khai thác** của phòng giữa *Trống* và *Bảo trì*; *Đang giữ chỗ* và *Đang thuê* do hệ thống đặt theo yêu cầu thuê và hợp đồng — xem Mục 8.2.
 4. Chủ trọ cập nhật **trạng thái hiển thị** của phòng (Đang hiển thị / Đã ẩn) — xem Mục 8.3.
 5. Khi cần ngừng khai thác vĩnh viễn, Chủ trọ **lưu trữ** phòng thay vì xóa (xem BR-09).
 
@@ -242,7 +242,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 **Luồng thay thế:**
 
 - **A1 — Admin ẩn tin vi phạm:** Sau khi xử lý báo cáo (BP-13), Admin chuyển trạng thái hiển thị sang *Đã ẩn bởi Admin*. Chủ trọ **không** tự bật lại được; phải gửi yêu cầu xem xét lại.
-- **A2 — Tự động ẩn:** Khi phòng chuyển sang trạng thái khai thác *Đang thuê* hoặc *Bảo trì*, hệ thống tự động gỡ khỏi kết quả tìm kiếm.
+- **A2 — Tự động ẩn:** Khi phòng chuyển sang trạng thái khai thác *Đang giữ chỗ*, *Đang thuê* hoặc *Bảo trì*, hệ thống tự động gỡ khỏi kết quả tìm kiếm.
 
 **Kết quả:** Thị trường phòng trống trên nền tảng luôn phản ánh đúng tình trạng thực tế.
 
@@ -359,7 +359,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 - **A1 — Quá hạn:** Quá hạn thanh toán ghi trong Hợp đồng mà hóa đơn chưa được trả đủ (*Chưa thanh toán* hoặc *Thanh toán một phần*), hệ thống tự gắn cờ **Quá hạn** và gửi thông báo nhắc nhở tự động cho cả hai bên.
 - **A2 — Thanh toán một phần:** Chủ trọ ghi nhận số tiền đã thu < tổng hóa đơn → trạng thái **Thanh toán một phần**, phần còn lại vẫn theo dõi công nợ.
-- **A3 — Nhập sai chỉ số:** Với hóa đơn **mới nhất** của hợp đồng và **chưa** được xác nhận thanh toán, Chủ trọ được sửa; hệ thống ghi nhật ký giá trị cũ/mới và thông báo cho Người thuê. Hóa đơn cũ hơn, hoặc hóa đơn **đã** thanh toán, **không được sửa** — sai sót được điều chỉnh bằng một dòng *Điều chỉnh* ở hóa đơn kỳ kế tiếp hoặc Hóa đơn thanh lý, ghi rõ hóa đơn gốc (xem BR-16).
+- **A3 — Nhập sai chỉ số:** Với hóa đơn **mới nhất** của hợp đồng và **chưa** được xác nhận thanh toán, Chủ trọ được sửa; hệ thống ghi nhật ký giá trị cũ/mới, và thông báo cho Người thuê nếu hóa đơn đã phát hành. Hóa đơn cũ hơn, hoặc hóa đơn **đã** thanh toán, **không được sửa** — sai sót được điều chỉnh bằng một dòng *Điều chỉnh* ở hóa đơn kỳ kế tiếp hoặc Hóa đơn thanh lý, ghi rõ hóa đơn gốc (xem BR-16).
 - **A4 — Hủy hóa đơn:** Chỉ áp dụng cho hóa đơn **mới nhất** của hợp đồng, chưa thanh toán, và bắt buộc nhập lý do.
 
 **Kết quả:** Chi phí được tính minh bạch, có đầy đủ dữ liệu đối chứng cho mọi tranh chấp.
@@ -559,7 +559,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **Lịch xem phòng** | Cuộc hẹn giữa Người thuê và Chủ trọ để khảo sát phòng thực tế trước khi quyết định thuê. |
 | **Yêu cầu thuê** | Yêu cầu do Người thuê tạo để xin thuê một phòng cụ thể, cần được Chủ trọ xét duyệt. |
 | **Hợp đồng** | Thỏa thuận số hóa chứng nhận quyền lưu trú của Người thuê tại Phòng trọ. **Chốt cứng** giá thuê, đơn giá điện/nước, phí dịch vụ, số tiền cọc, thời hạn và hạn thanh toán tại thời điểm tạo. |
-| **Tiền cọc** | Khoản tiền Người thuê nộp trước khi vào ở, do Chủ trọ giữ để bảo đảm nghĩa vụ hợp đồng. Được khấu trừ cho các khoản còn nợ, phí bồi thường hư hỏng và phí phạt khi thanh lý; phần dư được hoàn trả. Mức mặc định: **01 tháng tiền phòng**. |
+| **Tiền cọc** | Khoản tiền Người thuê nộp trước khi vào ở, do Chủ trọ giữ để bảo đảm nghĩa vụ hợp đồng. Được khấu trừ cho các khoản còn nợ, phí bồi thường hư hỏng và phí phạt khi thanh lý; phần dư được hoàn trả. Nếu Người thuê hủy hợp đồng trước ngày vào ở, Chủ trọ được giữ lại tối đa toàn bộ cọc, kèm lý do (BR-22). Mức mặc định: **01 tháng tiền phòng**. |
 | **Người ở cùng** | Người sinh sống trong phòng nhưng không đứng tên Hợp đồng. Chỉ được ghi nhận thông tin (họ tên, số điện thoại) đính kèm Hợp đồng; không có tài khoản riêng trong Phase 1. |
 | **Kỳ hóa đơn** | Khoảng thời gian một hóa đơn bao phủ: một tháng dương lịch, do hệ thống xác định. Kỳ đầu tiên tính từ ngày vào ở tới cuối tháng đó; tháng có ngày trả phòng thuộc Hóa đơn thanh lý, trừ khi hóa đơn tháng đó đã lập trước khi có thông báo trả phòng. |
 | **Chỉ số điện/nước** | Cặp giá trị (chỉ số cũ, chỉ số mới) được ghi nhận tại mỗi kỳ hóa đơn. Chỉ số mới của kỳ này là chỉ số cũ của kỳ kế tiếp; kỳ đầu tiên dùng chỉ số lúc bàn giao phòng ghi trong Hợp đồng. |
@@ -606,7 +606,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **BR-12** | Giá thuê, đơn giá điện, đơn giá nước và phí dịch vụ được **chốt cứng vào Hợp đồng** tại thời điểm tạo. Việc Chủ trọ thay đổi giá ở mức Phòng sau đó **không** ảnh hưởng tới các Hợp đồng đang hiệu lực. |
 | **BR-13** | Mỗi Hóa đơn lưu lại **bản sao đơn giá đã áp dụng** tại thời điểm phát hành. Hóa đơn đã phát hành không bị tính lại khi giá thay đổi. |
 | **BR-21** | Mọi Hợp đồng bắt buộc ghi nhận **số tiền cọc** (có thể bằng 0 nếu hai bên thỏa thuận không cọc). Hợp đồng chỉ chuyển sang *Đang hiệu lực* khi Người thuê đã xác nhận đồng ý điều khoản **và**, nếu tiền cọc lớn hơn 0, Chủ trọ đã xác nhận nhận đủ cọc. Thứ tự cố định: Người thuê đồng ý trước, Chủ trọ xác nhận cọc sau. |
-| **BR-22** | Tiền cọc chỉ được khấu trừ qua **Hóa đơn thanh lý**, và mọi khoản khấu trừ phải là **một dòng riêng có mô tả lý do**. Không cho phép khấu trừ một cục không giải thích. **Phí phạt** chỉ áp dụng khi Người thuê là bên gửi thông báo trả phòng, báo trước ít hơn 30 ngày và ngày trả phòng trước ngày kết thúc hợp đồng; tổng phí phạt không vượt tiền cọc. Khi Chủ trọ là bên chấm dứt thì không có phí phạt — Chủ trọ vẫn được trừ công nợ và bồi thường hư hỏng qua Hóa đơn thanh lý, phần cọc còn lại hoàn đủ cho Người thuê. Hợp đồng bị hủy trước ngày bắt đầu thì **không** lập Hóa đơn thanh lý: Chủ trọ hủy thì hoàn **toàn bộ** cọc; Người thuê hủy sau khi đã nộp cọc thì Chủ trọ được giữ lại tối đa **toàn bộ** cọc, ghi rõ số tiền hoàn thực tế và lý do giữ lại. |
+| **BR-22** | Ngoài trường hợp Người thuê hủy hợp đồng trước ngày bắt đầu (cuối quy tắc này), tiền cọc chỉ được khấu trừ qua **Hóa đơn thanh lý**, và mọi khoản khấu trừ phải là **một dòng riêng có mô tả lý do**. Không cho phép khấu trừ một cục không giải thích. **Phí phạt** chỉ áp dụng khi Người thuê là bên gửi thông báo trả phòng, báo trước ít hơn 30 ngày và ngày trả phòng trước ngày kết thúc hợp đồng; tổng phí phạt không vượt tiền cọc. Khi Chủ trọ là bên chấm dứt thì không có phí phạt — Chủ trọ vẫn được trừ công nợ và bồi thường hư hỏng qua Hóa đơn thanh lý, phần cọc còn lại hoàn đủ cho Người thuê. Hợp đồng bị hủy trước ngày bắt đầu thì **không** lập Hóa đơn thanh lý: Chủ trọ hủy thì hoàn **toàn bộ** cọc; Người thuê hủy sau khi đã nộp cọc thì Chủ trọ được giữ lại tối đa **toàn bộ** cọc, ghi rõ số tiền hoàn thực tế và lý do giữ lại — lý do này là ghi chú bắt buộc trên hợp đồng, thay cho các dòng của Hóa đơn thanh lý. |
 
 ### 7.4 Hóa đơn và thanh toán
 
@@ -627,7 +627,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **BR-18** | AI chỉ được trả về dữ liệu **có thật trong hệ thống** và phải dẫn chiếu tới bản ghi gốc. AI tuyệt đối không được sinh ra thông tin phòng, giá, hoặc điều khoản hợp đồng không tồn tại. |
 | **BR-19** | **Điểm phù hợp ở ghép do hệ thống tính** bằng công thức có trọng số cố định, không do AI sinh. AI chỉ diễn giải điểm số đã có. Trọng số: **ngân sách 30%, thói quen sinh hoạt 30%, khu vực mong muốn 25%, trường học/nơi làm việc 15%**. Yêu cầu về giới tính bạn cùng phòng là **điều kiện lọc cứng**, không tham gia tính điểm. |
 | **BR-20** | Mọi chức năng nghiệp vụ lõi (tìm kiếm bằng bộ lọc, hợp đồng, hóa đơn, sự cố) phải hoạt động **độc lập hoàn toàn** với dịch vụ AI. Khi AI không khả dụng, hệ thống chỉ mất tính năng hỗ trợ, không mất chức năng. |
-| **BR-23** | Mọi thao tác thuộc các nhóm sau bắt buộc ghi **Nhật ký hệ thống** không thể sửa xóa, gồm người thực hiện, thời điểm, giá trị trước và sau: thay đổi giá thuê/đơn giá; tạo, sửa, hủy hóa đơn; nhập/sửa chỉ số điện nước; xác nhận thanh toán; xác nhận nhận và hoàn cọc; khai báo/sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt/từ chối/thu hồi vai trò Chủ trọ; khóa/mở khóa tài khoản; ẩn tin đăng. |
+| **BR-23** | Mọi thao tác thuộc các nhóm sau bắt buộc ghi **Nhật ký hệ thống** không thể sửa xóa, gồm người thực hiện, thời điểm, giá trị trước và sau: thay đổi giá thuê/đơn giá; tạo, sửa, hủy hóa đơn; nhập/sửa chỉ số điện nước; xác nhận và từ chối xác nhận thanh toán; xác nhận nhận và hoàn cọc; tự chốt bảng thanh lý; khai báo/sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt/từ chối/thu hồi vai trò Chủ trọ; khóa/mở khóa tài khoản; ẩn tin đăng. |
 | **BR-24** | Admin **không** có quyền đọc mặc định đối với hợp đồng và hóa đơn của người dùng. Quyền đọc chỉ được mở đối với các bản ghi **được liên kết trong một khiếu nại đang mở**, và mỗi lần truy cập đều bị ghi nhật ký. |
 | **BR-25** | Hồ sơ ở ghép chỉ hiển thị **thông tin không định danh** (giới tính, khoảng ngân sách, thói quen, khu vực, trường/công ty) cho tới khi **cả hai bên chấp nhận kết nối**. Thông tin liên hệ chỉ được tiết lộ sau khi hai bên đồng ý. |
 
@@ -717,7 +717,7 @@ Chờ người thuê xác nhận ──► Đang hiệu lực  (tiền cọc b�
 | **Chờ người thuê xác nhận** | Người thuê đang xem lại điều khoản. |
 | **Chờ nhận cọc** | Người thuê đã đồng ý; đang chờ nộp và xác nhận tiền cọc, trong hạn giữ chỗ 3 ngày tính từ khi Chủ trọ duyệt yêu cầu thuê (BP-06 A3). |
 | **Đang hiệu lực** | Đã đủ điều kiện BR-21. Từ ngày bắt đầu trở đi là giai đoạn lưu trú; trước ngày bắt đầu, hợp đồng đã ràng buộc hai bên và phòng đã bị chiếm dụng. |
-| **Sắp hết hạn** | Hệ thống tự đánh dấu trước 15 ngày, kích hoạt thông báo gia hạn (BP-09). Qua ngày kết thúc mà chưa bên nào gửi thông báo trả phòng thì hợp đồng giữ trạng thái này và tiếp tục hiệu lực theo điều khoản đã chốt, hóa đơn định kỳ vẫn được lập, cho tới khi một bên gửi thông báo trả phòng. |
+| **Sắp hết hạn** | Hệ thống tự đánh dấu hợp đồng *Đang hiệu lực* trước 15 ngày, kích hoạt thông báo gia hạn (BP-09); hợp đồng đang thanh lý không chuyển sang trạng thái này. Qua ngày kết thúc mà chưa bên nào gửi thông báo trả phòng thì hợp đồng giữ trạng thái này và tiếp tục hiệu lực theo điều khoản đã chốt, hóa đơn định kỳ vẫn được lập như thường. |
 | **Đang thanh lý** | Đã có thông báo trả phòng; đang chốt số cuối và tất toán cọc. |
 | **Đã thanh lý** | Hoàn tất thủ tục trả phòng, đã chốt phí cuối và xử lý xong tiền cọc. |
 | **Đã kết thúc (gia hạn)** | Kết thúc do được thay thế bởi hợp đồng gia hạn; không phải trả phòng. |

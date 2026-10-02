@@ -97,7 +97,7 @@ Lấy `POST /api/v1/invoices/{id}/payment-reports/{reportId}/confirm` làm ví d
 | 6 | Api — service | **Kiểm tra quyền sở hữu**: khu trọ có thuộc người gọi không; không thuộc thì trả `404` | Xem và sửa dữ liệu người khác |
 | 7 | Domain | Kiểm tra trạng thái nghiệp vụ: hóa đơn có đang chờ xác nhận không; số tiền so với tổng hóa đơn để quyết định trạng thái kết quả | Bỏ qua bước trong vòng đời, đánh dấu đã trả khi chưa đủ tiền |
 | 8 | Api — service | Cập nhật hóa đơn, ghi `audit_logs`, tạo thông báo — trong **một transaction** | Ghi một nửa, mất dấu vết |
-| 9 | Database | Ràng buộc `CHECK`, `UNIQUE`, khóa ngoại | Lớp chặn cuối khi 7 tầng trên sót |
+| 9 | Database | Ràng buộc `CHECK`, `UNIQUE`, khóa ngoại | Lớp chặn cuối khi các bước trên sót |
 
 **Năm lớp kiểm soát độc lập**, khớp với [Thiết kế An toàn](security-design.md) mục 7: bước 1 (xác thực — ai), bước 3 và 6 (phân quyền — vai trò nào, tài nguyên của ai), bước 4 (dữ liệu vào có đúng định dạng không), bước 7 (nghiệp vụ có cho phép không), bước 9 (dữ liệu lưu có hợp lệ không). Không lớp nào được bỏ vì "lớp kia kiểm rồi".
 
@@ -112,7 +112,7 @@ Lấy `POST /api/v1/invoices/{id}/payment-reports/{reportId}/confirm` làm ví d
 | Kiểm tra vai trò | Api — controller | Endpoint này chỉ dành cho Chủ trọ |
 | Kiểm tra quyền sở hữu | Api — service | Khu trọ này có thuộc người gọi không |
 | Điều phối nhiều bước, mở transaction | Api — service | Duyệt yêu cầu thuê: giữ chỗ phòng, từ chối các yêu cầu còn lại, thông báo, ghi nhật ký |
-| Điều kiện chuyển trạng thái | Domain | Hợp đồng chỉ sang Đang hiệu lực khi đã xác nhận điều khoản và đã nhận cọc |
+| Điều kiện chuyển trạng thái | Domain | Hợp đồng chỉ sang Đang hiệu lực khi người thuê đã đồng ý điều khoản và, nếu tiền cọc lớn hơn 0, Chủ trọ đã xác nhận nhận cọc |
 | Công thức tính tiền | Domain | Tiền điện, tiền phòng theo tỷ lệ ngày ở, tổng hóa đơn, số dư thanh lý |
 | Quy tắc nghiệp vụ liên quan nhiều thực thể | Domain | Một phòng chỉ có một hợp đồng đang chiếm dụng |
 | Ánh xạ entity sang bảng, migration, ràng buộc | Infrastructure | Đặt tên `snake_case`, ràng buộc `CHECK` chỉ số, unique index |
@@ -154,10 +154,10 @@ Năm hành vi của hệ thống xảy ra theo thời gian chứ không do ngư�
 | Tác vụ | Kết quả |
 |---|---|
 | Hết hạn yêu cầu thuê: quá 168 giờ (7 ngày) kể từ lúc gửi mà chưa xử lý | Yêu cầu chuyển sang Hết hạn, người thuê nhận thông báo |
-| Nhắc nộp cọc: hạn giữ chỗ còn dưới 24 giờ mà hợp đồng chưa có hiệu lực | Người thuê nhận một thông báo nhắc |
+| Nhắc nộp cọc: hạn giữ chỗ còn dưới 24 giờ mà hợp đồng đã lập nhưng chưa có hiệu lực | Người thuê nhận một thông báo nhắc |
 | Hết hạn giữ chỗ: quá 72 giờ (3 ngày) kể từ khi duyệt yêu cầu thuê mà hợp đồng chưa có hiệu lực | Hợp đồng (nếu đã lập) chuyển Đã hủy, yêu cầu thuê chưa lập hợp đồng chuyển Hết hạn, phòng trở lại Trống; hai bên nhận thông báo |
 | Gắn cờ quá hạn: hóa đơn chưa trả đủ đã sang ngày sau hạn thanh toán | Hóa đơn chuyển Quá hạn, gửi thông báo cho hai bên |
-| Đánh dấu hợp đồng còn 15 ngày tới ngày kết thúc | Hợp đồng chuyển Sắp hết hạn, gửi thông báo |
+| Đánh dấu hợp đồng *Đang hiệu lực* còn 15 ngày hoặc ít hơn tới ngày kết thúc; hợp đồng đang thanh lý không bị đổi | Hợp đồng chuyển Sắp hết hạn, gửi thông báo |
 
 Các tác vụ chạy **mỗi giờ** trong tiến trình của Backend API, không tách thành dịch vụ riêng; một lần chạy xử lý cả năm loại, nên kết quả trễ tối đa một giờ. Mỗi tác vụ phải chạy lại được nhiều lần mà không gây tác dụng phụ lặp lại — ví dụ trước khi gửi lời nhắc nộp cọc, kiểm tra đã có thông báo cùng loại cho hợp đồng đó chưa.
 
