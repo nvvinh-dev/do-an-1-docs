@@ -66,7 +66,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 
 | Mã | Yêu cầu | Nguồn | Hiện thực |
 |---|---|---|---|
-| **FR-25** | Người thuê gửi được yêu cầu thuê cho một phòng đang cho thuê công khai (đủ điều kiện BR-05), kèm ngày dự kiến vào ở và số người dự kiến | BP-06 | `POST /rooms/{id}/rental-requests` |
+| **FR-25** | Người thuê gửi được yêu cầu thuê cho một phòng đang cho thuê công khai (đủ điều kiện BR-05), kèm ngày dự kiến vào ở và số người dự kiến; ngày vào ở trước hôm nay, hoặc số người ngoài khoảng 1 tới số người tối đa của phòng, thì hệ thống từ chối | BP-06, BR-11 | `POST /rooms/{id}/rental-requests` |
 | **FR-26** | Hệ thống từ chối yêu cầu thuê cho phòng không đủ điều kiện BR-05 — không Trống, đang ẩn, thuộc khu trọ đã lưu trữ, hoặc của Chủ trọ đang bị khóa | BP-06, BR-05 | `rooms.occupancy_status`, `visibility_status` |
 | **FR-85** | Hệ thống từ chối yêu cầu thuê mới khi người thuê đã có một yêu cầu đang chờ duyệt cho cùng phòng | BR-27 | Unique index có điều kiện trên `rental_requests` |
 | **FR-27** | Người thuê rút được yêu cầu của mình khi Chủ trọ chưa xử lý, hoặc khi yêu cầu đã được duyệt nhưng chưa lập hợp đồng — khi đó phòng trở lại Trống ngay và Chủ trọ nhận thông báo | BP-06 A1 | `POST /rental-requests/{id}/cancel` |

@@ -308,7 +308,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 **Luồng nghiệp vụ chính:**
 
-1. Người thuê gửi **Yêu cầu thuê** cho một phòng đang ở trạng thái *Trống*, kèm ngày dự kiến vào ở và số người dự kiến ở.
+1. Người thuê gửi **Yêu cầu thuê** cho một phòng đang ở trạng thái *Trống*, kèm ngày dự kiến vào ở (không trước hôm nay) và số người dự kiến ở (không vượt số người tối đa của phòng — BR-11).
 2. Yêu cầu chuyển sang trạng thái **Chờ duyệt**; hệ thống thông báo cho Chủ trọ.
 3. Chủ trọ xem xét và quyết định:
    - **Từ chối** → bắt buộc nhập lý do, kết thúc luồng.
@@ -1130,6 +1130,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Phòng phải có ít nhất một ảnh mới được đăng tin | Tin không ảnh gần như vô dụng với người tìm phòng và dễ là tin ảo (G-04) |
 | Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
+| Kiểm tra ngày vào ở và số người ngay khi gửi yêu cầu thuê | Số người vượt sức chứa thì đằng nào cũng không lập được hợp đồng (BR-11); chặn từ đầu để Chủ trọ không duyệt rồi giữ phòng vô ích |
 
 ---
 

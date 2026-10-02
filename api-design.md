@@ -319,13 +319,23 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 | `POST` | `/api/v1/rental-requests/{id}/reject` | Landlord (chủ sở hữu) | Từ chối, bắt buộc có `reason` |
 | `POST` | `/api/v1/rental-requests/{id}/cancel` | Tenant (người gửi) | Rút yêu cầu |
 
+**`POST /rooms/{roomId}/rental-requests`** — trả `201` kèm chi tiết yêu cầu, Chủ trọ nhận thông báo mức Cao:
+
+```json
+{
+  "expectedMoveInDate": "2026-10-15",
+  "expectedOccupants": 2,
+  "note": "Đi làm giờ hành chính, xem phòng được buổi tối"
+}
+```
+
+`expectedMoveInDate` trước hôm nay (giờ Việt Nam), hoặc `expectedOccupants` ngoài khoảng 1 tới `maxOccupants` của phòng, trả `422` (BR-11) — vượt số người tối đa thì đằng nào cũng không lập được hợp đồng. `note` tùy chọn, tối đa 500 ký tự. Gửi yêu cầu cho phòng không đủ điều kiện BR-05 trả `404`, giống chi tiết công khai — không để lộ phòng đang ẩn qua việc dò id (FR-26). Người thuê đã có một yêu cầu `ChoDuyet` cho cùng phòng trả `409` (BR-27).
+
 **`POST /rental-requests/{id}/approve`** chỉ nhận khi yêu cầu ở `ChoDuyet`, chưa quá 168 giờ kể từ lúc gửi — kể cả khi tác vụ định kỳ chưa kịp chuyển nó sang `HetHan` — và phòng còn ở `Trong`; ngược lại trả `409`. Khi duyệt, hệ thống **thực hiện đồng thời trong một transaction:**
 
 1. Chuyển yêu cầu sang `DaDuyet`.
 2. Chuyển `rooms.occupancy_status` sang `DangGiuCho` — phòng biến mất khỏi kết quả tìm kiếm.
 3. Chuyển **toàn bộ** yêu cầu khác của cùng phòng đang ở `ChoDuyet` sang `TuChoi` với lý do do hệ thống sinh (BR-06), và gửi thông báo cho từng người thuê bị từ chối.
-
-Gửi yêu cầu cho phòng không đủ điều kiện BR-05 trả `404`, giống chi tiết công khai — không để lộ phòng đang ẩn qua việc dò id (FR-26). Người thuê đã có một yêu cầu `ChoDuyet` cho cùng phòng trả `409` (BR-27).
 
 **`POST /rental-requests/{id}/cancel`** nhận khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trạng thái khác trả `409`. Rút yêu cầu `DaDuyet` thì phòng về `Trong` trong cùng transaction và Chủ trọ nhận thông báo mức Cao (FR-27).
 

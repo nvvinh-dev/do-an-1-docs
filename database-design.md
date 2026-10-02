@@ -188,8 +188,8 @@ Mỗi khu trọ và mỗi phòng có tối đa 10 ảnh; `display_order` bắt �
 | `id` | bigint | PK | |
 | `room_id` | bigint | FK → `rooms.id`, NOT NULL | |
 | `tenant_user_id` | bigint | FK → `users.id`, NOT NULL | |
-| `expected_move_in_date` | date | NOT NULL | |
-| `expected_occupants` | int | NOT NULL | |
+| `expected_move_in_date` | date | NOT NULL | Không trước ngày gửi (giờ Việt Nam) |
+| `expected_occupants` | int | NOT NULL | Từ 1 tới `rooms.max_occupants` lúc gửi (BR-11) |
 | `note` | text | | |
 | `status` | text | NOT NULL, CHECK | `ChoDuyet` / `DaDuyet` / `DaLapHopDong` / `TuChoi` / `DaHuy` / `HetHan` |
 | `submitted_at` | timestamptz | NOT NULL | |
