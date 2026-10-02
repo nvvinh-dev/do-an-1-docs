@@ -298,11 +298,13 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 
 **`GET /api/v1/locations`** trả danh mục đơn vị hành chính 2 cấp hiện hành (từ 01/07/2025 không còn cấp quận/huyện), dạng `[{ "city": "...", "wards": ["...", "..."] }]`. Danh mục là file JSON tĩnh trong backend, lấy từ danh mục đơn vị hành chính chính thức sau sắp xếp năm 2025; frontend dùng cho ô chọn địa chỉ và bộ lọc, backend dùng để kiểm tra địa chỉ khu trọ (Mục 5.1).
 
-**Tham số của `/rooms/search`:** `minPrice`, `maxPrice`, `minArea`, `maxArea`, `city`, `ward`, `amenityIds` (lặp lại nhiều lần), `minOccupants`, `page`, `pageSize`, `sortBy` (`price` / `area`), `sortDirection`. Với `amenityIds`, phòng phải có đủ mọi tiện ích được chọn, tính cả tiện ích của phòng và của khu trọ chứa phòng.
+**Tham số của `/rooms/search`:** `minPrice`, `maxPrice`, `minArea`, `maxArea`, `city`, `ward`, `amenityIds` (lặp lại nhiều lần), `minOccupants`, `page`, `pageSize`, `sortBy` (`price` / `area`), `sortDirection`. Với `amenityIds`, phòng phải có đủ mọi tiện ích được chọn, tính cả tiện ích của phòng và của khu trọ chứa phòng. Không có `sortBy` thì phòng mới thêm xếp trước. `pageSize` mặc định 20, tối đa 50. `ward` phải đi kèm `city`, vì tên phường/xã trùng nhau giữa các tỉnh. `ward` thiếu `city`, `minPrice` > `maxPrice` hoặc `minArea` > `maxArea` trả `400`.
+
+Mỗi phòng trong kết quả gồm `id`, `code`, `propertyName`, `address`, `city`, `ward`, `rentPrice`, `area`, `maxOccupants`, `coverImageUrl`, `amenities` (tên tiện ích của phòng và của khu trọ).
 
 Kết quả **chỉ** gồm phòng thỏa mãn đủ điều kiện BR-05. Response không chứa thông tin liên hệ của Chủ trọ (QR-07).
 
-`GET /rooms/{id}/public` cũng chỉ trả phòng đủ điều kiện BR-05, ngoài ra trả `404`. Người thuê xem lại phòng mình đã gửi yêu cầu hoặc đang thuê qua chi tiết yêu cầu thuê và hợp đồng.
+`GET /rooms/{id}/public` cũng chỉ trả phòng đủ điều kiện BR-05, ngoài ra trả `404`. Response gồm `room` (`id`, `code`, `area`, `maxOccupants`, `rentPrice`, `electricityUnitPrice`, `waterUnitPrice`, `description`, `images` theo thứ tự Chủ trọ sắp, `amenities`, `serviceFees` gồm `name` và `amount`) và `property` (`name`, `address`, `city`, `ward`, `description`, `images`, `amenities`). Không trả tên, số điện thoại, email hay tài khoản ngân hàng của Chủ trọ (QR-07, FR-24). Người thuê xem lại phòng mình đã gửi yêu cầu hoặc đang thuê qua chi tiết yêu cầu thuê và hợp đồng.
 
 Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó là BP-04 A1 thuộc Phase 2.
 
@@ -544,9 +546,11 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice/finalize` | Landlord (chủ sở hữu) | Tự chốt khi người thuê không phản hồi quá 7 ngày, bắt buộc có `note` |
 | `POST` | `/api/v1/contracts/{id}/settlement/complete` | Landlord (chủ sở hữu) | Xác nhận hoàn tất thanh lý |
 
-**`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Chỉ nhận khi hợp đồng ở `DangHieuLuc` đã tới `startDate`, hoặc ở `SapHetHan`; trước `startDate` thì dùng `/cancel`, trạng thái khác trả `409`. `expectedMoveOutDate` không được trước hôm nay, sai trả `422`. Hợp đồng chuyển `DangThanhLy`; server ghi bên gửi vào `move_out_notice_by_user_id` và lý do vào `termination_reason`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
+**`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason` (bắt buộc, tối đa 500 ký tự). Chỉ nhận khi hợp đồng ở `DangHieuLuc` đã tới `startDate`, hoặc ở `SapHetHan`; trước `startDate` thì dùng `/cancel`, trạng thái khác trả `409`. `expectedMoveOutDate` không được trước hôm nay, sai trả `422`. Hợp đồng chuyển `DangThanhLy`; server ghi bên gửi vào `move_out_notice_by_user_id` và lý do vào `termination_reason`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87). Trả `200` kèm `noticeDays` — số ngày từ hôm nay tới `expectedMoveOutDate` — và `penaltyAllowed` (`true` khi người thuê là bên gửi, `noticeDays` < 30 và `expectedMoveOutDate` trước `endDate`), để hai bên thấy ngay có phí phạt hay không.
 
-**`POST /move-out-notice/withdraw`** — chỉ bên đã gửi thông báo được gọi, khi hợp đồng ở `DangThanhLy` và chưa có hóa đơn thanh lý; ngược lại trả `409`. Server xóa thông tin thông báo trả phòng, đưa hợp đồng về `SapHetHan` nếu còn 15 ngày hoặc ít hơn tới `endDate`, ngược lại về `DangHieuLuc`; bên còn lại nhận thông báo mức Cao (FR-98).
+**`POST /move-out-notice/withdraw`** — chỉ bên đã gửi thông báo được gọi, khi hợp đồng ở `DangThanhLy` và chưa có hóa đơn thanh lý; ngược lại trả `409`. Server xóa thông tin thông báo trả phòng, đưa hợp đồng về `SapHetHan` nếu còn 15 ngày hoặc ít hơn tới `endDate`, ngược lại về `DangHieuLuc`; bên còn lại nhận thông báo mức Cao (FR-98). Không có body, trả `204`.
+
+**Trường của BP-10 trong `GET /contracts/{id}`:** `moveOutNotice` — `null` khi chưa có thông báo trả phòng, ngược lại gồm `noticeAt`, `noticeBy` (`Landlord` / `Tenant`), `expectedMoveOutDate`, `reason`, `noticeDays`, `penaltyAllowed`; `settlementInvoiceId` — `null` khi chưa lập hóa đơn thanh lý; `terminatedAt` — thời điểm hoàn tất thanh lý.
 
 **`POST /settlement-invoice`** tạo hóa đơn `type = "ThanhLy"` ở `Nhap`, gồm chỉ số điện nước lần cuối và các dòng chi tiết. Chỉ nhận khi hợp đồng ở `DangThanhLy`, chưa có hóa đơn thanh lý, và `moveOutDate` không sau hôm nay — bảng thanh lý lập vào hoặc sau ngày trả phòng thực tế, khi đã chốt số lần cuối; ngược lại trả `409` (FR-54). Kỳ của hóa đơn thanh lý (FR-93):
 
@@ -559,6 +563,8 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
   "currentElectricityIndex": 1310.0,
   "currentWaterIndex": 89.0,
   "moveOutDate": "2026-12-15",
+  "electricityMeterPhotoPath": "...",
+  "waterMeterPhotoPath": "...",
   "lines": [
     { "category": "BoiThuongHuHong", "description": "Vo kinh cua so", "amount": 300000, "evidencePath": "..." }
   ]
@@ -566,6 +572,8 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 ```
 
 Mỗi khoản khấu trừ **bắt buộc** là một dòng riêng có `description`; gửi một khoản gộp không mô tả trả `422` (BR-22).
+
+Client chỉ gửi được dòng `BoiThuongHuHong`, `PhiPhat`, `DieuChinhKhac`. Ảnh đồng hồ tùy chọn như hóa đơn định kỳ (`purpose = AnhDongHo`); `evidencePath` của dòng hư hỏng tùy chọn (`purpose = AnhHuHong`); mọi đường dẫn phải qua kiểm tra ở Mục 14, sai trả `422`. Chỉ số mới nhỏ hơn chỉ số cũ trả `422` (BR-14). Trả `201` kèm chi tiết hóa đơn theo cấu trúc của `GET /invoices/{id}` (Mục 9).
 
 **Dòng do server tự thêm (FR-55, FR-92):**
 
@@ -578,12 +586,12 @@ Dòng `PhiPhat` chỉ được nhận khi người thuê là bên gửi thông b
 
 `totalAmount` âm nghĩa là Chủ trọ phải hoàn lại phần cọc dư.
 
-**Gửi và xác nhận (FR-57):** `PUT /settlement-invoice` chỉ nhận khi hóa đơn ở `Nhap`, body giống lúc tạo; server tính lại toàn bộ số tiền. `/send` chuyển `Nhap` → `ChoNguoiThueXacNhan`, ghi `sentAt`, người thuê nhận thông báo mức Cao. Người thuê gọi:
+**Gửi và xác nhận (FR-57):** `PUT /settlement-invoice` chỉ nhận khi hóa đơn ở `Nhap`, body giống lúc tạo; server tính lại toàn bộ số tiền và trả `200` kèm chi tiết hóa đơn. `/send` chuyển `Nhap` → `ChoNguoiThueXacNhan`, ghi `sentAt`, người thuê nhận thông báo mức Cao. Người thuê gọi:
 
 - `/request-changes` với `reason` (bắt buộc) → hóa đơn về `Nhap`, Chủ trọ nhận thông báo mức Cao kèm lý do;
 - `/confirm` → hóa đơn bị khóa, Chủ trọ nhận thông báo mức Cao. `totalAmount` > 0 thì sang `ChuaThanhToan` với `issuedAt` = lúc đồng ý, Người thuê thấy mã VietQR theo Mục 9.1 và thanh toán như hóa đơn thường. `totalAmount` < 0 thì sang `ChoHoanCoc`. `totalAmount` = 0 thì sang `DaThanhToan`.
 
-Hai endpoint của người thuê chỉ nhận khi hóa đơn ở `ChoNguoiThueXacNhan`, trạng thái khác trả `409`. Người thuê không thấy hóa đơn thanh lý khi nó còn ở `Nhap`.
+Hai endpoint của người thuê chỉ nhận khi hóa đơn ở `ChoNguoiThueXacNhan`, trạng thái khác trả `409`. `/send`, `/confirm`, `/request-changes`, `/finalize` trả `204` khi thành công. Người thuê không thấy hóa đơn thanh lý khi nó còn ở `Nhap`.
 
 **Tự chốt (FR-95):** `/finalize` chỉ nhận khi hóa đơn ở `ChoNguoiThueXacNhan` và đã quá 7 ngày kể từ `sentAt`, ngược lại trả `409`; body có `note` bắt buộc. Kết quả giống `/confirm`. Thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người thuê.
 
@@ -592,6 +600,8 @@ Hai endpoint của người thuê chỉ nhận khi hóa đơn ở `ChoNguoiThueX
 - `totalAmount` dương: không cần đã trả đủ. Phần chưa trả giữ nguyên trên hóa đơn thanh lý như một khoản nợ — người thuê vẫn báo thanh toán được, hóa đơn vẫn bị gắn cờ quá hạn (FR-96);
 - `totalAmount` âm: hóa đơn ở `ChoHoanCoc`, body có `refundedAt` và `refundMethod`; số tiền hoàn do server đặt bằng −`totalAmount`, lưu vào `deposit_refunded_*` (FR-86), hóa đơn chuyển `DaThanhToan`;
 - `totalAmount` bằng 0: hóa đơn đã `DaThanhToan`.
+
+Body gồm `roomNextStatus` (`Trong` / `BaoTri`, bắt buộc); `refundedAt` và `refundMethod` bắt buộc khi hóa đơn ở `ChoHoanCoc`, bỏ qua ở các trường hợp khác. Trả `204`.
 
 Kết quả: hợp đồng chuyển `DaThanhLy`, phòng chuyển `BaoTri` hoặc `Trong` theo tham số `roomNextStatus`, hai bên nhận thông báo mức Cao. Thao tác này ghi `audit_logs`, gồm cả thông tin hoàn cọc.
 
@@ -607,6 +617,8 @@ Kết quả: hợp đồng chuyển `DaThanhLy`, phòng chuyển `BaoTri` hoặc
 | `POST` | `/api/v1/notifications/read-all` | Đã đăng nhập | Đánh dấu tất cả đã đọc |
 
 Thông báo chỉ được sinh bởi backend khi sự kiện nghiệp vụ xảy ra. Không có endpoint tạo thông báo thủ công.
+
+**`GET /notifications`** — query `isRead` (tùy chọn), `page`, `pageSize`; mới nhất trước. Mỗi dòng gồm `id`, `eventType`, `title`, `content`, `relatedEntityType`, `relatedEntityId`, `isRead`, `createdAt` — giao diện dùng `relatedEntityType` và `relatedEntityId` để dẫn tới trang tương ứng. `GET /notifications/unread-count` trả `{ "count": 3 }`. `/read` và `/read-all` không có body, trả `204`; thông báo không phải của người gọi trả `404`; gọi `/read` lại trên thông báo đã đọc vẫn trả `204`.
 
 ---
 
@@ -626,6 +638,13 @@ Doanh thu chỉ tính từ các khoản đã được Chủ trọ xác nhận th
 - **Hóa đơn chưa thu**: số hóa đơn và tổng phần còn phải trả của các hóa đơn ở `ChuaThanhToan`, `ChoXacNhan`, `ThanhToanMotPhan`, `QuaHan`. Không tính `Nhap` và `DaChuyenThanhLy` — phần nợ của hóa đơn đã chuyển nằm trong hóa đơn thanh lý.
 - **Việc cần xử lý** — chỉ là các con số đếm, giao diện dẫn tới danh sách tương ứng. Chủ trọ: yêu cầu thuê ở `ChoDuyet`, lượt báo thanh toán ở `ChoXacNhan`, hợp đồng ở `ChoNhanCoc`, trên khu trọ của mình. Người thuê: hợp đồng ở `ChoNguoiThueXacNhan` và hóa đơn thanh lý ở `ChoNguoiThueXacNhan` của mình.
 - **Tổng đã thanh toán** của Người thuê: tổng số tiền đã được xác nhận thu trên các hóa đơn của mình, không tính tiền cọc.
+- **Không tính** khu trọ và phòng đã lưu trữ.
+
+**Dữ liệu trả về:**
+
+- `/dashboard/admin`: `users` (`total`, `admins`, `landlords`, `tenants`), `properties`, `rooms`, `pendingLandlordApplications`.
+- `/dashboard/landlord`: `roomCounts` (cùng cấu trúc với Mục 5.1: `total`, `trong`, `dangGiuCho`, `dangThue`, `baoTri`), `unpaidInvoices` (`count`, `amount`), `monthlyRevenue` — mảng 6 phần tử `{ "month": "2026-10", "amount": 4500000 }` từ tháng cũ tới tháng mới, `pendingActions` (`rentalRequests`, `paymentReports`, `contractsAwaitingDeposit`).
+- `/dashboard/tenant`: `contracts` — các hợp đồng chưa kết thúc (khác `DaThanhLy`, `DaHuy`), mỗi cái gồm `id`, `roomCode`, `propertyName`, `status`, `startDate`, `endDate`, `rentPrice`; `unpaidInvoices` (`count`, `amount`), `totalPaid`, `pendingActions` (`contractsToConfirm`, `settlementsToConfirm`).
 
 ---
 
@@ -633,7 +652,9 @@ Doanh thu chỉ tính từ các khoản đã được Chủ trọ xác nhận th
 
 | Method | Endpoint | Quyền | Mô tả |
 |---|---|---|---|
-| `GET` | `/api/v1/admin/audit-logs` | Admin | Tra cứu nhật ký, lọc theo `entityType`, `entityId`, `actorUserId`, khoảng thời gian |
+| `GET` | `/api/v1/admin/audit-logs` | Admin | Tra cứu nhật ký, lọc theo `entityType`, `entityId`, `actorUserId`, `action`, khoảng thời gian |
+
+**`GET /admin/audit-logs`** — query `entityType`, `entityId`, `actorUserId`, `action`, `from`, `to` (thời điểm, ISO 8601), `page`, `pageSize`; tất cả tùy chọn; mới nhất trước. Mỗi dòng gồm `id`, `actor` (`id`, `fullName`, `email`), `action`, `entityType`, `entityId`, `oldValue`, `newValue` (JSON đúng như đã ghi), `occurredAt`.
 
 Chỉ có thao tác đọc. Không có endpoint tạo, sửa hay xóa nhật ký, kể cả cho Admin (QR-03).
 
