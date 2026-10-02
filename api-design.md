@@ -81,6 +81,8 @@ Tài khoản có `isLocked = true` nhận `403` kèm lý do khóa — chỉ khi 
 
 Đăng nhập sai 5 lần liên tiếp trong 15 phút với cùng một cặp email + địa chỉ IP thì nhận `429` kèm `Retry-After` cho tới hết 15 phút, kể cả khi email không tồn tại (Thiết kế An toàn mục 6).
 
+**`POST /api/v1/auth/forgot-password`** luôn trả `200` với cùng một thông báo và trả về ngay, dù email có tồn tại hay không. Email được gửi nền; lỗi gửi chỉ ghi log, không làm request thất bại.
+
 **`PUT /api/v1/auth/me`** — body gồm `fullName` và `phoneNumber`. Đổi `phoneNumber` thì trạng thái đã xác thực của số điện thoại bị bỏ (BR-01).
 
 ### 2.1 Tài khoản nhận tiền của Chủ trọ — BR-26
@@ -122,9 +124,15 @@ Cả ba trường bắt buộc. `bankBin` phải là mã BIN 6 chữ số có tr
 }
 ```
 
-Ba đường dẫn là giá trị `path` nhận được từ `POST /files` với `purpose = GiayToNhanThan`, và phải do chính người nộp tải lên (Mục 14); sai thì trả `422`. Tài khoản chưa có số điện thoại trả `422`. Đã có hồ sơ ở `ChoDuyet` trả `409`.
+Ba đường dẫn là giá trị `path` nhận được từ `POST /files` với `purpose = GiayToNhanThan`, phải do chính người nộp tải lên và file phải tồn tại (Mục 14); sai thì trả `422`. Tài khoản chưa có số điện thoại trả `422`. Đã có hồ sơ ở `ChoDuyet` trả `409` — kể cả khi hai lượt nộp gửi cùng lúc, nhờ unique index ở database (FR-07).
 
-**`POST /approve`** — Admin xác minh số điện thoại của người nộp trước khi duyệt. Duyệt thì tài khoản được cấp vai trò `Landlord` thay cho `Tenant`, và số điện thoại được ghi nhận là đã xác thực (BR-01). Người nộp phải đăng nhập lại để token mang vai trò mới.
+**`POST /approve`** — Admin gọi xác minh số điện thoại của người nộp trước khi duyệt, rồi gửi lại đúng số đã gọi:
+
+```json
+{ "verifiedPhoneNumber": "0901234567" }
+```
+
+Số này khác số hiện tại của người nộp — tức người nộp đã đổi số trong lúc Admin xác minh — thì trả `409`, Admin gọi xác minh lại số mới. Trùng thì duyệt: tài khoản được cấp vai trò `Landlord` thay cho `Tenant`, số điện thoại được ghi nhận là đã xác thực (BR-01), và số đã xác minh được ghi vào `audit_logs`. Người nộp phải đăng nhập lại để token mang vai trò mới. Người nộp đã là Chủ trọ (hồ sơ cũ còn sót ở `ChoDuyet`) thì trả `409`; Admin từ chối hồ sơ đó.
 
 Duyệt và từ chối đều ghi `audit_logs` theo BR-23. Người nộp nhận thông báo mức Cao.
 
@@ -471,5 +479,5 @@ Toàn bộ ảnh của hệ thống — giấy tờ nhân thân, ảnh khu trọ
 - File trong bucket riêng tư **chỉ** truy cập được qua URL có chữ ký và có hạn, sinh ra tại thời điểm người có quyền yêu cầu xem. Không bao giờ trả URL công khai vĩnh viễn cho các loại này.
 - `purpose` quyết định bucket và quyền. Endpoint kiểm tra vai trò người gọi có được phép tải loại file đó lên hay không: `GiayToNhanThan` và `MinhChungThanhToan` chỉ Người thuê; `AnhKhuTro`, `AnhPhong`, `AnhDongHo`, `AnhHuHong` chỉ Chủ trọ.
 - Server xác định định dạng từ nội dung file (chữ ký ở các byte đầu) và kiểm tra dung lượng trước khi lưu; không tin phần mở rộng hay `Content-Type` do client khai. Phần mở rộng lưu trên Storage do server đặt theo định dạng đã nhận diện.
-- Khi nhận `path` trong request nghiệp vụ, server kiểm tra đường dẫn đúng bucket, đúng thư mục của `purpose` tương ứng, và nằm trong thư mục của chính người gọi; sai thì trả `422`. Không nhận đường dẫn hay URL tùy ý từ client.
+- Khi nhận `path` trong request nghiệp vụ, server kiểm tra đường dẫn khớp đúng định dạng ở trên — đúng bucket, đúng thư mục của `purpose` tương ứng, nằm trong thư mục của chính người gọi, tên file là 32 ký tự hex và phần mở rộng hợp lệ — rồi kiểm tra file thực sự tồn tại trên Storage; sai thì trả `422`. Không nhận đường dẫn hay URL tùy ý từ client.
 - Giới hạn 20 lần tải mỗi giờ cho mỗi tài khoản (Thiết kế An toàn mục 6).

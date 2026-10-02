@@ -97,7 +97,7 @@ Hồ sơ đăng ký làm Chủ trọ.
 | `reviewed_at` | timestamptz | | |
 | `reject_reason` | text | | Bắt buộc khi `status` = `TuChoi` |
 
-**Ràng buộc nghiệp vụ:** mỗi `user_id` chỉ có tối đa một hồ sơ ở trạng thái `ChoDuyet` tại một thời điểm. Hồ sơ bị từ chối được bổ sung và nộp lại thành bản ghi mới.
+**Ràng buộc nghiệp vụ:** mỗi `user_id` chỉ có tối đa một hồ sơ ở trạng thái `ChoDuyet` tại một thời điểm — unique index có điều kiện `ux_landlord_applications_user_cho_duyet`. Hồ sơ bị từ chối được bổ sung và nộp lại thành bản ghi mới.
 
 **Ảnh giấy tờ (QR-04):** `id_card_front_url`, `id_card_back_url`, `ownership_document_url` chỉ được trả về cho Admin trong quá trình duyệt. Không endpoint nào khác được expose các cột này.
 
@@ -371,6 +371,7 @@ Phase 1 chỉ gửi thông báo trong ứng dụng, và chỉ cho các sự ki�
 
 | Bảng | Chỉ mục | Mục đích |
 |---|---|---|
+| `landlord_applications` | `(user_id)` unique khi `status = 'ChoDuyet'` | FR-07: một hồ sơ chờ duyệt mỗi người |
 | `rooms` | `(occupancy_status, visibility_status)` | Lọc điều kiện hiển thị BR-05 |
 | `rooms` | `(property_id)` | Liệt kê phòng theo khu trọ |
 | `rooms` | `(rent_price)`, `(area)`, `(max_occupants)` | Bộ lọc tìm kiếm BP-04 |

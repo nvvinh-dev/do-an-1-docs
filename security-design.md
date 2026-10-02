@@ -194,7 +194,7 @@ Rate limiting là kiểm soát **bắt buộc**, không phải tùy chọn. Khô
 | Nhóm endpoint | Giới hạn | Tính theo |
 |---|---|---|
 | Đăng nhập | 5 lần sai liên tiếp mỗi 15 phút | Email + địa chỉ IP |
-| Đăng ký tài khoản, quên mật khẩu, đặt lại mật khẩu | 3 lần mỗi giờ | Địa chỉ IP |
+| Đăng ký tài khoản, quên mật khẩu, đặt lại mật khẩu | 3 lần mỗi giờ cho mỗi endpoint — ba endpoint không dùng chung lượt | Địa chỉ IP |
 | Gửi yêu cầu thuê, báo đã thanh toán, nộp hồ sơ Chủ trọ | 10 lần mỗi giờ | Tài khoản đăng nhập |
 | Tải file | 20 lần mỗi giờ | Tài khoản đăng nhập |
 | Tìm kiếm phòng công khai | 60 lần mỗi phút | Địa chỉ IP |
@@ -204,6 +204,10 @@ Các nhóm tính theo tài khoản đăng nhập đọc id người dùng từ t
 **Hành vi khi vượt ngưỡng:** trả `429 Too Many Requests` kèm header `Retry-After`. Lượt vượt ngưỡng ở nhóm đăng nhập được ghi log để Admin đối chiếu khi nghi ngờ tài khoản bị tấn công.
 
 **Đếm theo lần sai, không theo lần gọi.** Ở nhóm đăng nhập, chỉ những lần đăng nhập **thất bại** mới tính vào ngưỡng. Đăng nhập thành công không làm người dùng thật cạn lượt.
+
+**Giữ chỗ trước khi kiểm tra mật khẩu.** Mỗi lần đăng nhập được giữ chỗ một lượt trong bộ đếm **trước** khi kiểm tra mật khẩu; đăng nhập đúng thì bộ đếm được xóa. Nhờ vậy gửi nhiều request đăng nhập song song cũng chỉ thử được tối đa 5 mật khẩu, không lọt qua bước chặn.
+
+**Ngưỡng trong cấu hình.** Ngưỡng của nhóm đăng ký, quên và đặt lại mật khẩu đặt ở `RateLimiting:AuthAccountPerHour`, mặc định 3. Khi demo nhiều người dùng chung một mạng có thể nâng tạm giá trị này.
 
 **Thông báo lỗi không tiết lộ thông tin.** Phản hồi khi vượt ngưỡng không được cho biết email đó có tồn tại trong hệ thống hay không — email không tồn tại cũng bị đếm và bị chặn như mọi email khác. Lý do khóa tài khoản chỉ hiện ra khi email và mật khẩu đã đúng.
 
@@ -242,4 +246,5 @@ Danh sách này được dùng làm checklist khi review code:
 14. Swagger chỉ được bật khi môi trường là Development.
 15. Frontend không dựng HTML từ dữ liệu người dùng nhập — token nằm trong `localStorage` nên một lỗ hổng XSS là mất token.
 16. Data API của Supabase luôn ở trạng thái tắt; dữ liệu chỉ đến được qua backend.
-17. Đường dẫn file gắn vào request nghiệp vụ phải đúng bucket, đúng thư mục của `purpose` và nằm trong thư mục của chính người gọi.
+17. Đường dẫn file gắn vào request nghiệp vụ phải khớp đúng định dạng server sinh ra (đúng bucket, đúng thư mục của `purpose`, nằm trong thư mục của chính người gọi), và file phải thực sự tồn tại trên Storage.
+18. Endpoint không được phản hồi khác nhau — về nội dung hay thời gian — tùy theo email có tồn tại hay không. Ví dụ: email đặt lại mật khẩu được gửi nền để phản hồi luôn trả về ngay.
