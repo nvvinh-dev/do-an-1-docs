@@ -434,13 +434,15 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
    | Tiền phòng kỳ cuối (tính theo số ngày thực ở) | + |
    | Tiền điện, tiền nước kỳ cuối | + |
    | Phí dịch vụ kỳ cuối | + |
-   | Công nợ các kỳ trước chưa thanh toán | + |
+   | Công nợ các kỳ trước chưa thanh toán — hệ thống tự thêm | + |
    | Phí bồi thường hư hỏng (từng khoản kèm mô tả và ảnh) | + |
    | Phí phạt chấm dứt trước hạn (nếu có, theo BR-22) | + |
    | **Tiền cọc đã nộp** | **−** |
    | **= Số dư cuối cùng** | |
 
    Dòng trừ tiền cọc do hệ thống tự thêm, bằng đúng số tiền cọc ghi trong Hợp đồng; Chủ trọ không tự nhập dòng này.
+
+   Dòng công nợ cũng do hệ thống tự thêm: mỗi hóa đơn còn thiếu tiền thành một dòng bằng phần còn phải trả, và hóa đơn đó chuyển sang *Đã chuyển vào thanh lý* — không còn bị nhắc quá hạn và không thanh toán riêng được nữa. Nếu còn lượt báo thanh toán đang chờ Chủ trọ xác nhận thì chưa lập được Hóa đơn thanh lý.
 
 5. Người thuê xem và **xác nhận** bảng thanh lý, hoặc **khiếu nại** từng khoản khấu trừ kèm lý do.
 6. Tất toán số dư:
@@ -724,6 +726,8 @@ Chờ người thuê xác nhận ──► Nháp  (Người thuê yêu cầu ch�
                 │      (xác nhận còn thiếu /       │
                 │       từ chối xác nhận)          ▼
 Nháp ──► [ Chưa thanh toán · Thanh toán một phần · Quá hạn ]
+                │                       │
+                │                       └──► Đã chuyển vào thanh lý  (khi lập Hóa đơn thanh lý)
                 │
                 └──► Đã hủy  (chỉ từ Chưa thanh toán)
 ```
@@ -739,6 +743,7 @@ Các chuyển trạng thái hợp lệ:
 | Chờ xác nhận | Thanh toán một phần hoặc Quá hạn | Chủ trọ xác nhận nhưng tổng đã thu còn thiếu: *Quá hạn* nếu đã qua hạn thanh toán, ngược lại *Thanh toán một phần* |
 | Chờ xác nhận | Chưa thanh toán, Thanh toán một phần hoặc Quá hạn | Chủ trọ từ chối xác nhận: *Quá hạn* nếu đã qua hạn thanh toán; ngược lại *Thanh toán một phần* nếu đã thu được một phần; còn lại *Chưa thanh toán* |
 | Chưa thanh toán, Thanh toán một phần | Quá hạn | Qua hạn thanh toán mà chưa trả đủ — hệ thống tự gắn cờ |
+| Chưa thanh toán, Thanh toán một phần, Quá hạn | Đã chuyển vào thanh lý | Chủ trọ lập Hóa đơn thanh lý; phần còn nợ thành một dòng công nợ của Hóa đơn thanh lý |
 
 | Trạng thái | Ý nghĩa |
 |---|---|
@@ -749,6 +754,7 @@ Các chuyển trạng thái hợp lệ:
 | **Quá hạn** | Qua hạn thanh toán ghi trong hợp đồng mà chưa trả đủ, kể cả khi đã trả một phần — số đã trả vẫn được ghi nhận; hệ thống tự gắn cờ và gửi nhắc nhở. |
 | **Đã thanh toán** | Chủ trọ đã xác nhận nhận đủ tiền. Không được sửa (BR-16). |
 | **Đã hủy** | Hóa đơn lập sai, hủy trước khi thanh toán, có ghi lý do. |
+| **Đã chuyển vào thanh lý** | Phần còn nợ đã được đưa vào Hóa đơn thanh lý để trừ vào tiền cọc; không còn là công nợ riêng. |
 
 ### 8.6 Vòng đời Sự cố / Yêu cầu sửa chữa
 
@@ -1076,6 +1082,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Chỉ số điện nước lúc bàn giao ghi trong Hợp đồng (BR-14) | Kỳ hóa đơn đầu tiên không có kỳ liền trước để lấy chỉ số cũ; thực tế hai bên chốt số đồng hồ lúc giao phòng |
 | Kỳ hóa đơn theo tháng dương lịch, do hệ thống xác định (BR-15, BR-17) | Để Chủ trọ tự chọn ngày kỳ thì có thể lập chồng kỳ và thu tiền phòng hai lần. Phí dịch vụ tháng lẻ cũng tính theo tỷ lệ vì thu trọn tháng với người vào ở cuối tháng là bất hợp lý |
 | Điều chỉnh sai sót bằng dòng *Điều chỉnh* ở kỳ sau (BR-16) | Thực tế Chủ trọ cộng hoặc trừ phần chênh lệch vào tháng sau; sửa một hóa đơn cũ khi đã có kỳ sau sẽ làm gãy chuỗi chỉ số của BR-14 |
+| Kết chuyển công nợ cũ vào Hóa đơn thanh lý | Tiền cọc trước hết dùng để trừ nợ còn lại; để hóa đơn cũ tồn tại song song với dòng công nợ sẽ tính nợ hai lần |
 
 ---
 

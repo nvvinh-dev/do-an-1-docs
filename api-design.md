@@ -380,7 +380,6 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
   "currentWaterIndex": 89.0,
   "moveOutDate": "2026-12-15",
   "lines": [
-    { "category": "CongNoKyTruoc", "description": "Hoa don thang 11 chua thanh toan", "amount": 500000 },
     { "category": "BoiThuongHuHong", "description": "Vo kinh cua so", "amount": 300000, "evidencePath": "..." }
   ]
 }
@@ -388,7 +387,12 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 
 Mỗi khoản khấu trừ **bắt buộc** là một dòng riêng có `description`; gửi một khoản gộp không mô tả trả `422` (BR-22).
 
-**Dòng trừ tiền cọc do server tự thêm:** category `KhauTruTienCoc`, `amount` = −`depositAmount` của hợp đồng (không thêm khi tiền cọc bằng 0). Client gửi dòng `KhauTruTienCoc` trả `422`.
+**Dòng do server tự thêm (FR-55, FR-92):**
+
+- `CongNoKyTruoc`: mỗi hóa đơn còn thiếu tiền của hợp đồng một dòng, `amount` = phần còn phải trả, `relatedInvoiceId` trỏ về hóa đơn đó; hóa đơn gốc chuyển `DaChuyenThanhLy`.
+- `KhauTruTienCoc`: `amount` = −`depositAmount` của hợp đồng (không thêm khi tiền cọc bằng 0).
+
+Client gửi một trong hai loại dòng này trả `422`. Hợp đồng còn `payment_reports` ở `ChoXacNhan` trả `409` — Chủ trọ xác nhận hoặc từ chối trước.
 
 Tổng các dòng `PhiPhat` không được vượt `depositAmount`, vượt trả `422` (FR-87).
 

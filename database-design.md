@@ -281,7 +281,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `service_fee_amount` | numeric(14,2) | NOT NULL | Tổng phí dịch vụ của kỳ, cũng tính theo tỷ lệ ngày ở với kỳ không trọn tháng (BR-15) |
 | `total_amount` | numeric(14,2) | NOT NULL | Tổng cộng, bao gồm các dòng ở `invoice_lines` |
 | `paid_amount` | numeric(14,2) | NOT NULL | Số tiền đã thu được xác nhận |
-| `status` | text | NOT NULL, CHECK | `Nhap` / `ChuaThanhToan` / `ChoXacNhan` / `ThanhToanMotPhan` / `QuaHan` / `DaThanhToan` / `DaHuy` |
+| `status` | text | NOT NULL, CHECK | `Nhap` / `ChuaThanhToan` / `ChoXacNhan` / `ThanhToanMotPhan` / `QuaHan` / `DaThanhToan` / `DaHuy` / `DaChuyenThanhLy` |
 | `electricity_meter_photo_url` | text | | Ảnh chụp đồng hồ điện |
 | `water_meter_photo_url` | text | | Ảnh chụp đồng hồ nước |
 | `issued_at` | timestamptz | | Thời điểm phát hành |
@@ -299,6 +299,8 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 
 **Hóa đơn thanh lý (BP-10):** `type = 'ThanhLy'`, các khoản cộng thêm và khoản trừ tiền cọc nằm ở `invoice_lines`. `total_amount` có thể âm — khi đó Chủ trọ phải hoàn lại phần cọc dư.
 
+**Kết chuyển công nợ (FR-92):** dòng `CongNoKyTruoc` và `KhauTruTienCoc` do server sinh khi lập hóa đơn thanh lý. Mỗi hóa đơn còn nợ của hợp đồng (`ChuaThanhToan`, `ThanhToanMotPhan`, `QuaHan`) thành một dòng `CongNoKyTruoc` bằng `total_amount − paid_amount`, `related_invoice_id` trỏ về nó, và hóa đơn đó chuyển sang `DaChuyenThanhLy` trong cùng transaction.
+
 ### 6.2 `invoice_lines` — Dòng chi tiết của hóa đơn
 
 | Cột | Kiểu | Ràng buộc | Mô tả |
@@ -309,7 +311,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `description` | text | NOT NULL | Lý do của khoản mục — bắt buộc theo BR-22 |
 | `amount` | numeric(14,2) | NOT NULL | Dương là khoản phải thu, âm là khoản trừ |
 | `evidence_url` | text | | Ảnh minh chứng hư hỏng |
-| `related_invoice_id` | bigint | FK → `invoices.id` | Hóa đơn gốc mà dòng này điều chỉnh (BR-16), thuộc cùng hợp đồng |
+| `related_invoice_id` | bigint | FK → `invoices.id` | Hóa đơn gốc, thuộc cùng hợp đồng: bắt buộc với `CongNoKyTruoc`; với `DieuChinhKhac` khi dòng đó điều chỉnh sai sót của một hóa đơn trước (BR-16) |
 
 **BR-22:** mọi khoản khấu trừ tiền cọc phải là một dòng riêng có `description`. Không cho phép gộp thành một khoản không giải thích.
 
