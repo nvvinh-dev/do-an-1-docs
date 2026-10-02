@@ -218,7 +218,7 @@ Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url`
 | `payment_due_days` | int | NOT NULL | Số ngày được phép thanh toán kể từ khi phát hành |
 | `status` | text | NOT NULL, CHECK | `Nhap` / `ChoNguoiThueXacNhan` / `ChoNhanCoc` / `DangHieuLuc` / `SapHetHan` / `DangThanhLy` / `DaThanhLy` / `DaHuy` |
 | `tenant_confirmed_at` | timestamptz | | Người thuê đồng ý điều khoản |
-| `deposit_received_at` | timestamptz | | Chủ trọ xác nhận đã nhận cọc |
+| `deposit_received_at` | timestamptz | | Thời điểm nhận cọc thực tế, do Chủ trọ nhập khi xác nhận đã nhận cọc; không sau thời điểm xác nhận |
 | `deposit_received_method` | text | | Hình thức nhận cọc |
 | `deposit_refunded_amount` | numeric(14,2) | | Số tiền cọc đã hoàn. Server tính khi Chủ trọ hủy (toàn bộ cọc) và khi hóa đơn thanh lý có số dư âm (phần cọc dư); Chủ trọ nhập, trong khoảng 0 tới `deposit_amount`, khi Người thuê hủy (BR-22) |
 | `deposit_refunded_at` | timestamptz | | Thời điểm Chủ trọ hoàn cọc |
@@ -236,7 +236,7 @@ Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập 
 
 **BR-07:** tại một thời điểm, một `room_id` chỉ có tối đa một hợp đồng ở `DangHieuLuc`, `SapHetHan` hoặc `DangThanhLy`. Ràng buộc này được bảo đảm bằng unique index có điều kiện trên `room_id`.
 
-**BR-21:** chỉ chuyển sang `DangHieuLuc` khi `tenant_confirmed_at` và `deposit_received_at` đều đã có giá trị.
+**BR-21:** chỉ chuyển sang `DangHieuLuc` khi `tenant_confirmed_at` đã có giá trị và, nếu `deposit_amount` > 0, `deposit_received_at` cũng đã có giá trị. Xác nhận cọc chỉ diễn ra ở `ChoNhanCoc`; `deposit_amount` = 0 thì hợp đồng đi thẳng từ `ChoNguoiThueXacNhan` sang `DangHieuLuc`.
 
 **Chỉ số đầu (BR-14):** `initial_electricity_index` và `initial_water_index` được nhập khi lập hợp đồng và là chỉ số cũ của hóa đơn đầu tiên. Khi hợp đồng còn ở `Nhap`, hai cột này sửa cùng các điều khoản khác. Khi hợp đồng đã ở `DangHieuLuc` mà chưa có hóa đơn nào khác `DaHuy`, Chủ trọ vẫn sửa được — dùng cho trường hợp số thực tế lúc bàn giao khác số đã ghi; mỗi lần sửa ghi `audit_logs` (BR-23) và thông báo cho người thuê.
 

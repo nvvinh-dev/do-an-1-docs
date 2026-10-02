@@ -318,8 +318,8 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
    - **Tự động từ chối toàn bộ các Yêu cầu thuê khác đang chờ duyệt của cùng phòng đó**, kèm lý do "Phòng đã có người thuê khác" (xem BR-06).
 5. Chủ trọ lập **Hợp đồng nháp**, trong đó **chốt cứng** tại thời điểm tạo: giá thuê/tháng, đơn giá điện, đơn giá nước, các phí dịch vụ, **số tiền cọc**, ngày bắt đầu, ngày kết thúc, hạn thanh toán, danh sách người ở cùng (nếu có). Hợp đồng nháp cũng ghi **chỉ số điện, nước lúc bàn giao phòng** — mốc tính hóa đơn đầu tiên (BR-14).
 6. Người thuê xem lại Hợp đồng nháp và **Xác nhận đồng ý**, hoặc **Yêu cầu chỉnh sửa** kèm lý do — hợp đồng quay về *Nháp* để Chủ trọ sửa và gửi lại.
-7. Người thuê nộp **tiền cọc** — có thể chuyển khoản bằng mã VietQR của Chủ trọ hiển thị trên hợp đồng (BR-26); Chủ trọ **xác nhận đã nhận cọc** trên hệ thống, kèm ngày nhận và hình thức nhận.
-8. Khi Người thuê đã đồng ý **và** cọc đã được xác nhận, Hợp đồng chuyển sang **Đang hiệu lực**.
+7. Người thuê nộp **tiền cọc** — có thể chuyển khoản bằng mã VietQR của Chủ trọ hiển thị trên hợp đồng (BR-26); Chủ trọ **xác nhận đã nhận cọc** trên hệ thống, kèm ngày nhận thực tế (không sau hôm nay) và hình thức nhận. Chủ trọ chỉ xác nhận được sau khi Người thuê đã đồng ý điều khoản; tiền đưa từ trước vẫn ghi đúng ngày nhận thực tế.
+8. Khi Người thuê đã đồng ý **và** cọc đã được xác nhận, Hợp đồng chuyển sang **Đang hiệu lực**. Hợp đồng có tiền cọc bằng 0 chuyển sang **Đang hiệu lực** ngay khi Người thuê đồng ý.
 9. Hệ thống chuyển trạng thái khai thác của Phòng sang **Đang thuê**.
 
 **Luồng thay thế:**
@@ -603,7 +603,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **BR-11** | Mỗi Hợp đồng chỉ có **một** Người thuê đứng tên và chịu trách nhiệm toàn bộ nghĩa vụ tài chính. Những người khác ở trong phòng được ghi nhận là *Người ở cùng* — có thông tin nhưng không có nghĩa vụ trên hệ thống. Tổng số người ở không được vượt *số người tối đa* của phòng. |
 | **BR-12** | Giá thuê, đơn giá điện, đơn giá nước và phí dịch vụ được **chốt cứng vào Hợp đồng** tại thời điểm tạo. Việc Chủ trọ thay đổi giá ở mức Phòng sau đó **không** ảnh hưởng tới các Hợp đồng đang hiệu lực. |
 | **BR-13** | Mỗi Hóa đơn lưu lại **bản sao đơn giá đã áp dụng** tại thời điểm phát hành. Hóa đơn đã phát hành không bị tính lại khi giá thay đổi. |
-| **BR-21** | Mọi Hợp đồng bắt buộc ghi nhận **số tiền cọc** (có thể bằng 0 nếu hai bên thỏa thuận không cọc). Hợp đồng chỉ chuyển sang *Đang hiệu lực* khi Chủ trọ đã xác nhận nhận đủ cọc **và** Người thuê đã xác nhận đồng ý điều khoản. |
+| **BR-21** | Mọi Hợp đồng bắt buộc ghi nhận **số tiền cọc** (có thể bằng 0 nếu hai bên thỏa thuận không cọc). Hợp đồng chỉ chuyển sang *Đang hiệu lực* khi Người thuê đã xác nhận đồng ý điều khoản **và**, nếu tiền cọc lớn hơn 0, Chủ trọ đã xác nhận nhận đủ cọc. Thứ tự cố định: Người thuê đồng ý trước, Chủ trọ xác nhận cọc sau. |
 | **BR-22** | Tiền cọc chỉ được khấu trừ qua **Hóa đơn thanh lý**, và mọi khoản khấu trừ phải là **một dòng riêng có mô tả lý do**. Không cho phép khấu trừ một cục không giải thích. Nếu Người thuê đơn phương chấm dứt trước hạn mà không báo trước đủ thời hạn quy định, Chủ trọ được khấu trừ tối đa **toàn bộ** tiền cọc; nếu Chủ trọ đơn phương chấm dứt, Chủ trọ phải hoàn **toàn bộ** cọc. Hợp đồng bị hủy trước ngày bắt đầu thì **không** lập Hóa đơn thanh lý: Chủ trọ hủy thì hoàn **toàn bộ** cọc; Người thuê hủy sau khi đã nộp cọc thì Chủ trọ được giữ lại tối đa **toàn bộ** cọc, ghi rõ số tiền hoàn thực tế và lý do giữ lại. |
 
 ### 7.4 Hóa đơn và thanh toán
@@ -703,6 +703,7 @@ Nháp ──► Chờ người thuê xác nhận ──► Chờ nhận cọc �
                               └──► Đã kết thúc (gia hạn) ──► [Hợp đồng mới]
 
 Chờ người thuê xác nhận ──► Nháp  (Người thuê yêu cầu chỉnh sửa, kèm lý do)
+Chờ người thuê xác nhận ──► Đang hiệu lực  (tiền cọc bằng 0, Người thuê đồng ý)
 ```
 
 | Trạng thái | Ý nghĩa |

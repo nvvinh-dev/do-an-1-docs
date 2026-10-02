@@ -260,7 +260,12 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 }
 ```
 
-**Điều kiện chuyển sang `DangHieuLuc` (BR-21):** hệ thống tự kiểm tra sau mỗi lần gọi `/confirm` và `/deposit/confirm`. Khi cả hai đã hoàn tất, hợp đồng chuyển `DangHieuLuc`, phòng chuyển `DangThue`, và cả hai bên nhận thông báo mức Cao.
+**Điều kiện chuyển sang `DangHieuLuc` (BR-21):** các bước đi tuần tự.
+
+- `/confirm` chỉ nhận ở `ChoNguoiThueXacNhan`. Tiền cọc > 0 thì hợp đồng sang `ChoNhanCoc`; tiền cọc = 0 thì sang thẳng `DangHieuLuc`.
+- `/deposit/confirm` chỉ nhận ở `ChoNhanCoc`, trạng thái khác trả `409`. Body gồm `receivedAt` — thời điểm nhận cọc thực tế, không sau thời điểm hiện tại, sai trả `422` — và `method`.
+
+Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai bên nhận thông báo mức Cao.
 
 **Ràng buộc kiểm tra khi tạo:**
 
