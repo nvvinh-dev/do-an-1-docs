@@ -330,6 +330,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 - **A3 — Quá hạn giữ chỗ:** Hạn giữ chỗ là **3 ngày** (tính đủ 72 giờ) kể từ khi Chủ trọ duyệt yêu cầu thuê, gồm cả thời gian lập hợp đồng, xác nhận điều khoản và nộp cọc. Khi hạn giữ chỗ còn dưới 24 giờ, hệ thống nhắc một lần bên đang phải thao tác: Chủ trọ khi chưa lập hợp đồng hoặc hợp đồng còn *Nháp*; Người thuê khi hợp đồng chờ mình xác nhận; cả hai khi hợp đồng chờ nhận cọc — Người thuê nộp cọc, Chủ trọ xác nhận nếu đã nhận. Hết hạn mà Hợp đồng chưa *Đang hiệu lực* thì: hợp đồng (nếu đã lập) chuyển sang **Đã hủy**; yêu cầu thuê chưa được lập hợp đồng chuyển sang **Hết hạn**; phòng trở lại **Trống** và hiển thị lại.
 - **A4 — Thuê ở ghép nhiều người:** Xem giới hạn tại BR-11 và Mục 13.2.
 - **A5 — Chủ trọ hủy duyệt:** Sau khi duyệt nhưng chưa lập hợp đồng — chẳng hạn người thuê không đến hoặc không liên lạc được — Chủ trọ hủy duyệt, bắt buộc nhập lý do → yêu cầu chuyển sang **Từ chối**, phòng trở lại **Trống** ngay và Người thuê nhận thông báo.
+- **A6 — Chủ trọ thu hồi hợp đồng đã gửi:** Hợp đồng đang chờ Người thuê xác nhận hoặc chờ nhận cọc mà Chủ trọ phát hiện sai sót — gõ nhầm giá, nhầm ngày — thì Chủ trọ thu hồi về **Nháp** để sửa và gửi lại; Người thuê nhận thông báo và phải xác nhận lại. Hạn giữ chỗ 3 ngày không đổi.
 
 **Kết quả:** Quan hệ thuê được thiết lập chính thức với đầy đủ điều khoản tài chính đã chốt.
 
@@ -711,13 +712,14 @@ Nháp ──► Chờ người thuê xác nhận ──► Chờ nhận cọc �
                                          └──► Đã kết thúc (gia hạn) ──► [Hợp đồng mới]
 
 Chờ người thuê xác nhận ──► Nháp  (Người thuê yêu cầu chỉnh sửa, kèm lý do)
+Chờ người thuê xác nhận / Chờ nhận cọc ──► Nháp  (Chủ trọ thu hồi để sửa, BP-06 A6)
 Chờ người thuê xác nhận ──► Đang hiệu lực  (tiền cọc bằng 0, Người thuê đồng ý)
 Đang thanh lý ──► Đang hiệu lực / Sắp hết hạn  (bên gửi rút thông báo trả phòng, chưa lập Hóa đơn thanh lý)
 ```
 
 | Trạng thái | Ý nghĩa |
 |---|---|
-| **Nháp** | Chủ trọ đang soạn, hoặc đang sửa theo yêu cầu chỉnh sửa của Người thuê; chưa gửi cho Người thuê. |
+| **Nháp** | Chủ trọ đang soạn, đang sửa theo yêu cầu chỉnh sửa của Người thuê, hoặc đã thu hồi để sửa; chưa gửi cho Người thuê. |
 | **Chờ người thuê xác nhận** | Người thuê đang xem lại điều khoản. |
 | **Chờ nhận cọc** | Người thuê đã đồng ý; đang chờ nộp và xác nhận tiền cọc, trong hạn giữ chỗ 3 ngày tính từ khi Chủ trọ duyệt yêu cầu thuê (BP-06 A3). |
 | **Đang hiệu lực** | Đã đủ điều kiện BR-21. Từ ngày bắt đầu trở đi là giai đoạn lưu trú; trước ngày bắt đầu, hợp đồng đã ràng buộc hai bên và phòng đã bị chiếm dụng. |
@@ -842,6 +844,7 @@ Chờ xử lý ──► Đang xem xét ──► Đã xử lý
 | Yêu cầu thuê sắp hết hạn xử lý (còn 1 ngày) | Chủ trọ | Thường |
 | Hợp đồng nháp được gửi để xác nhận | Người thuê | Cao |
 | Người thuê yêu cầu chỉnh sửa hợp đồng (kèm lý do) | Chủ trọ | Cao |
+| Chủ trọ thu hồi hợp đồng đã gửi để sửa | Người thuê | Cao |
 | Nhắc xác nhận hợp đồng và nộp tiền cọc (hạn giữ chỗ còn 1 ngày) | Người thuê | Cao |
 | Nhắc lập, gửi hợp đồng hoặc xác nhận cọc (hạn giữ chỗ còn 1 ngày) | Chủ trọ | Cao |
 | Tiền cọc được xác nhận, hợp đồng có hiệu lực | Cả hai bên | Cao |
@@ -1136,6 +1139,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 | Chủ trọ hủy duyệt yêu cầu thuê khi chưa lập hợp đồng (BP-06 A5) | Thực tế người thuê được duyệt rồi không đến hoặc không liên lạc được; không có đường này thì phòng bị giữ vô ích tới hết 72 giờ, hoặc Chủ trọ phải lập hợp đồng rồi hủy cho nhanh |
+| Chủ trọ thu hồi hợp đồng đã gửi để sửa (BP-06 A6) | Thực tế gửi xong mới thấy gõ sai giá hoặc ngày; nếu chỉ có cách hủy hợp đồng thì yêu cầu thuê đã kết thúc, Người thuê phải gửi yêu cầu mới và chờ duyệt lại |
 | Nhắc bên đang phải thao tác khi hạn giữ chỗ còn dưới 24 giờ (BP-06 A3) | Chỉ nhắc Người thuê là nhắc nhầm người khi Chủ trọ chưa lập hoặc chưa gửi hợp đồng; tệ nhất là Người thuê đã chuyển cọc mà Chủ trọ quên xác nhận, hết 72 giờ hệ thống tự hủy hợp đồng dù tiền đã chuyển |
 | Một Người thuê chỉ giữ một phòng tại một thời điểm (BR-28) | Thực tế người tìm phòng gửi yêu cầu nhiều nơi cùng lúc; nếu mấy Chủ trọ cùng duyệt thì một người giữ mấy phòng suốt 72 giờ và các phòng kia mất khách |
 | Kiểm tra ngày vào ở và số người ngay khi gửi yêu cầu thuê | Số người vượt sức chứa thì đằng nào cũng không lập được hợp đồng (BR-11); chặn từ đầu để Chủ trọ không duyệt rồi giữ phòng vô ích |

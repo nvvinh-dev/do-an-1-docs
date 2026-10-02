@@ -251,6 +251,8 @@ Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập 
 
 **BR-21:** chỉ chuyển sang `DangHieuLuc` khi `tenant_confirmed_at` đã có giá trị và, nếu `deposit_amount` > 0, `deposit_received_at` cũng đã có giá trị. Xác nhận cọc chỉ diễn ra ở `ChoNhanCoc`; `deposit_amount` = 0 thì hợp đồng đi thẳng từ `ChoNguoiThueXacNhan` sang `DangHieuLuc`.
 
+**Thu hồi để sửa (BP-06 A6):** Chủ trọ đưa hợp đồng ở `ChoNguoiThueXacNhan` hoặc `ChoNhanCoc` về `Nhap`, `tenant_confirmed_at` về NULL — người thuê phải xác nhận lại sau khi hợp đồng được gửi lại.
+
 **Chỉ số đầu (BR-14):** `initial_electricity_index` và `initial_water_index` được nhập khi lập hợp đồng và là chỉ số cũ của hóa đơn đầu tiên. Khi hợp đồng còn ở `Nhap`, hai cột này sửa cùng các điều khoản khác. Khi hợp đồng đã ở `DangHieuLuc` mà chưa có hóa đơn nào khác `DaHuy`, Chủ trọ vẫn sửa được — dùng cho trường hợp số thực tế lúc bàn giao khác số đã ghi; mỗi lần sửa ghi `audit_logs` (BR-23) và thông báo cho người thuê.
 
 **Hạn giữ chỗ (BP-06 A3):** quá 3 ngày kể từ `rental_requests.processed_at` của yêu cầu gốc mà hợp đồng chưa ở `DangHieuLuc` thì hợp đồng chuyển sang `DaHuy`, phòng trở lại `Trong`.
@@ -426,6 +428,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `YeuCauThueSapHetHan` | Yêu cầu thuê còn dưới 24 giờ tới hạn xử lý 168 giờ | Chủ trọ | `RentalRequest` |
 | `YeuCauThueHetHan` | Yêu cầu thuê hết hạn — quá 7 ngày chưa xử lý, hoặc đã duyệt mà hết hạn giữ chỗ khi chưa lập hợp đồng | Người thuê; thêm Chủ trọ khi hết hạn giữ chỗ | `RentalRequest` |
 | `HopDongChoXacNhan` | Hợp đồng được gửi để xác nhận | Người thuê | `Contract` |
+| `HopDongBiThuHoi` | Chủ trọ thu hồi hợp đồng đã gửi để sửa | Người thuê | `Contract` |
 | `HopDongCanChinhSua` | Người thuê yêu cầu chỉnh sửa hợp đồng | Chủ trọ | `Contract` |
 | `NhacNopCoc` | Hạn giữ chỗ còn dưới 24 giờ, hợp đồng chờ người thuê xác nhận hoặc chờ nhận cọc — nhắc xác nhận điều khoản và nộp cọc | Người thuê | `Contract` |
 | `NhacHoanTatHopDong` | Hạn giữ chỗ còn dưới 24 giờ, yêu cầu đã duyệt mà chưa lập hợp đồng, hợp đồng còn Nháp, hoặc hợp đồng chờ nhận cọc — nhắc lập và gửi hợp đồng, hoặc xác nhận cọc nếu đã nhận | Chủ trọ | `RentalRequest` |

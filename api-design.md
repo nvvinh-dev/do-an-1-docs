@@ -354,6 +354,7 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 | `GET` | `/api/v1/contracts/{id}` | Bên liên quan | Chi tiết, gồm phí dịch vụ và người ở cùng |
 | `PUT` | `/api/v1/contracts/{id}` | Landlord (chủ sở hữu) | Sửa khi còn ở `Nhap` |
 | `POST` | `/api/v1/contracts/{id}/send` | Landlord (chủ sở hữu) | Gửi cho người thuê xác nhận |
+| `POST` | `/api/v1/contracts/{id}/recall` | Landlord (chủ sở hữu) | Thu hồi hợp đồng đã gửi về `Nhap` để sửa |
 | `POST` | `/api/v1/contracts/{id}/confirm` | Tenant (người đứng tên) | Đồng ý điều khoản |
 | `POST` | `/api/v1/contracts/{id}/request-changes` | Tenant (người đứng tên) | Yêu cầu chỉnh sửa, bắt buộc có `reason` |
 | `POST` | `/api/v1/contracts/{id}/deposit/confirm` | Landlord (chủ sở hữu) | Xác nhận đã nhận cọc |
@@ -406,7 +407,9 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 
 **`POST /request-changes`** — body gồm `reason` (bắt buộc). Chỉ nhận khi hợp đồng ở `ChoNguoiThueXacNhan`; hợp đồng quay về `Nhap` để Chủ trọ sửa bằng `PUT` rồi gửi lại bằng `/send`. Chủ trọ nhận thông báo mức Cao kèm lý do.
 
-**Hạn giữ chỗ (BP-06 A3):** quá 72 giờ (3 ngày) kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này. Đã quá 72 giờ thì `POST /contracts`, `PUT`, `/send`, `/confirm`, `/deposit/confirm` trên hợp đồng chưa hiệu lực đều trả `409`, kể cả khi tác vụ chưa chạy.
+**`POST /recall`** — không có body. Chủ trọ thu hồi hợp đồng đã gửi để sửa, chẳng hạn khi phát hiện gõ sai giá hoặc ngày. Chỉ nhận khi hợp đồng ở `ChoNguoiThueXacNhan` hoặc `ChoNhanCoc`; trạng thái khác trả `409`. Hợp đồng về `Nhap` và `tenantConfirmedAt` bị xóa — sau khi Chủ trọ sửa và gửi lại, người thuê phải xác nhận lại. Hạn giữ chỗ 72 giờ không đổi. Người thuê nhận thông báo mức Cao (FR-102).
+
+**Hạn giữ chỗ (BP-06 A3):** quá 72 giờ (3 ngày) kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này. Đã quá 72 giờ thì `POST /contracts`, `PUT`, `/send`, `/recall`, `/confirm`, `/deposit/confirm` trên hợp đồng chưa hiệu lực đều trả `409`, kể cả khi tác vụ chưa chạy.
 
 **Mã VietQR cho tiền cọc:** `GET /contracts/{id}` trả thêm trường `paymentQr` cho Người thuê đứng tên khi hợp đồng ở `ChoNhanCoc` và `depositAmount` > 0, với `amount` bằng `depositAmount` và `transferContent` dạng `SMARTRENT COC<contractId>`. Cấu trúc trường này mô tả ở Mục 9.1.
 
