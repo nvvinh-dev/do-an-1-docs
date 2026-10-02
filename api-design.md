@@ -44,7 +44,7 @@ Backend kiểm tra quyền trên **mọi** request cần bảo vệ. Ẩn nút �
 - **Danh tính lấy từ token.** `userId` và vai trò của người thao tác luôn đọc từ JWT, không bao giờ đọc từ body, query hay header tự đặt. Client gửi các giá trị này lên thì bỏ qua.
 - **Từ chối khi không chắc chắn.** Thiếu token, token không hợp lệ, hoặc không xác định được quyền sở hữu vì bất kỳ lý do gì — kể cả lỗi hệ thống — đều trả về từ chối và ghi log, không cho request đi tiếp.
 - **BR-04:** Chủ trọ chỉ thao tác được trên khu trọ, phòng, hợp đồng và hóa đơn thuộc khu trọ của mình. Người thuê chỉ đọc được hợp đồng và hóa đơn của chính mình.
-- Khi người gọi không có quyền với một tài nguyên tồn tại, trả `404` thay vì `403` đối với các tài nguyên có thể bị dò id — hợp đồng, hóa đơn, hồ sơ Chủ trọ.
+- Khi người gọi không có quyền với một tài nguyên tồn tại, trả `404` thay vì `403` đối với các tài nguyên có thể bị dò id — khu trọ, phòng, hợp đồng, hóa đơn, hồ sơ Chủ trọ.
 - **BR-24:** Admin không có quyền đọc mặc định đối với hợp đồng và hóa đơn. Phase 1 không có endpoint nào cho phép Admin đọc hai loại tài nguyên này.
 - **QR-04:** ảnh giấy tờ nhân thân chỉ xuất hiện trong response của endpoint duyệt hồ sơ dành cho Admin.
 - **BR-26:** tài khoản ngân hàng của Chủ trọ chỉ xuất hiện trong `GET /landlord/bank-account` của chính Chủ trọ đó và trong trường `paymentQr` gửi cho Người thuê đứng tên hợp đồng (Mục 9.1).
@@ -151,33 +151,129 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 | Method | Endpoint | Quyền | Mô tả |
 |---|---|---|---|
 | `POST` | `/api/v1/properties` | Landlord | Tạo khu trọ |
-| `GET` | `/api/v1/properties` | Landlord | Danh sách khu trọ của chính mình |
+| `GET` | `/api/v1/properties` | Landlord | Danh sách khu trọ của chính mình; mặc định ẩn khu đã lưu trữ, `includeArchived=true` để xem cả |
 | `GET` | `/api/v1/properties/{id}` | Landlord (chủ sở hữu) | Chi tiết |
 | `PUT` | `/api/v1/properties/{id}` | Landlord (chủ sở hữu) | Cập nhật |
 | `POST` | `/api/v1/properties/{id}/archive` | Landlord (chủ sở hữu) | Lưu trữ khu trọ |
 
-`archive` trả `409` khi còn phòng ở `DangGiuCho` hoặc `DangThue` (BR-10). Lưu trữ khu trọ thì mọi phòng của khu chuyển `LuuTru` theo, và các yêu cầu thuê `ChoDuyet` của các phòng đó tự chuyển `TuChoi` với lý do do hệ thống sinh — tất cả trong cùng transaction. Không có endpoint `DELETE` (BR-09).
+**`POST /api/v1/properties`** và **`PUT /api/v1/properties/{id}`** — cùng một body:
+
+```json
+{
+  "name": "Nhà trọ Hoa Mai",
+  "address": "12 đường số 5, gần ĐH Công nghệ Thông tin",
+  "city": "Thành phố Hồ Chí Minh",
+  "ward": "<tên phường/xã trong danh mục>",
+  "description": "Khu yên tĩnh, có bảo vệ",
+  "amenityIds": [1, 3],
+  "imagePaths": ["public-media/AnhKhuTro/12/2026/10/3f2a...c1.jpg"]
+}
+```
+
+- `name`, `address`, `city`, `ward` bắt buộc. Cặp (`city`, `ward`) phải có trong danh mục `GET /locations` (Mục 6), sai trả `422`. Tên quận cũ, nếu muốn cho người đọc dễ nhận biết, ghi trong `address`.
+- `amenityIds` chỉ nhận tiện ích có `scope = KhuTro`, sai trả `422`.
+- `imagePaths` tối đa 10 đường dẫn, mỗi đường dẫn là file `AnhKhuTro` do chính Chủ trọ tải lên (Mục 14), sai trả `422`. Thứ tự trong mảng là thứ tự hiển thị; ảnh đầu tiên là ảnh đại diện.
+- `PUT` thay toàn bộ danh sách tiện ích và ảnh bằng danh sách mới. Ảnh bị bỏ khỏi danh sách không bị xóa khỏi Storage ở Phase 1.
+- Khu trọ ở `LuuTru` chỉ còn xem được: `PUT` và thêm phòng mới đều trả `409`.
+
+**Response** — `POST` trả `201`; `GET /properties/{id}` và `PUT` trả `200`:
+
+```json
+{
+  "id": 3,
+  "name": "Nhà trọ Hoa Mai",
+  "address": "12 đường số 5, gần ĐH Công nghệ Thông tin",
+  "city": "Thành phố Hồ Chí Minh",
+  "ward": "<tên phường/xã>",
+  "description": "Khu yên tĩnh, có bảo vệ",
+  "status": "DangKhaiThac",
+  "amenities": [{ "id": 1, "name": "<tên tiện ích>" }],
+  "images": [{ "path": "public-media/AnhKhuTro/12/2026/10/3f2a...c1.jpg", "url": "https://..." }],
+  "roomCounts": { "total": 8, "trong": 2, "dangGiuCho": 1, "dangThue": 4, "baoTri": 1 }
+}
+```
+
+`roomCounts` không tính phòng đã lưu trữ. `GET /properties` trả danh sách gồm `id`, `name`, `address`, `city`, `ward`, `status`, `coverImageUrl`, `roomCounts`, không phân trang — mỗi Chủ trọ quản lý dưới 50 phòng (AS-04).
+
+**`POST /properties/{id}/archive`** — không có body, trả `204`. Trả `409` khi còn phòng ở `DangGiuCho` hoặc `DangThue` (BR-10). Lưu trữ khu trọ thì mọi phòng của khu chuyển `LuuTru` theo, và các yêu cầu thuê `ChoDuyet` của các phòng đó tự chuyển `TuChoi` với lý do do hệ thống sinh — tất cả trong cùng transaction. Không có endpoint `DELETE` (BR-09).
 
 ### 5.2 Phòng trọ
 
 | Method | Endpoint | Quyền | Mô tả |
 |---|---|---|---|
-| `POST` | `/api/v1/properties/{propertyId}/rooms` | Landlord (chủ sở hữu) | Thêm phòng, kèm giá và phí dịch vụ |
-| `GET` | `/api/v1/properties/{propertyId}/rooms` | Landlord (chủ sở hữu) | Danh sách phòng của khu trọ |
+| `POST` | `/api/v1/properties/{propertyId}/rooms` | Landlord (chủ sở hữu) | Thêm phòng |
+| `GET` | `/api/v1/properties/{propertyId}/rooms` | Landlord (chủ sở hữu) | Danh sách phòng của khu trọ; mặc định ẩn phòng đã lưu trữ, `includeArchived=true` để xem cả |
 | `GET` | `/api/v1/rooms/{id}` | Landlord (chủ sở hữu) | Chi tiết phòng ở góc nhìn quản lý |
-| `PUT` | `/api/v1/rooms/{id}` | Landlord (chủ sở hữu) | Cập nhật thông tin và giá |
+| `PUT` | `/api/v1/rooms/{id}` | Landlord (chủ sở hữu) | Cập nhật thông tin, giá, phí dịch vụ, tiện ích, ảnh |
 | `PATCH` | `/api/v1/rooms/{id}/visibility` | Landlord (chủ sở hữu) | Bật/tắt hiển thị tin |
 | `PATCH` | `/api/v1/rooms/{id}/occupancy-status` | Landlord (chủ sở hữu) | Chuyển sang `BaoTri` hoặc về `Trong` |
 | `POST` | `/api/v1/rooms/{id}/archive` | Landlord (chủ sở hữu) | Lưu trữ phòng |
-| `POST` | `/api/v1/rooms/{id}/images` | Landlord (chủ sở hữu) | Tải ảnh phòng |
 
-**Quy tắc quan trọng:**
+**`POST /api/v1/properties/{propertyId}/rooms`** và **`PUT /api/v1/rooms/{id}`** — cùng một body:
+
+```json
+{
+  "code": "P101",
+  "area": 20.5,
+  "maxOccupants": 2,
+  "rentPrice": 3000000,
+  "electricityUnitPrice": 3500,
+  "waterUnitPrice": 15000,
+  "description": "Có gác lửng, cửa sổ thoáng",
+  "serviceFees": [
+    { "name": "Rác", "amount": 20000 },
+    { "name": "Wifi", "amount": 100000 }
+  ],
+  "amenityIds": [7, 9],
+  "imagePaths": ["public-media/AnhPhong/12/2026/10/8b1c...d4.jpg"]
+}
+```
+
+- `code` bắt buộc, không trùng với phòng khác trong cùng khu trọ, trùng trả `409`.
+- `area` > 0, `maxOccupants` ≥ 1, `rentPrice` > 0; `electricityUnitPrice` và `waterUnitPrice` ≥ 0. Sai trả `422`.
+- `serviceFees` tối đa 10 khoản; mỗi khoản có `name` không trùng trong phòng và `amount` ≥ 0.
+- `amenityIds` chỉ nhận tiện ích có `scope = Phong`. `imagePaths` theo cùng quy tắc với khu trọ, với file `AnhPhong`. Sai trả `422`.
+- `PUT` thay toàn bộ phí dịch vụ, tiện ích và ảnh bằng danh sách mới; không đổi được khu trọ của phòng. Phòng ở `LuuTru` trả `409`.
+- Phòng đang `DangHienThi` mà `PUT` bỏ hết ảnh thì trả `422` — Chủ trọ tắt hiển thị trước.
+- Đổi giá thuê, đơn giá điện, đơn giá nước hoặc danh sách phí dịch vụ thì ghi `audit_logs` mã `SuaGiaPhong` với giá trị cũ và mới (BR-23). Thay đổi chỉ áp dụng cho hợp đồng lập **sau đó** (BR-12).
+
+**Response** — `POST` trả `201`; `GET /rooms/{id}` và `PUT` trả `200`:
+
+```json
+{
+  "id": 21,
+  "propertyId": 3,
+  "propertyName": "Nhà trọ Hoa Mai",
+  "code": "P101",
+  "area": 20.5,
+  "maxOccupants": 2,
+  "rentPrice": 3000000,
+  "electricityUnitPrice": 3500,
+  "waterUnitPrice": 15000,
+  "description": "Có gác lửng, cửa sổ thoáng",
+  "occupancyStatus": "Trong",
+  "visibilityStatus": "DangHienThi",
+  "isListed": true,
+  "serviceFees": [{ "name": "Rác", "amount": 20000 }],
+  "amenities": [{ "id": 7, "name": "<tên tiện ích>" }],
+  "images": [{ "path": "public-media/AnhPhong/12/2026/10/8b1c...d4.jpg", "url": "https://..." }],
+  "currentContractId": null
+}
+```
+
+- `isListed` cho biết phòng có đang xuất hiện trong tìm kiếm không — đủ cả bốn điều kiện BR-05 — để Chủ trọ hiểu vì sao một phòng đã bật hiển thị mà vẫn không ai thấy.
+- `currentContractId` là hợp đồng chưa kết thúc gần nhất của phòng (từ `Nhap` tới `DangThanhLy`), `null` nếu không có.
+- `GET /properties/{propertyId}/rooms` trả danh sách gồm `id`, `code`, `area`, `maxOccupants`, `rentPrice`, `occupancyStatus`, `visibilityStatus`, `isListed`, `coverImageUrl`, không phân trang (AS-04).
+
+**`PATCH /rooms/{id}/visibility`** — body `{ "visibilityStatus": "DangHienThi" }`, trả `204`. Chỉ nhận `DangHienThi` và `DaAnBoiChuTro`. Phòng đang ở `DaAnBoiAdmin` trả `409` — Chủ trọ không tự bật lại được. Phòng ở `LuuTru` trả `409`. Bật `DangHienThi` khi phòng chưa có ảnh nào trả `422`.
+
+**`PATCH /rooms/{id}/occupancy-status`** — body `{ "occupancyStatus": "BaoTri" }`, trả `204`. Chỉ nhận hai chuyển tiếp `Trong` → `BaoTri` và `BaoTri` → `Trong`; chuyển tiếp khác trả `409`. Chuyển về `Trong` mà hợp đồng hiện tại chưa ở `DaThanhLy` hoặc `DaHuy` cũng trả `409` (BR-08).
+
+**`POST /rooms/{id}/archive`** — không có body, trả `204`. Chỉ nhận phòng ở `Trong` hoặc `BaoTri`, trạng thái khác trả `409`. Các yêu cầu thuê `ChoDuyet` của phòng tự chuyển `TuChoi` với lý do do hệ thống sinh. Lưu trữ là vĩnh viễn — không có thao tác bỏ lưu trữ.
+
+**Quy tắc chung:**
 
 - `POST /properties/{propertyId}/rooms` tạo phòng ở `occupancyStatus = Trong` và `visibilityStatus = DaAnBoiChuTro` — phòng chưa hiển thị cho tới khi Chủ trọ bật (BP-03).
-- `PUT /rooms/{id}` sửa giá chỉ ảnh hưởng hợp đồng lập **sau đó** (BR-12); thao tác này ghi `audit_logs`.
-- `PATCH /rooms/{id}/visibility` chỉ nhận `DangHienThi` và `DaAnBoiChuTro`. Phòng đang ở `DaAnBoiAdmin` trả `409` — Chủ trọ không tự bật lại được.
-- `POST /rooms/{id}/archive` chỉ nhận phòng ở `Trong` hoặc `BaoTri`, trạng thái khác trả `409`. Các yêu cầu thuê `ChoDuyet` của phòng tự chuyển `TuChoi` với lý do do hệ thống sinh. Lưu trữ là vĩnh viễn — không có thao tác bỏ lưu trữ.
-- `PATCH /rooms/{id}/occupancy-status` chỉ nhận hai chuyển tiếp `Trong` → `BaoTri` và `BaoTri` → `Trong`; chuyển tiếp khác trả `409`. Chuyển về `Trong` mà hợp đồng hiện tại chưa ở `DaThanhLy` hoặc `DaHuy` cũng trả `409` (BR-08).
 - Không có endpoint `DELETE /rooms/{id}` (BR-09).
 - Ẩn tin vi phạm theo từng phòng (`DaAnBoiAdmin`) thuộc Phase 2, làm cùng khiếu nại BP-13. Phase 1 Admin xử lý vi phạm bằng cách khóa tài khoản Chủ trọ — toàn bộ phòng của Chủ trọ đó rời khỏi kết quả tìm kiếm theo BR-05.
 
@@ -189,9 +285,12 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 |---|---|---|---|
 | `GET` | `/api/v1/rooms/search` | Công khai | Tìm phòng bằng bộ lọc |
 | `GET` | `/api/v1/rooms/{id}/public` | Công khai | Chi tiết phòng và khu trọ cho người tìm phòng |
-| `GET` | `/api/v1/amenities` | Công khai | Danh mục tiện ích phục vụ bộ lọc |
+| `GET` | `/api/v1/amenities` | Công khai | Danh mục tiện ích, gồm `id`, `name`, `scope` |
+| `GET` | `/api/v1/locations` | Công khai | Danh mục tỉnh/thành và phường/xã |
 
-**Tham số của `/rooms/search`:** `minPrice`, `maxPrice`, `minArea`, `maxArea`, `city`, `district`, `ward`, `amenityIds` (lặp lại nhiều lần), `minOccupants`, `page`, `pageSize`, `sortBy` (`price` / `area`), `sortDirection`.
+**`GET /api/v1/locations`** trả danh mục đơn vị hành chính 2 cấp hiện hành (từ 01/07/2025 không còn cấp quận/huyện), dạng `[{ "city": "...", "wards": ["...", "..."] }]`. Danh mục là file JSON tĩnh trong backend, lấy từ danh mục đơn vị hành chính chính thức sau sắp xếp năm 2025; frontend dùng cho ô chọn địa chỉ và bộ lọc, backend dùng để kiểm tra địa chỉ khu trọ (Mục 5.1).
+
+**Tham số của `/rooms/search`:** `minPrice`, `maxPrice`, `minArea`, `maxArea`, `city`, `ward`, `amenityIds` (lặp lại nhiều lần), `minOccupants`, `page`, `pageSize`, `sortBy` (`price` / `area`), `sortDirection`. Với `amenityIds`, phòng phải có đủ mọi tiện ích được chọn, tính cả tiện ích của phòng và của khu trọ chứa phòng.
 
 Kết quả **chỉ** gồm phòng thỏa mãn đủ điều kiện BR-05. Response không chứa thông tin liên hệ của Chủ trọ (QR-07).
 

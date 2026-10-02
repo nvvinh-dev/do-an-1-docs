@@ -208,7 +208,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 **Luồng nghiệp vụ chính:**
 
-1. Chủ trọ tạo **Khu trọ**: tên, địa chỉ, mô tả, tiện ích chung, hình ảnh.
+1. Chủ trọ tạo **Khu trọ**: tên, địa chỉ (tỉnh/thành và phường/xã theo danh mục đơn vị hành chính hiện hành, cùng dòng địa chỉ chi tiết), mô tả, tiện ích chung, hình ảnh.
 2. Chủ trọ thêm các **Phòng** thuộc Khu trọ: mã/tên phòng, diện tích, số người tối đa, tiện ích riêng, hình ảnh, **giá thuê**, **đơn giá điện**, **đơn giá nước**, **các khoản phí dịch vụ cố định** (rác, internet, giữ xe, phí quản lý).
 3. Chủ trọ chuyển **trạng thái khai thác** của phòng giữa *Trống* và *Bảo trì*; *Đang giữ chỗ* và *Đang thuê* do hệ thống đặt theo yêu cầu thuê và hợp đồng — xem Mục 8.2.
 4. Chủ trọ cập nhật **trạng thái hiển thị** của phòng (Đang hiển thị / Đã ẩn) — xem Mục 8.3.
@@ -216,7 +216,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 **Luồng thay thế:**
 
-- **A1 — Thay đổi giá:** Chủ trọ sửa giá thuê hoặc đơn giá điện/nước. Thay đổi **chỉ áp dụng cho hợp đồng và hóa đơn phát sinh sau đó**; hợp đồng đang hiệu lực và hóa đơn đã phát hành giữ nguyên giá đã chốt (xem BR-12, BR-13).
+- **A1 — Thay đổi giá:** Chủ trọ sửa giá thuê, đơn giá điện/nước hoặc phí dịch vụ; thay đổi được ghi nhật ký (BR-23). Thay đổi **chỉ áp dụng cho hợp đồng và hóa đơn phát sinh sau đó**; hợp đồng đang hiệu lực và hóa đơn đã phát hành giữ nguyên giá đã chốt (xem BR-12, BR-13).
 
 **Kết quả:** Toàn bộ tài sản cho thuê được số hóa với thông số giá đầy đủ.
 
@@ -234,7 +234,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 **Luồng nghiệp vụ chính:**
 
-1. Phòng mới tạo ở trạng thái *Đã ẩn bởi Chủ trọ*. Khi phòng sẵn sàng cho thuê, Chủ trọ bật trạng thái hiển thị cho Phòng.
+1. Phòng mới tạo ở trạng thái *Đã ẩn bởi Chủ trọ*. Khi phòng sẵn sàng cho thuê, Chủ trọ bật trạng thái hiển thị cho Phòng; phòng phải có ít nhất một ảnh mới bật được.
 2. Hệ thống kiểm tra điều kiện hiển thị (xem BR-05) và đưa phòng vào kết quả tìm kiếm.
 3. Phòng hiển thị công khai với người tìm kiếm.
 4. Chủ trọ có thể chủ động tắt hiển thị bất cứ lúc nào.
@@ -627,7 +627,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **BR-18** | AI chỉ được trả về dữ liệu **có thật trong hệ thống** và phải dẫn chiếu tới bản ghi gốc. AI tuyệt đối không được sinh ra thông tin phòng, giá, hoặc điều khoản hợp đồng không tồn tại. |
 | **BR-19** | **Điểm phù hợp ở ghép do hệ thống tính** bằng công thức có trọng số cố định, không do AI sinh. AI chỉ diễn giải điểm số đã có. Trọng số: **ngân sách 30%, thói quen sinh hoạt 30%, khu vực mong muốn 25%, trường học/nơi làm việc 15%**. Yêu cầu về giới tính bạn cùng phòng là **điều kiện lọc cứng**, không tham gia tính điểm. |
 | **BR-20** | Mọi chức năng nghiệp vụ lõi (tìm kiếm bằng bộ lọc, hợp đồng, hóa đơn, sự cố) phải hoạt động **độc lập hoàn toàn** với dịch vụ AI. Khi AI không khả dụng, hệ thống chỉ mất tính năng hỗ trợ, không mất chức năng. |
-| **BR-23** | Mọi thao tác thuộc các nhóm sau bắt buộc ghi **Nhật ký hệ thống** không thể sửa xóa, gồm người thực hiện, thời điểm, giá trị trước và sau: thay đổi giá thuê/đơn giá; tạo, sửa, hủy hóa đơn; nhập/sửa chỉ số điện nước; xác nhận và từ chối xác nhận thanh toán; xác nhận nhận và hoàn cọc; tự chốt bảng thanh lý; khai báo/sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt/từ chối/thu hồi vai trò Chủ trọ; khóa/mở khóa tài khoản; ẩn tin đăng. |
+| **BR-23** | Mọi thao tác thuộc các nhóm sau bắt buộc ghi **Nhật ký hệ thống** không thể sửa xóa, gồm người thực hiện, thời điểm, giá trị trước và sau: thay đổi giá thuê/đơn giá/phí dịch vụ của phòng; tạo, sửa, hủy hóa đơn; nhập/sửa chỉ số điện nước; xác nhận và từ chối xác nhận thanh toán; xác nhận nhận và hoàn cọc; tự chốt bảng thanh lý; khai báo/sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt/từ chối/thu hồi vai trò Chủ trọ; khóa/mở khóa tài khoản; ẩn tin đăng. |
 | **BR-24** | Admin **không** có quyền đọc mặc định đối với hợp đồng và hóa đơn của người dùng. Quyền đọc chỉ được mở đối với các bản ghi **được liên kết trong một khiếu nại đang mở**, và mỗi lần truy cập đều bị ghi nhật ký. |
 | **BR-25** | Hồ sơ ở ghép chỉ hiển thị **thông tin không định danh** (giới tính, khoảng ngân sách, thói quen, khu vực, trường/công ty) cho tới khi **cả hai bên chấp nhận kết nối**. Thông tin liên hệ chỉ được tiết lộ sau khi hai bên đồng ý. |
 
@@ -1124,6 +1124,9 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Rút thông báo trả phòng (BP-10 A4) | Thực tế người thuê đổi ý hoặc hai bên thỏa thuận ở tiếp; không có đường quay lại thì hợp đồng buộc phải thanh lý dù không ai muốn |
 | Người thuê rút được yêu cầu thuê đã duyệt khi chưa lập hợp đồng (BP-06 A1) | Người thuê đổi ý sau khi được duyệt thì phòng không phải bị giữ vô ích tới hết 72 giờ |
 | Khóa Chủ trọ đang có người thuê là giới hạn được chấp nhận ở Phase 1 (BP-01 A2) | Cho tài khoản bị khóa vẫn thao tác được một phần cần cơ chế phân quyền riêng; Phase 1 chọn cảnh báo Admin trước khi khóa |
+| Địa chỉ theo đơn vị hành chính 2 cấp (tỉnh/thành, phường/xã) | Từ 01/07/2025 không còn cấp quận/huyện; chọn từ danh mục chính thức để bộ lọc khu vực không lệch vì cách gõ tên khác nhau |
+| Phòng phải có ít nhất một ảnh mới được đăng tin | Tin không ảnh gần như vô dụng với người tìm phòng và dễ là tin ảo (G-04) |
+| Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 
 ---
 

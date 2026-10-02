@@ -112,12 +112,13 @@ Hồ sơ đăng ký làm Chủ trọ.
 | `id` | bigint | PK | |
 | `landlord_user_id` | bigint | FK → `users.id`, NOT NULL | BR-02: một khu trọ thuộc một Chủ trọ |
 | `name` | text | NOT NULL | |
-| `address` | text | NOT NULL | Địa chỉ đầy đủ |
-| `ward` | text | | Phường/xã — dùng cho bộ lọc khu vực |
-| `district` | text | | Quận/huyện — dùng cho bộ lọc khu vực |
+| `address` | text | NOT NULL | Số nhà, đường, mô tả vị trí; có thể ghi thêm tên quận cũ cho dễ nhận biết |
+| `ward` | text | NOT NULL | Phường/xã — dùng cho bộ lọc khu vực |
 | `city` | text | NOT NULL | Tỉnh/thành — dùng cho bộ lọc khu vực |
 | `description` | text | | |
 | `status` | text | NOT NULL, CHECK | `DangKhaiThac` / `LuuTru` |
+
+**Địa chỉ theo đơn vị hành chính 2 cấp.** Từ 01/07/2025 không còn cấp quận/huyện, nên địa chỉ gồm `city` (tỉnh/thành) và `ward` (phường/xã). Cặp (`city`, `ward`) phải có trong danh mục đơn vị hành chính — file JSON tĩnh trong backend, không lưu trong database, phục vụ `GET /locations`.
 
 **BR-10:** không được chuyển `status` sang `LuuTru` khi còn phòng có `occupancy_status` là `DangGiuCho` hoặc `DangThue`. Lưu trữ khu trọ thì mọi phòng của khu chuyển `occupancy_status` sang `LuuTru` theo. Lưu trữ là vĩnh viễn, với cả khu trọ lẫn phòng.
 
@@ -164,13 +165,17 @@ Tiện ích được chuẩn hóa thành danh mục vì bộ lọc tìm kiếm �
 
 `amenities`: `id` (PK), `name` (NOT NULL, UNIQUE), `scope` (`KhuTro` / `Phong`).
 
-`property_amenities`: `property_id` + `amenity_id`, khóa chính tổ hợp.
+`property_amenities`: `property_id` + `amenity_id`, khóa chính tổ hợp; chỉ nhận tiện ích `scope = KhuTro`.
 
-`room_amenities`: `room_id` + `amenity_id`, khóa chính tổ hợp.
+`room_amenities`: `room_id` + `amenity_id`, khóa chính tổ hợp; chỉ nhận tiện ích `scope = Phong`.
+
+Danh mục tiện ích cố định, được tạo sẵn khi ứng dụng khởi động; Chủ trọ chỉ chọn, không thêm tiện ích mới.
 
 ### 4.5 `property_images`, `room_images`
 
 Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url` (NOT NULL), `display_order` (int).
+
+Mỗi khu trọ và mỗi phòng có tối đa 10 ảnh; `display_order` bắt đầu từ 0, ảnh có `display_order` nhỏ nhất là ảnh đại diện. Phòng phải có ít nhất một ảnh mới được bật `DangHienThi`.
 
 ---
 
@@ -392,7 +397,7 @@ Phase 1 chỉ gửi thông báo trong ứng dụng, và chỉ cho các sự ki�
 | `new_value` | jsonb | | Giá trị sau |
 | `occurred_at` | timestamptz | NOT NULL | |
 
-**BR-23 — các thao tác bắt buộc ghi nhật ký:** thay đổi giá thuê hoặc đơn giá điện nước; tạo, sửa, hủy hóa đơn; nhập hoặc sửa chỉ số điện nước; xác nhận và từ chối xác nhận thanh toán; xác nhận nhận cọc và hoàn cọc; Chủ trọ tự chốt bảng thanh lý; khai báo hoặc sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt, từ chối, thu hồi vai trò Chủ trọ; khóa và mở khóa tài khoản; ẩn tin đăng.
+**BR-23 — các thao tác bắt buộc ghi nhật ký:** thay đổi giá thuê, đơn giá điện nước hoặc phí dịch vụ của phòng; tạo, sửa, hủy hóa đơn; nhập hoặc sửa chỉ số điện nước; xác nhận và từ chối xác nhận thanh toán; xác nhận nhận cọc và hoàn cọc; Chủ trọ tự chốt bảng thanh lý; khai báo hoặc sửa tài khoản ngân hàng nhận tiền của Chủ trọ; duyệt, từ chối, thu hồi vai trò Chủ trọ; khóa và mở khóa tài khoản; ẩn tin đăng.
 
 Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của chúng thuộc danh sách BR-23 — nên `actor_user_id` luôn là một người dùng thật.
 
@@ -447,7 +452,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `MoKhoaTaiKhoan` | Mở khóa tài khoản | `AppUser` |
 | `KhaiBaoTaiKhoanNhanTien` | Khai báo tài khoản ngân hàng nhận tiền lần đầu | `AppUser` |
 | `SuaTaiKhoanNhanTien` | Sửa tài khoản ngân hàng nhận tiền | `AppUser` |
-| `SuaGiaPhong` | Sửa giá thuê, đơn giá điện hoặc đơn giá nước của phòng | `Room` |
+| `SuaGiaPhong` | Sửa giá thuê, đơn giá điện, đơn giá nước hoặc danh sách phí dịch vụ của phòng | `Room` |
 | `SuaChiSoDau` | Sửa chỉ số đầu của hợp đồng đã hiệu lực | `Contract` |
 | `XacNhanNhanCoc` | Xác nhận đã nhận cọc | `Contract` |
 | `GhiNhanHoanCoc` | Ghi nhận đã hoàn cọc cho hợp đồng bị hủy | `Contract` |
@@ -470,7 +475,7 @@ Mã dành cho Phase 2: `ThuHoiVaiTroChuTro`, `AnTinDang`.
 | `rooms` | `(occupancy_status, visibility_status)` | Lọc điều kiện hiển thị BR-05 |
 | `rooms` | `(property_id)` | Liệt kê phòng theo khu trọ |
 | `rooms` | `(rent_price)`, `(area)`, `(max_occupants)` | Bộ lọc tìm kiếm BP-04 |
-| `properties` | `(city, district, ward)` | Bộ lọc khu vực |
+| `properties` | `(city, ward)` | Bộ lọc khu vực |
 | `properties` | `(landlord_user_id)` | Phân quyền theo sở hữu BR-04 |
 | `contracts` | `(room_id)` unique có điều kiện với trạng thái đang chiếm dụng | BR-07 |
 | `contracts` | `(tenant_user_id)` | Người thuê xem hợp đồng của mình |

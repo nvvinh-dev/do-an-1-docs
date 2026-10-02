@@ -37,15 +37,17 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 |---|---|---|---|
 | **FR-11** | Chủ trọ tạo được nhiều khu trọ; mỗi khu trọ thuộc về đúng một Chủ trọ | BR-02 | `POST /properties` · `properties.landlord_user_id` |
 | **FR-12** | Chủ trọ thêm được phòng vào khu trọ của mình với đầy đủ: mã phòng, diện tích, số người tối đa, giá thuê, đơn giá điện, đơn giá nước và các khoản phí dịch vụ cố định | BP-02 | `POST /properties/{id}/rooms` · `rooms`, `room_service_fees` |
+| **FR-99** | Địa chỉ khu trọ gồm tỉnh/thành và phường/xã chọn từ danh mục đơn vị hành chính 2 cấp hiện hành, cùng dòng địa chỉ chi tiết; cặp tỉnh/thành – phường/xã không có trong danh mục thì hệ thống từ chối | BP-02, BP-04 | `GET /locations`, `POST /properties` · `properties.city`, `ward` |
+| **FR-100** | Khu trọ và phòng có tối đa 10 ảnh do chính Chủ trọ tải lên; Chủ trọ sắp thứ tự, ảnh đầu tiên là ảnh đại diện. Tiện ích của khu trọ và của phòng chọn từ danh mục cố định, đúng phạm vi khu trọ hoặc phòng | BP-02 | `POST /properties`, `/properties/{id}/rooms` · `*_images`, `*_amenities` |
 | **FR-13** | Chủ trọ không thao tác được trên khu trọ hoặc phòng không thuộc mình | BR-04 | Kiểm tra sở hữu ở mọi endpoint |
-| **FR-14** | Chủ trọ sửa được giá thuê và đơn giá điện nước của phòng; thay đổi này **không** làm đổi giá của hợp đồng đang hiệu lực và hóa đơn đã phát hành | BR-12, BR-13 | `PUT /rooms/{id}` · `contracts`, `invoices` lưu bản sao giá |
-| **FR-15** | Chủ trọ bật và tắt được trạng thái hiển thị của phòng; phòng mới tạo ở trạng thái Đã ẩn bởi Chủ trọ cho tới khi Chủ trọ bật | BP-03 | `PATCH /rooms/{id}/visibility` · `rooms.visibility_status` |
+| **FR-14** | Chủ trọ sửa được giá thuê, đơn giá điện nước và phí dịch vụ của phòng; thay đổi này **không** làm đổi giá của hợp đồng đang hiệu lực và hóa đơn đã phát hành, và được ghi nhật ký với giá trị cũ và mới | BR-12, BR-13 | `PUT /rooms/{id}` · `contracts`, `invoices` lưu bản sao giá |
+| **FR-15** | Chủ trọ bật và tắt được trạng thái hiển thị của phòng; phòng mới tạo ở trạng thái Đã ẩn bởi Chủ trọ cho tới khi Chủ trọ bật. Phòng phải có ít nhất một ảnh và không ở Lưu trữ mới bật được hiển thị | BP-03 | `PATCH /rooms/{id}/visibility` · `rooms.visibility_status` |
 | **FR-16** | Admin khóa tài khoản Chủ trọ thì toàn bộ phòng của Chủ trọ đó rời khỏi kết quả tìm kiếm ngay; mở khóa thì các phòng đủ điều kiện BR-05 hiển thị lại. Ẩn từng tin vi phạm thuộc Phase 2 (BP-03 A1, làm cùng BP-13) | BP-03, BR-05 | Điều kiện truy vấn `users.is_locked` |
 | **FR-17** | Hệ thống tự gỡ phòng khỏi kết quả tìm kiếm khi phòng chuyển sang Đang giữ chỗ, Đang thuê hoặc Bảo trì | BP-03 A2, BR-05 | `rooms.occupancy_status` |
 | **FR-18** | Hệ thống từ chối chuyển phòng về trạng thái Trống khi hợp đồng hiện tại của phòng chưa ở Đã thanh lý hoặc Đã hủy | BR-08 | `PATCH /rooms/{id}/occupancy-status` |
 | **FR-89** | Chủ trọ chỉ tự chuyển được trạng thái khai thác của phòng giữa Trống và Bảo trì; các trạng thái khai thác còn lại do hệ thống chuyển theo yêu cầu thuê, hợp đồng và thanh lý, ngoài thao tác lưu trữ | BP-02 | `PATCH /rooms/{id}/occupancy-status` |
 | **FR-19** | Phòng hoặc khu trọ đã từng phát sinh hợp đồng hay hóa đơn **không** xóa được, chỉ chuyển sang trạng thái Lưu trữ | BR-09 | Không có endpoint `DELETE` |
-| **FR-20** | Hệ thống từ chối lưu trữ khu trọ khi còn phòng ở trạng thái Đang giữ chỗ hoặc Đang thuê; lưu trữ khu trọ thì các phòng của khu chuyển sang Lưu trữ theo. Phòng chỉ lưu trữ được khi đang Trống hoặc Bảo trì; khi lưu trữ, các yêu cầu thuê đang chờ duyệt của phòng tự chuyển sang Từ chối. Lưu trữ là vĩnh viễn, không có thao tác bỏ lưu trữ | BR-10 | `POST /properties/{id}/archive`, `/rooms/{id}/archive` |
+| **FR-20** | Hệ thống từ chối lưu trữ khu trọ khi còn phòng ở trạng thái Đang giữ chỗ hoặc Đang thuê; lưu trữ khu trọ thì các phòng của khu chuyển sang Lưu trữ theo. Phòng chỉ lưu trữ được khi đang Trống hoặc Bảo trì; khi lưu trữ, các yêu cầu thuê đang chờ duyệt của phòng tự chuyển sang Từ chối. Lưu trữ là vĩnh viễn, không có thao tác bỏ lưu trữ; khu trọ và phòng đã lưu trữ chỉ còn xem được | BR-10 | `POST /properties/{id}/archive`, `/rooms/{id}/archive` |
 
 ---
 
@@ -54,7 +56,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | Mã | Yêu cầu | Nguồn | Hiện thực |
 |---|---|---|---|
 | **FR-21** | Người dùng chưa đăng nhập tìm kiếm và xem được chi tiết phòng đang cho thuê; phòng không đủ điều kiện BR-05 không xem được ở trang chi tiết công khai | BP-04 | `GET /rooms/search`, `/rooms/{id}/public` |
-| **FR-22** | Bộ lọc hỗ trợ: khoảng giá, khoảng diện tích, khu vực, tiện ích và số người tối đa | BP-04 | Tham số của `/rooms/search` |
+| **FR-22** | Bộ lọc hỗ trợ: khoảng giá, khoảng diện tích, khu vực (tỉnh/thành, phường/xã), tiện ích và số người tối đa | BP-04 | Tham số của `/rooms/search` |
 | **FR-23** | Kết quả tìm kiếm **chỉ** chứa phòng thỏa mãn đồng thời: trạng thái khai thác Trống, trạng thái hiển thị Đang hiển thị, khu trọ đang khai thác, và Chủ trọ không bị khóa | BR-05 | Điều kiện truy vấn |
 | **FR-24** | Kết quả tìm kiếm **không** chứa thông tin liên hệ của Chủ trọ | QR-07 | Response của `/rooms/search` |
 

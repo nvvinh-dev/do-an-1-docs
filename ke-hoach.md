@@ -52,7 +52,7 @@ Frontend hiện mới có khung dự án và lớp gọi API. Toàn bộ giao di
 
 | Tuần | Việc | Hạn |
 |---|---|---|
-| 1 | **BP-02 và BP-03 backend** — khu trọ, phòng, phí dịch vụ, tiện ích, ảnh, bật tắt hiển thị, lưu trữ | 11/10 |
+| 1 | **BP-02 và BP-03 backend** — khu trọ, phòng, phí dịch vụ, tiện ích, ảnh, bật tắt hiển thị, lưu trữ, danh mục tỉnh/thành – phường/xã | 11/10 |
 | 2 | **BP-04 backend** — tìm kiếm bằng bộ lọc, chi tiết phòng công khai · dashboard Chủ trọ | 18/10 |
 | 3 | **BP-07 backend** — chốt chỉ số, lập và phát hành hóa đơn, báo và xác nhận thanh toán, dòng điều chỉnh sai sót kỳ trước | 25/10 |
 | 4 | Frontend Chủ trọ — quản lý khu trọ, quản lý phòng, đăng và ẩn tin, tải ảnh | 01/11 |
