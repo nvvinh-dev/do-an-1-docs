@@ -387,7 +387,7 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice/finalize` | Landlord (chủ sở hữu) | Tự chốt khi người thuê không phản hồi quá 7 ngày, bắt buộc có `note` |
 | `POST` | `/api/v1/contracts/{id}/settlement/complete` | Landlord (chủ sở hữu) | Xác nhận hoàn tất thanh lý |
 
-**`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Hợp đồng chuyển `DangThanhLy`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
+**`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Hợp đồng chuyển `DangThanhLy`; server ghi bên gửi vào `move_out_notice_by_user_id` và lý do vào `termination_reason`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
 
 **`POST /settlement-invoice`** tạo hóa đơn `type = "ThanhLy"` ở `Nhap`, gồm chỉ số điện nước lần cuối và các dòng chi tiết. Kỳ của hóa đơn thanh lý (FR-93):
 
@@ -415,7 +415,7 @@ Mỗi khoản khấu trừ **bắt buộc** là một dòng riêng có `descript
 
 Client gửi một trong hai loại dòng này trả `422`. Hợp đồng còn `payment_reports` ở `ChoXacNhan` trả `409` — Chủ trọ xác nhận hoặc từ chối trước.
 
-Tổng các dòng `PhiPhat` không được vượt `depositAmount`, vượt trả `422` (FR-87).
+Dòng `PhiPhat` chỉ được nhận khi người thuê là bên gửi thông báo trả phòng, số ngày báo trước — từ ngày gửi tới `expectedMoveOutDate` — ít hơn 30, và `expectedMoveOutDate` trước `endDate`; ngược lại trả `422`. Tổng các dòng `PhiPhat` không được vượt `depositAmount`, vượt trả `422` (BR-22, FR-87).
 
 `totalAmount` âm nghĩa là Chủ trọ phải hoàn lại phần cọc dư.
 

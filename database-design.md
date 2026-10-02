@@ -226,9 +226,10 @@ Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url`
 | `deposit_refund_note` | text | | Lý do giữ lại cọc — bắt buộc khi Người thuê hủy và số hoàn nhỏ hơn tiền cọc |
 | `activated_at` | timestamptz | | Thời điểm chuyển sang `DangHieuLuc` |
 | `move_out_notice_at` | timestamptz | | Thời điểm gửi thông báo trả phòng |
+| `move_out_notice_by_user_id` | bigint | FK → `users.id` | Bên gửi thông báo trả phòng — căn cứ cho phí phạt (BR-22) |
 | `expected_move_out_date` | date | | Ngày trả phòng dự kiến |
 | `terminated_at` | timestamptz | | Thời điểm hoàn tất thanh lý |
-| `termination_reason` | text | | |
+| `termination_reason` | text | | Lý do trả phòng ghi trong thông báo trả phòng |
 | `cancel_reason` | text | | Bắt buộc khi `status` = `DaHuy` |
 | `cancelled_by_user_id` | bigint | FK → `users.id` | Bên hủy hợp đồng; NULL khi hệ thống tự hủy do hết hạn giữ chỗ |
 
@@ -329,7 +330,7 @@ Với hóa đơn thanh lý, `DaThanhToan` nghĩa là đã tất toán xong. Hợ
 | `evidence_url` | text | | Ảnh minh chứng hư hỏng |
 | `related_invoice_id` | bigint | FK → `invoices.id` | Hóa đơn gốc, thuộc cùng hợp đồng: bắt buộc với `CongNoKyTruoc`; với `DieuChinhKhac` khi dòng đó điều chỉnh sai sót của một hóa đơn trước (BR-16) |
 
-**BR-22:** mọi khoản khấu trừ tiền cọc phải là một dòng riêng có `description`. Không cho phép gộp thành một khoản không giải thích.
+**BR-22:** mọi khoản khấu trừ tiền cọc phải là một dòng riêng có `description`. Không cho phép gộp thành một khoản không giải thích. Dòng `PhiPhat` chỉ hợp lệ khi `contracts.move_out_notice_by_user_id` là người thuê đứng tên, số ngày từ `move_out_notice_at` tới `expected_move_out_date` ít hơn 30, và `expected_move_out_date` trước `end_date`; tổng các dòng `PhiPhat` không vượt `deposit_amount`.
 
 ### 6.3 `payment_reports` — Người thuê báo đã thanh toán
 
