@@ -211,6 +211,8 @@ Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url`
 | `electricity_unit_price` | numeric(14,2) | NOT NULL | Đơn giá điện đã chốt |
 | `water_unit_price` | numeric(14,2) | NOT NULL | Đơn giá nước đã chốt |
 | `deposit_amount` | numeric(14,2) | NOT NULL | BR-21: bắt buộc ghi nhận, có thể bằng 0 |
+| `initial_electricity_index` | numeric(12,2) | NOT NULL | Chỉ số điện lúc bàn giao phòng — chỉ số cũ của hóa đơn đầu tiên (BR-14) |
+| `initial_water_index` | numeric(12,2) | NOT NULL | Chỉ số nước lúc bàn giao phòng |
 | `start_date` | date | NOT NULL | |
 | `end_date` | date | NOT NULL | |
 | `billing_cycle_day` | int | NOT NULL | Ngày chốt số hằng kỳ |
@@ -234,6 +236,8 @@ Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập 
 **BR-07:** tại một thời điểm, một `room_id` chỉ có tối đa một hợp đồng ở `DangHieuLuc`, `SapHetHan` hoặc `DangThanhLy`. Ràng buộc này được bảo đảm bằng unique index có điều kiện trên `room_id`.
 
 **BR-21:** chỉ chuyển sang `DangHieuLuc` khi `tenant_confirmed_at` và `deposit_received_at` đều đã có giá trị.
+
+**Chỉ số đầu (BR-14):** `initial_electricity_index` và `initial_water_index` được nhập khi lập hợp đồng và là chỉ số cũ của hóa đơn đầu tiên. Khi hợp đồng còn ở `Nhap`, hai cột này sửa cùng các điều khoản khác. Khi hợp đồng đã ở `DangHieuLuc` mà chưa có hóa đơn nào khác `DaHuy`, Chủ trọ vẫn sửa được — dùng cho trường hợp số thực tế lúc bàn giao khác số đã ghi; mỗi lần sửa ghi `audit_logs` (BR-23) và thông báo cho người thuê.
 
 **Hạn giữ chỗ (BP-06 A3):** quá 3 ngày kể từ `rental_requests.processed_at` của yêu cầu gốc mà hợp đồng chưa ở `DangHieuLuc` thì hợp đồng chuyển sang `DaHuy`, phòng trở lại `Trong`.
 
@@ -287,7 +291,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `settled_at` | timestamptz | | Thời điểm chuyển sang `DaThanhToan` |
 | `cancel_reason` | text | | Bắt buộc khi `status` = `DaHuy` |
 
-**BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng.
+**BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng; kỳ đầu tiên lấy `contracts.initial_*_index`.
 
 **BR-17:** mỗi `contract_id` chỉ có một hóa đơn `type = 'DinhKy'` cho mỗi cặp (`period_start`, `period_end`) — unique index.
 

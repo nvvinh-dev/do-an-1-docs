@@ -232,6 +232,8 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 | `POST` | `/api/v1/contracts/{id}/request-changes` | Tenant (người đứng tên) | Yêu cầu chỉnh sửa, bắt buộc có `reason` |
 | `POST` | `/api/v1/contracts/{id}/deposit/confirm` | Landlord (chủ sở hữu) | Xác nhận đã nhận cọc |
 | `POST` | `/api/v1/contracts/{id}/cancel` | Landlord / Tenant | Hủy trước ngày bắt đầu hợp đồng, bắt buộc có `reason` |
+| `GET` | `/api/v1/rooms/{id}/meter-readings/latest` | Landlord (chủ sở hữu) | Chỉ số điện nước cuối cùng đã ghi nhận của phòng, dùng điền sẵn chỉ số đầu khi lập hợp đồng |
+| `PATCH` | `/api/v1/contracts/{id}/initial-meter-readings` | Landlord (chủ sở hữu) | Sửa chỉ số đầu khi hợp đồng đã hiệu lực và chưa có hóa đơn |
 
 **`POST /api/v1/contracts`** — body chốt cứng toàn bộ giá tại thời điểm tạo:
 
@@ -242,6 +244,8 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
   "electricityUnitPrice": 3500,
   "waterUnitPrice": 15000,
   "depositAmount": 3000000,
+  "initialElectricityIndex": 1180.0,
+  "initialWaterIndex": 76.0,
   "startDate": "2026-10-01",
   "endDate": "2027-09-30",
   "billingCycleDay": 30,
@@ -266,6 +270,8 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 
 `POST /deposit/confirm` ghi `audit_logs` theo BR-23.
 
+**Chỉ số đầu (BR-14, FR-90):** `initialElectricityIndex` và `initialWaterIndex` bắt buộc khi tạo hợp đồng, là chỉ số cũ của hóa đơn đầu tiên. Giá trị điền sẵn lấy từ `GET /rooms/{id}/meter-readings/latest`: chỉ số mới của hóa đơn chưa hủy gần nhất thuộc các hợp đồng của phòng, hoặc chỉ số đầu của hợp đồng gần nhất nếu hợp đồng đó chưa có hóa đơn; `null` khi phòng chưa từng có hợp đồng. `PATCH /contracts/{id}/initial-meter-readings` chỉ nhận khi hợp đồng ở `DangHieuLuc` và chưa có hóa đơn nào khác `DaHuy`, ngược lại trả `409`; mỗi lần sửa ghi `audit_logs` và gửi thông báo mức Cao cho người thuê.
+
 **`POST /request-changes`** — body gồm `reason` (bắt buộc). Chỉ nhận khi hợp đồng ở `ChoNguoiThueXacNhan`; hợp đồng quay về `Nhap` để Chủ trọ sửa bằng `PUT` rồi gửi lại bằng `/send`. Chủ trọ nhận thông báo mức Cao kèm lý do.
 
 **Hạn giữ chỗ (BP-06 A3):** quá 3 ngày kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này.
@@ -284,7 +290,7 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 |---|---|---|---|
 | `POST` | `/api/v1/contracts/{contractId}/invoices` | Landlord (chủ sở hữu) | Chốt chỉ số và tạo hóa đơn nháp |
 | `GET` | `/api/v1/contracts/{contractId}/invoices` | Bên liên quan | Danh sách hóa đơn của hợp đồng |
-| `GET` | `/api/v1/contracts/{contractId}/meter-readings/latest` | Landlord (chủ sở hữu) | Chỉ số kỳ liền trước, dùng làm chỉ số cũ |
+| `GET` | `/api/v1/contracts/{contractId}/meter-readings/latest` | Landlord (chủ sở hữu) | Chỉ số cũ của kỳ kế tiếp: chỉ số mới của hóa đơn chưa hủy gần nhất, hoặc chỉ số đầu của hợp đồng nếu chưa có hóa đơn |
 | `GET` | `/api/v1/invoices/{id}` | Bên liên quan | Chi tiết, gồm chỉ số, đơn giá và cách tính |
 | `PUT` | `/api/v1/invoices/{id}` | Landlord (chủ sở hữu) | Sửa khi chưa được xác nhận thanh toán |
 | `POST` | `/api/v1/invoices/{id}/issue` | Landlord (chủ sở hữu) | Phát hành |
@@ -310,7 +316,7 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 }
 ```
 
-Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của kỳ liền trước — client không gửi lên. Đơn giá lấy từ hợp đồng, không lấy từ phòng (BR-13). Server tính `electricityAmount`, `waterAmount`, `rentAmount` và `totalAmount`; client không được gửi các giá trị này.
+Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của kỳ liền trước, kỳ đầu tiên lấy chỉ số đầu ghi trong hợp đồng — client không gửi lên. Đơn giá lấy từ hợp đồng, không lấy từ phòng (BR-13). Server tính `electricityAmount`, `waterAmount`, `rentAmount` và `totalAmount`; client không được gửi các giá trị này.
 
 **Kiểm tra khi tạo:**
 

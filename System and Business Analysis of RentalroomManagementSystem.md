@@ -316,7 +316,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
    - Chuyển trạng thái khai thác của Phòng sang **Đang giữ chỗ**;
    - Gỡ phòng khỏi kết quả tìm kiếm;
    - **Tự động từ chối toàn bộ các Yêu cầu thuê khác đang chờ duyệt của cùng phòng đó**, kèm lý do "Phòng đã có người thuê khác" (xem BR-06).
-5. Chủ trọ lập **Hợp đồng nháp**, trong đó **chốt cứng** tại thời điểm tạo: giá thuê/tháng, đơn giá điện, đơn giá nước, các phí dịch vụ, **số tiền cọc**, ngày bắt đầu, ngày kết thúc, chu kỳ và hạn thanh toán, danh sách người ở cùng (nếu có).
+5. Chủ trọ lập **Hợp đồng nháp**, trong đó **chốt cứng** tại thời điểm tạo: giá thuê/tháng, đơn giá điện, đơn giá nước, các phí dịch vụ, **số tiền cọc**, ngày bắt đầu, ngày kết thúc, chu kỳ và hạn thanh toán, danh sách người ở cùng (nếu có). Hợp đồng nháp cũng ghi **chỉ số điện, nước lúc bàn giao phòng** — mốc tính hóa đơn đầu tiên (BR-14).
 6. Người thuê xem lại Hợp đồng nháp và **Xác nhận đồng ý**, hoặc **Yêu cầu chỉnh sửa** kèm lý do — hợp đồng quay về *Nháp* để Chủ trọ sửa và gửi lại.
 7. Người thuê nộp **tiền cọc** — có thể chuyển khoản bằng mã VietQR của Chủ trọ hiển thị trên hợp đồng (BR-26); Chủ trọ **xác nhận đã nhận cọc** trên hệ thống, kèm ngày nhận và hình thức nhận.
 8. Khi Người thuê đã đồng ý **và** cọc đã được xác nhận, Hợp đồng chuyển sang **Đang hiệu lực**.
@@ -558,7 +558,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **Tiền cọc** | Khoản tiền Người thuê nộp trước khi vào ở, do Chủ trọ giữ để bảo đảm nghĩa vụ hợp đồng. Được khấu trừ cho các khoản còn nợ, phí bồi thường hư hỏng và phí phạt khi thanh lý; phần dư được hoàn trả. Mức mặc định: **01 tháng tiền phòng**. |
 | **Người ở cùng** | Người sinh sống trong phòng nhưng không đứng tên Hợp đồng. Chỉ được ghi nhận thông tin (họ tên, số điện thoại) đính kèm Hợp đồng; không có tài khoản riêng trong Phase 1. |
 | **Kỳ hóa đơn** | Khoảng thời gian một hóa đơn bao phủ, xác định bởi ngày chốt số của chu kỳ. Mặc định theo tháng dương lịch. |
-| **Chỉ số điện/nước** | Cặp giá trị (chỉ số cũ, chỉ số mới) được ghi nhận tại mỗi kỳ hóa đơn. Chỉ số mới của kỳ này là chỉ số cũ của kỳ kế tiếp. |
+| **Chỉ số điện/nước** | Cặp giá trị (chỉ số cũ, chỉ số mới) được ghi nhận tại mỗi kỳ hóa đơn. Chỉ số mới của kỳ này là chỉ số cũ của kỳ kế tiếp; kỳ đầu tiên dùng chỉ số lúc bàn giao phòng ghi trong Hợp đồng. |
 | **Hóa đơn** | Chứng từ ghi nhận khoản phải thu của một kỳ: tiền phòng + tiền điện + tiền nước + phí dịch vụ + khoản điều chỉnh. Lưu kèm chỉ số và đơn giá đã áp dụng. |
 | **Hóa đơn thanh lý** | Hóa đơn đặc biệt lập khi kết thúc hợp đồng, có thêm các dòng khấu trừ tiền cọc, bồi thường hư hỏng và phí phạt; kết quả có thể là số dư dương hoặc âm. |
 | **Sự cố / Yêu cầu sửa chữa** | Báo cáo từ Người thuê về vấn đề cơ sở vật chất cần Chủ trọ can thiệp xử lý. |
@@ -608,7 +608,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 | ID | Quy tắc |
 |---|---|
-| **BR-14** | Tiền điện/nước = (chỉ số mới − chỉ số cũ) × đơn giá đã chốt. Hệ thống **từ chối** lưu khi chỉ số mới < chỉ số cũ. Chỉ số cũ của một kỳ **bắt buộc bằng** chỉ số mới của kỳ liền trước. |
+| **BR-14** | Tiền điện/nước = (chỉ số mới − chỉ số cũ) × đơn giá đã chốt. Hệ thống **từ chối** lưu khi chỉ số mới < chỉ số cũ. Chỉ số cũ của một kỳ **bắt buộc bằng** chỉ số mới của kỳ liền trước. Kỳ đầu tiên lấy chỉ số lúc bàn giao phòng ghi trong Hợp đồng: Chủ trọ nhập khi lập hợp đồng, Người thuê thấy khi xác nhận điều khoản; nếu số thực tế lúc bàn giao khác, Chủ trọ sửa được cho tới khi lập hóa đơn đầu tiên, mỗi lần sửa ghi nhật ký và thông báo cho Người thuê. |
 | **BR-15** | Kỳ hóa đơn đầu tiên và kỳ cuối cùng không trọn tháng thì tiền phòng được tính theo **tỷ lệ số ngày thực ở** trên tổng số ngày của tháng đó. |
 | **BR-16** | Hóa đơn ở trạng thái *Đã thanh toán* **không được sửa đổi**. Mọi điều chỉnh sau đó phải thực hiện bằng một hóa đơn điều chỉnh riêng, có tham chiếu tới hóa đơn gốc. |
 | **BR-17** | Mỗi Hợp đồng chỉ có **một** Hóa đơn cho mỗi Kỳ hóa đơn. Hệ thống chặn việc tạo trùng kỳ. |
@@ -1073,6 +1073,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Danh mục sự kiện thông báo (Mục 9) | Cụ thể hóa hạng mục "thông báo" vốn chỉ được nhắc chung chung |
 | Nguyên tắc chuyển trạng thái tuyến tính, không nhảy cóc (BR-05b) | Kế thừa nguyên tắc nhất quán trạng thái trong phân tích hệ thống; các chuyển trạng thái lùi hợp lệ được khai báo tường minh tại Mục 8 |
 | Phân kỳ Phase 1/2/3 | Đánh giá rủi ro nguồn lực theo CO-01 và CO-02 |
+| Chỉ số điện nước lúc bàn giao ghi trong Hợp đồng (BR-14) | Kỳ hóa đơn đầu tiên không có kỳ liền trước để lấy chỉ số cũ; thực tế hai bên chốt số đồng hồ lúc giao phòng |
 
 ---
 

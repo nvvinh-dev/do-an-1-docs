@@ -69,6 +69,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-29** | Chủ trọ từ chối yêu cầu thuê thì **bắt buộc** nhập lý do | BP-06 | `POST /rental-requests/{id}/reject` |
 | **FR-30** | Khi một yêu cầu thuê được duyệt, hệ thống **đồng thời** chuyển phòng sang Đang giữ chỗ và tự từ chối toàn bộ yêu cầu khác đang chờ duyệt của cùng phòng, kèm lý do do hệ thống sinh | BR-06 | `POST /rental-requests/{id}/approve` chạy trong transaction |
 | **FR-31** | Chủ trọ lập được hợp đồng từ một yêu cầu đã duyệt, trong đó chốt cứng: giá thuê, đơn giá điện, đơn giá nước, phí dịch vụ, số tiền cọc, ngày bắt đầu, ngày kết thúc, chu kỳ và hạn thanh toán. Lập xong thì yêu cầu thuê chuyển sang Đã lập hợp đồng | BR-12, BR-21 | `POST /contracts` · `contracts`, `contract_service_fees` |
+| **FR-90** | Chủ trọ nhập chỉ số điện, nước lúc bàn giao khi lập hợp đồng, hệ thống điền sẵn chỉ số cuối đã ghi nhận của phòng; người thuê thấy hai chỉ số này khi xác nhận điều khoản. Hợp đồng đã hiệu lực mà chưa có hóa đơn nào (không tính hóa đơn đã hủy) thì Chủ trọ vẫn sửa được hai chỉ số này; mỗi lần sửa ghi nhật ký và thông báo cho người thuê | BR-14, BR-23 | `POST /contracts`, `PATCH /contracts/{id}/initial-meter-readings` · `contracts.initial_*_index` |
 | **FR-32** | Mọi hợp đồng đều ghi nhận số tiền cọc; giá trị 0 được chấp nhận nếu hai bên thỏa thuận không cọc | BR-21 | `contracts.deposit_amount` NOT NULL |
 | **FR-33** | Hệ thống từ chối lập hợp đồng khi tổng số người ở vượt quá số người tối đa của phòng | BR-11 | `contract_occupants`, `rooms.max_occupants` |
 | **FR-34** | Hợp đồng **chỉ** chuyển sang Đang hiệu lực khi người thuê đã xác nhận điều khoản **và** Chủ trọ đã xác nhận nhận đủ cọc | BR-21 | `POST /contracts/{id}/confirm`, `/deposit/confirm` |
@@ -83,7 +84,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 
 | Mã | Yêu cầu | Nguồn | Hiện thực |
 |---|---|---|---|
-| **FR-38** | Khi Chủ trọ chốt số, hệ thống **tự điền** chỉ số cũ bằng chỉ số mới của kỳ liền trước; Chủ trọ chỉ nhập chỉ số mới | BR-14 | `POST /contracts/{id}/invoices` |
+| **FR-38** | Khi Chủ trọ chốt số, hệ thống **tự điền** chỉ số cũ bằng chỉ số mới của kỳ liền trước, kỳ đầu tiên lấy chỉ số đầu ghi trong hợp đồng; Chủ trọ chỉ nhập chỉ số mới | BR-14 | `POST /contracts/{id}/invoices` |
 | **FR-39** | Hệ thống **từ chối** lưu khi chỉ số mới nhỏ hơn chỉ số cũ | BR-14 | Ràng buộc `CHECK` trên `invoices` |
 | **FR-40** | Tiền điện và tiền nước được tính bằng (chỉ số mới − chỉ số cũ) × đơn giá **đã chốt trong hợp đồng**, không dùng đơn giá hiện tại của phòng | BR-13, BR-14 | `invoices.electricity_unit_price`, `water_unit_price` |
 | **FR-41** | Tổng hóa đơn gồm: tiền phòng + tiền điện + tiền nước + phí dịch vụ cố định + khoản điều chỉnh nếu có | BP-07 | `invoices.total_amount`, `invoice_lines` |
