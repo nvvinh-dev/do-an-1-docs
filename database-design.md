@@ -234,6 +234,7 @@ Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url`
 | `termination_reason` | text | | Lý do trả phòng ghi trong thông báo trả phòng |
 | `cancel_reason` | text | | Bắt buộc khi `status` = `DaHuy` |
 | `cancelled_by_user_id` | bigint | FK → `users.id` | Bên hủy hợp đồng; NULL khi hệ thống tự hủy do hết hạn giữ chỗ |
+| `cancelled_at` | timestamptz | | Thời điểm hợp đồng chuyển `DaHuy` |
 
 Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập giá trị hợp lệ của Phase 1.
 
@@ -411,6 +412,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `YeuCauThueDuocDuyet` | Yêu cầu thuê được duyệt | Người thuê | `RentalRequest` |
 | `YeuCauThueBiTuChoi` | Yêu cầu thuê bị từ chối, kể cả tự từ chối theo BR-06 | Người thuê | `RentalRequest` |
 | `YeuCauThueBiRut` | Người thuê rút yêu cầu thuê đã được duyệt | Chủ trọ | `RentalRequest` |
+| `YeuCauThueHetHan` | Yêu cầu thuê hết hạn — quá 7 ngày chưa xử lý, hoặc đã duyệt mà hết hạn giữ chỗ khi chưa lập hợp đồng | Người thuê; thêm Chủ trọ khi hết hạn giữ chỗ | `RentalRequest` |
 | `HopDongChoXacNhan` | Hợp đồng được gửi để xác nhận | Người thuê | `Contract` |
 | `HopDongCanChinhSua` | Người thuê yêu cầu chỉnh sửa hợp đồng | Chủ trọ | `Contract` |
 | `NhacNopCoc` | Hạn giữ chỗ còn dưới 24 giờ; chỉ gửi khi hợp đồng đã được lập | Người thuê | `Contract` |

@@ -612,7 +612,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 | ID | Quy tắc |
 |---|---|
-| **BR-14** | Tiền điện/nước = (chỉ số mới − chỉ số cũ) × đơn giá đã chốt. Hệ thống **từ chối** lưu khi chỉ số mới < chỉ số cũ. Chỉ số cũ của một kỳ **bắt buộc bằng** chỉ số mới của kỳ liền trước. Kỳ đầu tiên lấy chỉ số lúc bàn giao phòng ghi trong Hợp đồng: Chủ trọ nhập khi lập hợp đồng, Người thuê thấy khi xác nhận điều khoản; nếu số thực tế lúc bàn giao khác, Chủ trọ sửa được cho tới khi lập hóa đơn đầu tiên, mỗi lần sửa ghi nhật ký và thông báo cho Người thuê. |
+| **BR-14** | Tiền điện/nước = (chỉ số mới − chỉ số cũ) × đơn giá đã chốt. Hệ thống **từ chối** lưu khi chỉ số mới < chỉ số cũ. Chỉ số cũ của một kỳ **bắt buộc bằng** chỉ số mới của kỳ liền trước. Kỳ đầu tiên lấy chỉ số lúc bàn giao phòng ghi trong Hợp đồng: Chủ trọ nhập khi lập hợp đồng, Người thuê thấy khi xác nhận điều khoản. Chủ trọ sửa được khi hợp đồng còn ở *Nháp*, hoặc khi hợp đồng đã *Đang hiệu lực* mà chưa có hóa đơn nào — dùng khi số thực tế lúc bàn giao khác; mỗi lần sửa sau khi hợp đồng có hiệu lực đều ghi nhật ký và thông báo cho Người thuê. |
 | **BR-15** | Kỳ hóa đơn đầu tiên và kỳ cuối cùng không trọn tháng thì tiền phòng **và phí dịch vụ** được tính theo **tỷ lệ số ngày thực ở** trên tổng số ngày của tháng đó, tính cả ngày vào ở và ngày trả phòng. Mọi khoản tiền làm tròn đến đồng. Ví dụ: vào ở ngày 15/10, giá thuê 3.000.000đ → 3.000.000 × 17 ÷ 31 = 1.645.161đ. |
 | **BR-16** | Hóa đơn ở trạng thái *Đã thanh toán* **không được sửa đổi**. Chỉ hóa đơn mới nhất chưa thanh toán của hợp đồng mới được sửa hoặc hủy. Sai sót ở hóa đơn không còn sửa được thì điều chỉnh bằng một dòng *Điều chỉnh* có mô tả và tham chiếu tới hóa đơn gốc, đặt ở hóa đơn kỳ kế tiếp hoặc Hóa đơn thanh lý. |
 | **BR-17** | Mỗi Hợp đồng chỉ có **một** Hóa đơn chưa hủy cho mỗi Kỳ hóa đơn. Hệ thống chặn việc tạo trùng kỳ. Kỳ do hệ thống xác định theo thứ tự tháng, Chủ trọ không tự chọn ngày đầu và ngày cuối kỳ. |
@@ -698,13 +698,13 @@ Chủ trọ chỉ tự chuyển phòng giữa *Trống* và *Bảo trì*, và l�
 ```
 Nháp ──► Chờ người thuê xác nhận ──► Chờ nhận cọc ──► Đang hiệu lực
  │                    │                    │                │
- └────────────────────┴────────────────────┴────────────────┼──► Đã hủy
+ └────────────────────┴────────────────────┴────────────────┼──► Đã hủy  (trước ngày bắt đầu)
                                                             │
-                              ┌─────────────────────────────┤
-                              ▼                             ▼
-                        Sắp hết hạn ──► Đang thanh lý ──► Đã thanh lý
-                              │
-                              └──► Đã kết thúc (gia hạn) ──► [Hợp đồng mới]
+                                         ┌──────────────────┤
+                                         ▼                  ▼
+                                    Sắp hết hạn ────► Đang thanh lý ──► Đã thanh lý
+                                         │
+                                         └──► Đã kết thúc (gia hạn) ──► [Hợp đồng mới]
 
 Chờ người thuê xác nhận ──► Nháp  (Người thuê yêu cầu chỉnh sửa, kèm lý do)
 Chờ người thuê xác nhận ──► Đang hiệu lực  (tiền cọc bằng 0, Người thuê đồng ý)
@@ -834,6 +834,7 @@ Chờ xử lý ──► Đang xem xét ──► Đã xử lý
 | Có yêu cầu thuê mới | Chủ trọ | Cao |
 | Yêu cầu thuê được duyệt / bị từ chối | Người thuê | Cao |
 | Người thuê rút yêu cầu thuê đã được duyệt | Chủ trọ | Cao |
+| Yêu cầu thuê hết hạn | Người thuê (thêm Chủ trọ khi hết hạn giữ chỗ) | Cao |
 | Yêu cầu thuê sắp hết hạn xử lý (còn 1 ngày) | Chủ trọ | Thường |
 | Hợp đồng nháp được gửi để xác nhận | Người thuê | Cao |
 | Người thuê yêu cầu chỉnh sửa hợp đồng (kèm lý do) | Chủ trọ | Cao |

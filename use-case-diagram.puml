@@ -53,6 +53,7 @@ rectangle "Hệ thống SmartRent" {
     usecase "Tự từ chối các yêu cầu\ncòn lại của cùng phòng" as UC23
     usecase "Hủy hợp đồng\ntrước ngày bắt đầu" as UC41
     usecase "Yêu cầu chỉnh sửa hợp đồng" as UC44
+    usecase "Sửa chỉ số đầu\ncủa hợp đồng" as UC47
   }
 
   package "Hóa đơn và thanh toán" {
@@ -121,6 +122,7 @@ Landlord --> UC18
 Landlord --> UC19
 Landlord --> UC20
 Landlord --> UC22
+Landlord --> UC47
 Landlord --> UC41
 Landlord --> UC24
 Landlord --> UC25
@@ -158,6 +160,7 @@ UC07 ..> UC38 : <<include>>
 UC08 ..> UC38 : <<include>>
 UC10 ..> UC38 : <<include>>
 UC22 ..> UC38 : <<include>>
+UC47 ..> UC38 : <<include>>
 UC25 ..> UC38 : <<include>>
 UC28 ..> UC38 : <<include>>
 UC30 ..> UC38 : <<include>>

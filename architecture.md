@@ -153,13 +153,15 @@ Năm hành vi của hệ thống xảy ra theo thời gian chứ không do ngư�
 
 | Tác vụ | Kết quả |
 |---|---|
-| Hết hạn yêu cầu thuê: quá 168 giờ (7 ngày) kể từ lúc gửi mà chưa xử lý | Yêu cầu chuyển sang Hết hạn |
+| Hết hạn yêu cầu thuê: quá 168 giờ (7 ngày) kể từ lúc gửi mà chưa xử lý | Yêu cầu chuyển sang Hết hạn, người thuê nhận thông báo |
 | Nhắc nộp cọc: hạn giữ chỗ còn dưới 24 giờ mà hợp đồng chưa có hiệu lực | Người thuê nhận một thông báo nhắc |
-| Hết hạn giữ chỗ: quá 72 giờ (3 ngày) kể từ khi duyệt yêu cầu thuê mà hợp đồng chưa có hiệu lực | Hợp đồng (nếu đã lập) chuyển Đã hủy, yêu cầu thuê chưa lập hợp đồng chuyển Hết hạn, phòng trở lại Trống |
+| Hết hạn giữ chỗ: quá 72 giờ (3 ngày) kể từ khi duyệt yêu cầu thuê mà hợp đồng chưa có hiệu lực | Hợp đồng (nếu đã lập) chuyển Đã hủy, yêu cầu thuê chưa lập hợp đồng chuyển Hết hạn, phòng trở lại Trống; hai bên nhận thông báo |
 | Gắn cờ quá hạn: hóa đơn chưa trả đủ đã sang ngày sau hạn thanh toán | Hóa đơn chuyển Quá hạn, gửi thông báo cho hai bên |
 | Đánh dấu hợp đồng còn 15 ngày tới ngày kết thúc | Hợp đồng chuyển Sắp hết hạn, gửi thông báo |
 
 Các tác vụ chạy **mỗi giờ** trong tiến trình của Backend API, không tách thành dịch vụ riêng; một lần chạy xử lý cả năm loại, nên kết quả trễ tối đa một giờ. Mỗi tác vụ phải chạy lại được nhiều lần mà không gây tác dụng phụ lặp lại — ví dụ trước khi gửi lời nhắc nộp cọc, kiểm tra đã có thông báo cùng loại cho hợp đồng đó chưa.
+
+**Thao tác của người dùng tự kiểm tra hạn.** Tác vụ có thể trễ tới một giờ, nên endpoint không dựa vào việc tác vụ đã chạy hay chưa: duyệt một yêu cầu thuê đã quá 168 giờ, hoặc thao tác trên hợp đồng chưa hiệu lực khi đã quá 72 giờ giữ chỗ, đều bị từ chối ngay. Tác vụ chỉ làm phần chuyển trạng thái và gửi thông báo cho những bản ghi không ai đụng tới.
 
 ### 7.1 Quy ước thời gian
 

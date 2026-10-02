@@ -45,7 +45,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-18** | Hệ thống từ chối chuyển phòng về trạng thái Trống khi hợp đồng hiện tại của phòng chưa ở Đã thanh lý hoặc Đã hủy | BR-08 | `PATCH /rooms/{id}/occupancy-status` |
 | **FR-89** | Chủ trọ chỉ tự chuyển được trạng thái khai thác của phòng giữa Trống và Bảo trì; các trạng thái khai thác còn lại do hệ thống chuyển theo yêu cầu thuê, hợp đồng và thanh lý, ngoài thao tác lưu trữ | BP-02 | `PATCH /rooms/{id}/occupancy-status` |
 | **FR-19** | Phòng hoặc khu trọ đã từng phát sinh hợp đồng hay hóa đơn **không** xóa được, chỉ chuyển sang trạng thái Lưu trữ | BR-09 | Không có endpoint `DELETE` |
-| **FR-20** | Hệ thống từ chối lưu trữ khu trọ khi còn phòng ở trạng thái Đang giữ chỗ hoặc Đang thuê; lưu trữ khu trọ thì các phòng của khu chuyển sang Lưu trữ theo. Phòng chỉ lưu trữ được khi đang Trống hoặc Bảo trì. Lưu trữ là vĩnh viễn, không có thao tác bỏ lưu trữ | BR-10 | `POST /properties/{id}/archive`, `/rooms/{id}/archive` |
+| **FR-20** | Hệ thống từ chối lưu trữ khu trọ khi còn phòng ở trạng thái Đang giữ chỗ hoặc Đang thuê; lưu trữ khu trọ thì các phòng của khu chuyển sang Lưu trữ theo. Phòng chỉ lưu trữ được khi đang Trống hoặc Bảo trì; khi lưu trữ, các yêu cầu thuê đang chờ duyệt của phòng tự chuyển sang Từ chối. Lưu trữ là vĩnh viễn, không có thao tác bỏ lưu trữ | BR-10 | `POST /properties/{id}/archive`, `/rooms/{id}/archive` |
 
 ---
 
@@ -70,8 +70,8 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-27** | Người thuê rút được yêu cầu của mình khi Chủ trọ chưa xử lý, hoặc khi yêu cầu đã được duyệt nhưng chưa lập hợp đồng — khi đó phòng trở lại Trống ngay và Chủ trọ nhận thông báo | BP-06 A1 | `POST /rental-requests/{id}/cancel` |
 | **FR-28** | Yêu cầu thuê không được xử lý trong 7 ngày (đủ 168 giờ kể từ lúc gửi) tự chuyển sang Hết hạn và phòng không bị giữ chỗ | BP-06 A2 | Tác vụ định kỳ · `rental_requests.status` |
 | **FR-29** | Chủ trọ từ chối yêu cầu thuê thì **bắt buộc** nhập lý do | BP-06 | `POST /rental-requests/{id}/reject` |
-| **FR-30** | Khi một yêu cầu thuê được duyệt, hệ thống **đồng thời** chuyển phòng sang Đang giữ chỗ và tự từ chối toàn bộ yêu cầu khác đang chờ duyệt của cùng phòng, kèm lý do do hệ thống sinh | BR-06 | `POST /rental-requests/{id}/approve` chạy trong transaction |
-| **FR-31** | Chủ trọ lập được hợp đồng từ một yêu cầu đã duyệt, trong đó chốt cứng: giá thuê, đơn giá điện, đơn giá nước, phí dịch vụ, số tiền cọc, ngày bắt đầu, ngày kết thúc và hạn thanh toán (số ngày kể từ khi phát hành hóa đơn). Lập xong thì yêu cầu thuê chuyển sang Đã lập hợp đồng | BR-12, BR-21 | `POST /contracts` · `contracts`, `contract_service_fees` |
+| **FR-30** | Khi một yêu cầu thuê được duyệt, hệ thống **đồng thời** chuyển phòng sang Đang giữ chỗ và tự từ chối toàn bộ yêu cầu khác đang chờ duyệt của cùng phòng, kèm lý do do hệ thống sinh. Chỉ duyệt được khi phòng còn ở trạng thái Trống và yêu cầu chưa quá hạn xử lý | BR-06 | `POST /rental-requests/{id}/approve` chạy trong transaction |
+| **FR-31** | Chủ trọ lập được hợp đồng từ một yêu cầu đã duyệt, trong đó chốt cứng: giá thuê, đơn giá điện, đơn giá nước, phí dịch vụ, số tiền cọc, ngày bắt đầu, ngày kết thúc và hạn thanh toán (số ngày kể từ khi phát hành hóa đơn); ngày bắt đầu không được trước ngày lập hợp đồng. Lập xong thì yêu cầu thuê chuyển sang Đã lập hợp đồng | BR-12, BR-21 | `POST /contracts` · `contracts`, `contract_service_fees` |
 | **FR-90** | Chủ trọ nhập chỉ số điện, nước lúc bàn giao khi lập hợp đồng, hệ thống điền sẵn chỉ số cuối đã ghi nhận của phòng; người thuê thấy hai chỉ số này khi xác nhận điều khoản. Hợp đồng đã hiệu lực mà chưa có hóa đơn nào (không tính hóa đơn đã hủy) thì Chủ trọ vẫn sửa được hai chỉ số này; mỗi lần sửa ghi nhật ký và thông báo cho người thuê | BR-14, BR-23 | `POST /contracts`, `PATCH /contracts/{id}/initial-meter-readings` · `contracts.initial_*_index` |
 | **FR-32** | Mọi hợp đồng đều ghi nhận số tiền cọc; giá trị 0 được chấp nhận nếu hai bên thỏa thuận không cọc | BR-21 | `contracts.deposit_amount` NOT NULL |
 | **FR-33** | Hệ thống từ chối lập hợp đồng khi tổng số người ở vượt quá số người tối đa của phòng | BR-11 | `contract_occupants`, `rooms.max_occupants` |
@@ -100,7 +100,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-46** | **Chỉ** Chủ trọ sở hữu mới xác nhận được một hóa đơn đã thu; mọi vai trò khác bị từ chối, kể cả Admin | BR-06b, BR-24 | `POST /invoices/{id}/payment-reports/{reportId}/confirm` |
 | **FR-47** | Chủ trọ xác nhận số tiền thu được mà tổng đã thu vẫn nhỏ hơn tổng hóa đơn thì hóa đơn chuyển sang Thanh toán một phần — hoặc Quá hạn nếu đã qua hạn thanh toán — và phần còn lại vẫn được theo dõi là công nợ | BP-07 A2 | `invoices.paid_amount`, `status` |
 | **FR-48** | Chủ trọ từ chối xác nhận thanh toán thì **bắt buộc** nhập lý do; hóa đơn quay về Quá hạn nếu đã qua hạn thanh toán, về Thanh toán một phần nếu đã thu được một phần, còn lại về Chưa thanh toán | BP-07 | `POST /invoices/{id}/payment-reports/{reportId}/reject` |
-| **FR-49** | Chủ trọ chỉ sửa hoặc hủy được hóa đơn định kỳ **mới nhất** (không tính hóa đơn đã hủy) của hợp đồng khi hóa đơn đó chưa thanh toán; hóa đơn Đã thanh toán **không** sửa được. Sai sót ở hóa đơn không còn sửa được điều chỉnh bằng một dòng Điều chỉnh có mô tả và tham chiếu tới hóa đơn gốc, ở hóa đơn kỳ kế tiếp hoặc hóa đơn thanh lý | BR-14, BR-16 | `invoice_lines.related_invoice_id` |
+| **FR-49** | Chủ trọ chỉ sửa hoặc hủy được hóa đơn định kỳ **mới nhất** (không tính hóa đơn đã hủy) của hợp đồng khi hóa đơn đó chưa thu đồng nào; hóa đơn Đã thanh toán **không** sửa được. Sai sót ở hóa đơn không còn sửa được điều chỉnh bằng một dòng Điều chỉnh có mô tả và tham chiếu tới hóa đơn gốc, ở hóa đơn kỳ kế tiếp hoặc hóa đơn thanh lý | BR-14, BR-16 | `invoice_lines.related_invoice_id` |
 | **FR-50** | Chủ trọ sửa hóa đơn chưa thanh toán thì hệ thống ghi nhật ký giá trị cũ và mới, đồng thời thông báo cho người thuê | BP-07 A3, BR-23 | `PUT /invoices/{id}` · `audit_logs` |
 | **FR-51** | Hóa đơn chưa trả đủ (Chưa thanh toán hoặc Thanh toán một phần) mà đã sang ngày sau hạn thanh toán (giờ Việt Nam) được hệ thống tự gắn cờ Quá hạn và gửi nhắc nhở cho cả hai bên | BP-07 A1 | Tác vụ định kỳ · `invoices.due_date` |
 | **FR-52** | Hủy hóa đơn **chỉ** áp dụng cho hóa đơn mới nhất của hợp đồng, chưa thanh toán, và **bắt buộc** nhập lý do | BP-07 A4 | `POST /invoices/{id}/cancel` |
@@ -116,7 +116,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 
 | Mã | Yêu cầu | Nguồn | Hiện thực |
 |---|---|---|---|
-| **FR-53** | Một trong hai bên gửi được thông báo trả phòng kèm ngày trả dự kiến; hợp đồng chuyển sang Đang thanh lý | BP-10 | `POST /contracts/{id}/move-out-notice` |
+| **FR-53** | Một trong hai bên gửi được thông báo trả phòng kèm ngày trả dự kiến khi hợp đồng đã tới ngày bắt đầu và đang ở Đang hiệu lực hoặc Sắp hết hạn; hợp đồng chuyển sang Đang thanh lý | BP-10 | `POST /contracts/{id}/move-out-notice` |
 | **FR-98** | Bên đã gửi thông báo trả phòng rút được thông báo khi Chủ trọ chưa lập hóa đơn thanh lý; hợp đồng quay về Sắp hết hạn nếu còn 15 ngày hoặc ít hơn tới ngày kết thúc, ngược lại về Đang hiệu lực, và bên còn lại nhận thông báo | BP-10 A4 | `POST /contracts/{id}/move-out-notice/withdraw` |
 | **FR-87** | Thông báo trả phòng gửi trước ít hơn 30 ngày vẫn được chấp nhận; hệ thống ghi nhận bên gửi. Dòng phí phạt trong hóa đơn thanh lý chỉ được phép khi người thuê là bên gửi, báo trước ít hơn 30 ngày và ngày trả phòng trước ngày kết thúc hợp đồng; tổng phí phạt không vượt số tiền cọc của hợp đồng | BP-10, BR-22 | `POST /contracts/{id}/move-out-notice`, `/settlement-invoice` · `contracts.move_out_notice_by_user_id` |
 | **FR-88** | Hợp đồng qua ngày kết thúc mà chưa có thông báo trả phòng thì vẫn hiệu lực theo điều khoản đã chốt và hóa đơn định kỳ tiếp tục được lập, cho tới khi một bên gửi thông báo trả phòng | BP-09, BP-10 | `contracts.status`, `POST /contracts/{id}/invoices` |
@@ -146,7 +146,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-64** | Admin tra cứu được nhật ký theo đối tượng, người thực hiện và khoảng thời gian | BP-01 | `GET /admin/audit-logs` |
 | **FR-65** | Admin xem được dashboard tổng quan: tổng người dùng, chủ trọ, người thuê, khu trọ, phòng và số hồ sơ chờ duyệt | BP-01 | `GET /dashboard/admin` |
 | **FR-66** | Chủ trọ xem được dashboard: số phòng trống và đang thuê, hóa đơn chưa thu, doanh thu theo tháng | BP-02, BP-07 | `GET /dashboard/landlord` |
-| **FR-67** | Doanh thu trên dashboard **chỉ** tính các khoản đã được Chủ trọ xác nhận thu, gom theo tháng của thời điểm xác nhận; tiền cọc không phải doanh thu | BP-07 | `invoices.paid_amount` |
+| **FR-67** | Doanh thu trên dashboard **chỉ** tính các khoản đã được Chủ trọ xác nhận thu, gom theo tháng của thời điểm xác nhận; tiền cọc không phải doanh thu | BP-07 | `payment_reports.confirmed_amount`, `confirmed_at` |
 | **FR-68** | Người thuê xem được dashboard: hợp đồng hiện tại, hóa đơn chưa thanh toán và tổng đã thanh toán (không tính tiền cọc) | BP-07 | `GET /dashboard/tenant` |
 
 ---
@@ -162,6 +162,6 @@ Các yêu cầu dưới đây là bắt buộc và kiểm chứng được như 
 | **FR-71** | Người thuê không xem được hợp đồng, hóa đơn của người thuê khác; Chủ trọ không xem được dữ liệu của khu trọ không thuộc mình | BR-04 |
 | **FR-72** | Admin không có chức năng đọc hợp đồng và hóa đơn của người dùng trong Phase 1 | BR-24 |
 | **FR-73** | Đăng nhập sai 5 lần liên tiếp với cùng cặp email + địa chỉ IP thì từ lần thứ sáu bị tạm chặn, tới hết 15 phút kể từ lần sai đầu tiên; đăng nhập đúng xóa bộ đếm; các nhóm endpoint còn lại tuân theo ngưỡng rate limiting đã quy định | Security design 6 |
-| **FR-74** | Số điện thoại của bên còn lại chỉ hiển thị khi giữa hai bên có yêu cầu thuê đã được Chủ trọ duyệt, hoặc có hợp đồng chưa kết thúc (chưa Đã thanh lý hoặc Đã hủy) | QR-07 |
+| **FR-74** | Số điện thoại của bên còn lại chỉ hiển thị khi giữa hai bên có yêu cầu thuê đã được Chủ trọ duyệt, hoặc có hợp đồng chưa kết thúc (chưa Đã thanh lý hoặc Đã hủy), hoặc có hợp đồng đã hủy mà Chủ trọ chưa ghi nhận hoàn cọc | QR-07 |
 | **FR-82** | Tài khoản ngân hàng của Chủ trọ chỉ xuất hiện với chính Chủ trọ đó và trong mã VietQR gửi cho Người thuê đứng tên hợp đồng của Chủ trọ; không xuất hiện trong kết quả tìm kiếm, chi tiết phòng công khai hay bất kỳ response nào khác | BR-26, QR-07 |
 | **FR-75** | Mọi thao tác không thể hoàn tác — hủy hợp đồng, xác nhận thanh lý, khóa tài khoản — đều có bước xác nhận rõ ràng trước khi thực hiện | QR-06 |

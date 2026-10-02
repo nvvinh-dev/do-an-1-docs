@@ -156,7 +156,7 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 | `PUT` | `/api/v1/properties/{id}` | Landlord (chủ sở hữu) | Cập nhật |
 | `POST` | `/api/v1/properties/{id}/archive` | Landlord (chủ sở hữu) | Lưu trữ khu trọ |
 
-`archive` trả `409` khi còn phòng ở `DangGiuCho` hoặc `DangThue` (BR-10). Lưu trữ khu trọ thì mọi phòng của khu chuyển `LuuTru` theo, trong cùng transaction. Không có endpoint `DELETE` (BR-09).
+`archive` trả `409` khi còn phòng ở `DangGiuCho` hoặc `DangThue` (BR-10). Lưu trữ khu trọ thì mọi phòng của khu chuyển `LuuTru` theo, và các yêu cầu thuê `ChoDuyet` của các phòng đó tự chuyển `TuChoi` với lý do do hệ thống sinh — tất cả trong cùng transaction. Không có endpoint `DELETE` (BR-09).
 
 ### 5.2 Phòng trọ
 
@@ -176,7 +176,7 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 - `POST /properties/{propertyId}/rooms` tạo phòng ở `occupancyStatus = Trong` và `visibilityStatus = DaAnBoiChuTro` — phòng chưa hiển thị cho tới khi Chủ trọ bật (BP-03).
 - `PUT /rooms/{id}` sửa giá chỉ ảnh hưởng hợp đồng lập **sau đó** (BR-12); thao tác này ghi `audit_logs`.
 - `PATCH /rooms/{id}/visibility` chỉ nhận `DangHienThi` và `DaAnBoiChuTro`. Phòng đang ở `DaAnBoiAdmin` trả `409` — Chủ trọ không tự bật lại được.
-- `POST /rooms/{id}/archive` chỉ nhận phòng ở `Trong` hoặc `BaoTri`, trạng thái khác trả `409`. Lưu trữ là vĩnh viễn — không có thao tác bỏ lưu trữ.
+- `POST /rooms/{id}/archive` chỉ nhận phòng ở `Trong` hoặc `BaoTri`, trạng thái khác trả `409`. Các yêu cầu thuê `ChoDuyet` của phòng tự chuyển `TuChoi` với lý do do hệ thống sinh. Lưu trữ là vĩnh viễn — không có thao tác bỏ lưu trữ.
 - `PATCH /rooms/{id}/occupancy-status` chỉ nhận hai chuyển tiếp `Trong` → `BaoTri` và `BaoTri` → `Trong`; chuyển tiếp khác trả `409`. Chuyển về `Trong` mà hợp đồng hiện tại chưa ở `DaThanhLy` hoặc `DaHuy` cũng trả `409` (BR-08).
 - Không có endpoint `DELETE /rooms/{id}` (BR-09).
 - Ẩn tin vi phạm theo từng phòng (`DaAnBoiAdmin`) thuộc Phase 2, làm cùng khiếu nại BP-13. Phase 1 Admin xử lý vi phạm bằng cách khóa tài khoản Chủ trọ — toàn bộ phòng của Chủ trọ đó rời khỏi kết quả tìm kiếm theo BR-05.
@@ -210,7 +210,7 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 | `POST` | `/api/v1/rental-requests/{id}/reject` | Landlord (chủ sở hữu) | Từ chối, bắt buộc có `reason` |
 | `POST` | `/api/v1/rental-requests/{id}/cancel` | Tenant (người gửi) | Rút yêu cầu |
 
-**`POST /rental-requests/{id}/approve` thực hiện đồng thời trong một transaction:**
+**`POST /rental-requests/{id}/approve`** chỉ nhận khi yêu cầu ở `ChoDuyet`, chưa quá 168 giờ kể từ lúc gửi — kể cả khi tác vụ định kỳ chưa kịp chuyển nó sang `HetHan` — và phòng còn ở `Trong`; ngược lại trả `409`. Khi duyệt, hệ thống **thực hiện đồng thời trong một transaction:**
 
 1. Chuyển yêu cầu sang `DaDuyet`.
 2. Chuyển `rooms.occupancy_status` sang `DangGiuCho` — phòng biến mất khỏi kết quả tìm kiếm.
@@ -220,7 +220,7 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 
 **`POST /rental-requests/{id}/cancel`** nhận khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trạng thái khác trả `409`. Rút yêu cầu `DaDuyet` thì phòng về `Trong` trong cùng transaction và Chủ trọ nhận thông báo mức Cao (FR-27).
 
-**Số điện thoại bên còn lại (QR-07):** `GET /rental-requests/{id}` trả kèm số điện thoại của bên còn lại khi yêu cầu ở `DaDuyet`; các trạng thái khác không trả. Sau khi hợp đồng được tạo, số điện thoại hai bên nằm trong `GET /contracts/{id}` cho tới khi hợp đồng ở `DaThanhLy` hoặc `DaHuy`.
+**Số điện thoại bên còn lại (QR-07):** `GET /rental-requests/{id}` trả kèm số điện thoại của bên còn lại khi yêu cầu ở `DaDuyet`; các trạng thái khác không trả. Sau khi hợp đồng được tạo, số điện thoại hai bên nằm trong `GET /contracts/{id}` cho tới khi hợp đồng ở `DaThanhLy`, hoặc ở `DaHuy` mà không còn chờ hoàn cọc — để hai bên còn liên lạc được trong lúc chờ hoàn cọc.
 
 ---
 
@@ -277,6 +277,7 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 - Yêu cầu thuê phải ở `DaDuyet`, trả `409` nếu không. Tạo xong thì yêu cầu thuê chuyển `DaLapHopDong`; hợp đồng bị hủy sau đó không làm đổi trạng thái này.
 - Tổng số người ở (người đứng tên + `occupants`) không vượt `maxOccupants` của phòng, nếu vượt trả `422` (BR-11).
 - Phòng đã có hợp đồng đang chiếm dụng trả `409` (BR-07).
+- `startDate` không được trước ngày lập hợp đồng (giờ Việt Nam), `endDate` phải sau `startDate`; sai trả `422`.
 
 `POST /deposit/confirm` ghi `audit_logs` theo BR-23.
 
@@ -284,7 +285,7 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 
 **`POST /request-changes`** — body gồm `reason` (bắt buộc). Chỉ nhận khi hợp đồng ở `ChoNguoiThueXacNhan`; hợp đồng quay về `Nhap` để Chủ trọ sửa bằng `PUT` rồi gửi lại bằng `/send`. Chủ trọ nhận thông báo mức Cao kèm lý do.
 
-**Hạn giữ chỗ (BP-06 A3):** quá 72 giờ (3 ngày) kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này.
+**Hạn giữ chỗ (BP-06 A3):** quá 72 giờ (3 ngày) kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này. Đã quá 72 giờ thì `POST /contracts`, `PUT`, `/send`, `/confirm`, `/deposit/confirm` trên hợp đồng chưa hiệu lực đều trả `409`, kể cả khi tác vụ chưa chạy.
 
 **Mã VietQR cho tiền cọc:** `GET /contracts/{id}` trả thêm trường `paymentQr` cho Người thuê đứng tên khi hợp đồng ở `ChoNhanCoc` và `depositAmount` > 0, với `amount` bằng `depositAmount` và `transferContent` dạng `SMARTRENT COC<contractId>`. Cấu trúc trường này mô tả ở Mục 9.1.
 
@@ -341,7 +342,7 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 
 **Sửa và điều chỉnh:**
 
-- `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan` hoặc `QuaHan`; `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới, và gửi thông báo cho người thuê.
+- `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan`, hoặc `QuaHan` mà chưa thu đồng nào (`paidAmount` = 0); `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới, và gửi thông báo cho người thuê.
 - Hóa đơn cũ hơn hoặc đã thanh toán có sai sót: Chủ trọ thêm một dòng `DieuChinhKhac` có `relatedInvoiceId` vào `adjustmentLines` của hóa đơn kỳ kế tiếp, hoặc vào `lines` của hóa đơn thanh lý. `relatedInvoiceId` phải thuộc cùng hợp đồng, sai thì trả `422`.
 
 **Người thuê không thấy hóa đơn Nháp:** hóa đơn ở `Nhap` không có trong danh sách của người thuê, và `GET /invoices/{id}` trả `404` với người thuê. Người thuê thấy hóa đơn từ khi phát hành.
@@ -349,7 +350,7 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 **Luồng thanh toán:**
 
 1. Người thuê gọi `/payment-reports` kèm `proofImagePath` (bắt buộc, BR-06b) khi hóa đơn ở `ChuaThanhToan`, `ThanhToanMotPhan` hoặc `QuaHan` → hóa đơn chuyển `ChoXacNhan`. Trạng thái khác trả `409`.
-2. Chủ trọ gọi `/confirm` với `confirmedAmount`; server cộng vào `paidAmount`. Đủ tổng hóa đơn → `DaThanhToan`. Còn thiếu → `QuaHan` nếu đã qua `dueDate`, ngược lại `ThanhToanMotPhan`.
+2. Chủ trọ gọi `/confirm` với `confirmedAmount` — lớn hơn 0 và không vượt phần còn phải trả, sai trả `422`; server cộng vào `paidAmount`. Đủ tổng hóa đơn → `DaThanhToan`. Còn thiếu → `QuaHan` nếu đã qua `dueDate`, ngược lại `ThanhToanMotPhan`.
 3. Chủ trọ gọi `/reject` → hóa đơn về `QuaHan` nếu đã qua `dueDate`; ngược lại về `ThanhToanMotPhan` nếu `paidAmount` > 0; còn lại về `ChuaThanhToan`.
 
 Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai trò khác trả `403` (BR-06b). Thao tác xác nhận ghi `audit_logs`.
@@ -392,7 +393,7 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice/finalize` | Landlord (chủ sở hữu) | Tự chốt khi người thuê không phản hồi quá 7 ngày, bắt buộc có `note` |
 | `POST` | `/api/v1/contracts/{id}/settlement/complete` | Landlord (chủ sở hữu) | Xác nhận hoàn tất thanh lý |
 
-**`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Hợp đồng chuyển `DangThanhLy`; server ghi bên gửi vào `move_out_notice_by_user_id` và lý do vào `termination_reason`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
+**`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Chỉ nhận khi hợp đồng ở `DangHieuLuc` đã tới `startDate`, hoặc ở `SapHetHan`; trước `startDate` thì dùng `/cancel`, trạng thái khác trả `409`. `expectedMoveOutDate` không được trước hôm nay, sai trả `422`. Hợp đồng chuyển `DangThanhLy`; server ghi bên gửi vào `move_out_notice_by_user_id` và lý do vào `termination_reason`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
 
 **`POST /move-out-notice/withdraw`** — chỉ bên đã gửi thông báo được gọi, khi hợp đồng ở `DangThanhLy` và chưa có hóa đơn thanh lý; ngược lại trả `409`. Server xóa thông tin thông báo trả phòng, đưa hợp đồng về `SapHetHan` nếu còn 15 ngày hoặc ít hơn tới `endDate`, ngược lại về `DangHieuLuc`; bên còn lại nhận thông báo mức Cao (FR-98).
 

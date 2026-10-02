@@ -46,12 +46,13 @@ Một hệ quả thứ hai: khóa tài khoản không cắt được phiên đan
 
 ### 2.1 Ma trận phân quyền
 
-`✓` được phép · `✗` không được phép · `Sở hữu` chỉ trên tài nguyên thuộc về mình
+`✓` được phép · `✗` không được phép · `Sở hữu` chỉ trên tài nguyên thuộc về mình · `—` không áp dụng
 
 | Chức năng | Khách | Người thuê | Chủ trọ | Admin |
 |---|---|---|---|---|
 | Tìm kiếm và xem phòng công khai | ✓ | ✓ | ✓ | ✓ |
-| Đăng ký, đăng nhập, đổi mật khẩu | ✓ | ✓ | ✓ | ✓ |
+| Đăng ký, đăng nhập, quên mật khẩu | ✓ | — | — | — |
+| Đổi mật khẩu, cập nhật thông tin cá nhân | ✗ | ✓ | ✓ | ✓ |
 | Nộp hồ sơ đăng ký Chủ trọ | ✗ | ✓ | ✗ | ✗ |
 | Xem ảnh CCCD trong hồ sơ | ✗ | ✗ | ✗ | ✓ |
 | Duyệt / từ chối hồ sơ Chủ trọ | ✗ | ✗ | ✗ | ✓ |
@@ -171,7 +172,7 @@ Response chỉ chứa các trường mà chức năng đó thực sự cần. Ba
 |---|---|
 | `password_hash` và mọi trường kỹ thuật của Identity | Không bao giờ |
 | Số CCCD, ảnh CCCD, giấy tờ sở hữu | Admin đang xem chi tiết hồ sơ để duyệt, qua URL có chữ ký và có hạn |
-| Số điện thoại của bên còn lại | Giữa hai bên có yêu cầu thuê đã được Chủ trọ duyệt, hoặc hợp đồng chưa kết thúc (QR-07) |
+| Số điện thoại của bên còn lại | Giữa hai bên có yêu cầu thuê đã được Chủ trọ duyệt, hợp đồng chưa kết thúc, hoặc hợp đồng đã hủy còn chờ hoàn cọc (QR-07) |
 | Tài khoản ngân hàng của Chủ trọ | Chính Chủ trọ đó xem tài khoản của mình; hoặc Người thuê đứng tên hợp đồng của Chủ trọ, trong trường `paymentQr` khi có khoản cần chuyển khoản (BR-26) |
 
 Kết quả tìm kiếm phòng công khai không chứa thông tin liên hệ hay tài khoản ngân hàng của Chủ trọ.
