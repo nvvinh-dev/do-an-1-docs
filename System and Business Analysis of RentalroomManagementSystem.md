@@ -326,7 +326,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 **Luồng thay thế:**
 
 - **A1 — Người thuê rút yêu cầu:** Trước khi Chủ trọ xử lý, hoặc sau khi được duyệt nhưng Chủ trọ chưa lập hợp đồng, Người thuê chủ động hủy → trạng thái **Đã hủy**. Nếu yêu cầu đã được duyệt, phòng trở lại **Trống** ngay và Chủ trọ nhận thông báo.
-- **A2 — Yêu cầu hết hạn:** Yêu cầu thuê không được Chủ trọ xử lý trong **7 ngày** (tính đủ 168 giờ kể từ lúc gửi) tự động chuyển sang **Hết hạn**; phòng không bị giữ chỗ. Còn dưới 24 giờ tới hạn thì Chủ trọ nhận một thông báo nhắc.
+- **A2 — Yêu cầu hết hạn:** Yêu cầu thuê không được Chủ trọ xử lý trong **7 ngày** (tính đủ 168 giờ kể từ lúc gửi) tự động chuyển sang **Hết hạn**; phòng không bị giữ chỗ.
 - **A3 — Quá hạn giữ chỗ:** Hạn giữ chỗ là **3 ngày** (tính đủ 72 giờ) kể từ khi Chủ trọ duyệt yêu cầu thuê, gồm cả thời gian lập hợp đồng, xác nhận điều khoản và nộp cọc. Khi hạn giữ chỗ còn dưới 24 giờ, hệ thống nhắc một lần bên đang phải thao tác: Chủ trọ khi chưa lập hợp đồng hoặc hợp đồng còn *Nháp*; Người thuê khi hợp đồng chờ mình xác nhận; cả hai khi hợp đồng chờ nhận cọc — Người thuê nộp cọc, Chủ trọ xác nhận nếu đã nhận. Hết hạn mà Hợp đồng chưa *Đang hiệu lực* thì: hợp đồng (nếu đã lập) chuyển sang **Đã hủy**; yêu cầu thuê chưa được lập hợp đồng chuyển sang **Hết hạn**; phòng trở lại **Trống** và hiển thị lại.
 - **A4 — Thuê ở ghép nhiều người:** Xem giới hạn tại BR-11 và Mục 13.2.
 - **A5 — Chủ trọ hủy duyệt:** Sau khi duyệt nhưng chưa lập hợp đồng — chẳng hạn người thuê không đến hoặc không liên lạc được — Chủ trọ hủy duyệt, bắt buộc nhập lý do → yêu cầu chuyển sang **Từ chối**, phòng trở lại **Trống** ngay và Người thuê nhận thông báo.

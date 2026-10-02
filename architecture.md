@@ -149,18 +149,17 @@ Chi tiết lý do và các quy tắc an toàn khác: [Thiết kế An toàn](sec
 
 ## 7. Tác vụ định kỳ
 
-Sáu hành vi của hệ thống xảy ra theo thời gian chứ không do người dùng kích hoạt:
+Năm hành vi của hệ thống xảy ra theo thời gian chứ không do người dùng kích hoạt:
 
 | Tác vụ | Kết quả |
 |---|---|
-| Nhắc xử lý yêu cầu thuê: yêu cầu `ChoDuyet` còn dưới 24 giờ tới mốc 168 giờ | Chủ trọ nhận một thông báo nhắc |
 | Hết hạn yêu cầu thuê: quá 168 giờ (7 ngày) kể từ lúc gửi mà chưa xử lý | Yêu cầu chuyển sang Hết hạn, người thuê nhận thông báo |
 | Nhắc hoàn tất hợp đồng: hạn giữ chỗ còn dưới 24 giờ mà hợp đồng chưa có hiệu lực | Nhắc một lần bên đang phải thao tác: Chủ trọ khi chưa lập hợp đồng hoặc hợp đồng còn Nháp; Người thuê khi hợp đồng chờ mình xác nhận; cả hai khi hợp đồng chờ nhận cọc |
 | Hết hạn giữ chỗ: quá 72 giờ (3 ngày) kể từ khi duyệt yêu cầu thuê mà hợp đồng chưa có hiệu lực | Hợp đồng (nếu đã lập) chuyển Đã hủy, yêu cầu thuê chưa lập hợp đồng chuyển Hết hạn, phòng trở lại Trống; hai bên nhận thông báo |
 | Gắn cờ quá hạn: hóa đơn chưa trả đủ đã sang ngày sau hạn thanh toán | Hóa đơn chuyển Quá hạn, gửi thông báo cho hai bên |
 | Đánh dấu hợp đồng *Đang hiệu lực* còn 15 ngày hoặc ít hơn tới ngày kết thúc; hợp đồng đang thanh lý không bị đổi | Hợp đồng chuyển Sắp hết hạn, gửi thông báo |
 
-Các tác vụ chạy **mỗi giờ** trong tiến trình của Backend API, không tách thành dịch vụ riêng; một lần chạy xử lý cả sáu loại, nên kết quả trễ tối đa một giờ. Mỗi tác vụ phải chạy lại được nhiều lần mà không gây tác dụng phụ lặp lại — ví dụ trước khi gửi lời nhắc, kiểm tra người nhận đã có thông báo cùng loại cho yêu cầu thuê hoặc hợp đồng đó chưa.
+Các tác vụ chạy **mỗi giờ** trong tiến trình của Backend API, không tách thành dịch vụ riêng; một lần chạy xử lý cả năm loại, nên kết quả trễ tối đa một giờ. Mỗi tác vụ phải chạy lại được nhiều lần mà không gây tác dụng phụ lặp lại — ví dụ trước khi gửi lời nhắc, kiểm tra người nhận đã có thông báo cùng loại cho yêu cầu thuê hoặc hợp đồng đó chưa.
 
 **Thao tác của người dùng tự kiểm tra hạn.** Tác vụ có thể trễ tới một giờ, nên endpoint không dựa vào việc tác vụ đã chạy hay chưa: duyệt một yêu cầu thuê đã quá 168 giờ, hoặc thao tác trên hợp đồng chưa hiệu lực khi đã quá 72 giờ giữ chỗ, đều bị từ chối ngay. Tác vụ chỉ làm phần chuyển trạng thái và gửi thông báo cho những bản ghi không ai đụng tới.
 

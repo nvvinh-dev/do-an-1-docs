@@ -425,7 +425,6 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `YeuCauThueDuocDuyet` | Yêu cầu thuê được duyệt | Người thuê | `RentalRequest` |
 | `YeuCauThueBiTuChoi` | Yêu cầu thuê bị từ chối, kể cả tự từ chối theo BR-06 và Chủ trọ hủy duyệt | Người thuê | `RentalRequest` |
 | `YeuCauThueBiRut` | Người thuê rút yêu cầu thuê đã được duyệt | Chủ trọ | `RentalRequest` |
-| `YeuCauThueSapHetHan` | Yêu cầu thuê còn dưới 24 giờ tới hạn xử lý 168 giờ | Chủ trọ | `RentalRequest` |
 | `YeuCauThueHetHan` | Yêu cầu thuê hết hạn — quá 7 ngày chưa xử lý, hoặc đã duyệt mà hết hạn giữ chỗ khi chưa lập hợp đồng | Người thuê; thêm Chủ trọ khi hết hạn giữ chỗ | `RentalRequest` |
 | `HopDongChoXacNhan` | Hợp đồng được gửi để xác nhận | Người thuê | `Contract` |
 | `HopDongBiThuHoi` | Chủ trọ thu hồi hợp đồng đã gửi để sửa | Người thuê | `Contract` |
