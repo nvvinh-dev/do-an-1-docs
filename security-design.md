@@ -70,6 +70,7 @@ Một hệ quả thứ hai: khóa tài khoản không cắt được phiên đan
 | Báo đã thanh toán kèm minh chứng | ✗ | Đứng tên | ✗ | ✗ |
 | **Xác nhận đã thu tiền** | ✗ | ✗ | **Sở hữu** | **✗** |
 | Lập hóa đơn thanh lý, tất toán cọc | ✗ | ✗ | Sở hữu | ✗ |
+| Đồng ý / chưa đồng ý bảng thanh lý | ✗ | Đứng tên | ✗ | ✗ |
 | Xem hợp đồng và hóa đơn | ✗ | Của mình | Sở hữu | ✗ |
 | Xem dashboard | ✗ | Của mình | Của mình | Toàn hệ thống |
 | Tra cứu nhật ký hệ thống | ✗ | ✗ | ✗ | ✓ |

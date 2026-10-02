@@ -281,12 +281,14 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `service_fee_amount` | numeric(14,2) | NOT NULL | Tổng phí dịch vụ của kỳ, cũng tính theo tỷ lệ ngày ở với kỳ không trọn tháng (BR-15) |
 | `total_amount` | numeric(14,2) | NOT NULL | Tổng cộng, bao gồm các dòng ở `invoice_lines` |
 | `paid_amount` | numeric(14,2) | NOT NULL | Số tiền đã thu được xác nhận |
-| `status` | text | NOT NULL, CHECK | `Nhap` / `ChuaThanhToan` / `ChoXacNhan` / `ThanhToanMotPhan` / `QuaHan` / `DaThanhToan` / `DaHuy` / `DaChuyenThanhLy` |
+| `status` | text | NOT NULL, CHECK | `Nhap` / `ChuaThanhToan` / `ChoXacNhan` / `ThanhToanMotPhan` / `QuaHan` / `DaThanhToan` / `DaHuy` / `DaChuyenThanhLy` / `ChoNguoiThueXacNhan` / `ChoHoanCoc` |
 | `electricity_meter_photo_url` | text | | Ảnh chụp đồng hồ điện |
 | `water_meter_photo_url` | text | | Ảnh chụp đồng hồ nước |
 | `issued_at` | timestamptz | | Thời điểm phát hành |
 | `due_date` | date | | Hạn thanh toán, tính từ `issued_at` và `payment_due_days` |
 | `settled_at` | timestamptz | | Thời điểm chuyển sang `DaThanhToan` |
+| `tenant_confirmed_at` | timestamptz | | Chỉ với `ThanhLy`: thời điểm người thuê đồng ý bảng thanh lý |
+| `change_request_reason` | text | | Chỉ với `ThanhLy`: lý do người thuê chưa đồng ý ở lần gần nhất |
 | `cancel_reason` | text | | Bắt buộc khi `status` = `DaHuy` |
 
 **BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng; kỳ đầu tiên lấy `contracts.initial_*_index`. "Kỳ liền trước" bỏ qua các hóa đơn `DaHuy`.
@@ -298,6 +300,14 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 **BR-16:** hóa đơn ở `DaThanhToan` không được sửa. Chỉ hóa đơn định kỳ mới nhất chưa hủy của hợp đồng mới được sửa hoặc hủy — sửa một hóa đơn cũ hơn sẽ làm gãy chuỗi chỉ số của BR-14. Sai sót ở hóa đơn không còn sửa được điều chỉnh bằng một dòng `DieuChinhKhac` có `related_invoice_id` trỏ về hóa đơn gốc, đặt ở hóa đơn kỳ kế tiếp hoặc hóa đơn thanh lý.
 
 **Hóa đơn thanh lý (BP-10):** `type = 'ThanhLy'`, các khoản cộng thêm và khoản trừ tiền cọc nằm ở `invoice_lines`. `total_amount` có thể âm — khi đó Chủ trọ phải hoàn lại phần cọc dư.
+
+**Vòng đời hóa đơn thanh lý (FR-57):** `Nhap` → `ChoNguoiThueXacNhan` khi Chủ trọ gửi; người thuê chưa đồng ý thì về `Nhap`, ghi `change_request_reason`. Người thuê đồng ý thì ghi `tenant_confirmed_at`, hóa đơn bị khóa và:
+
+- `total_amount` > 0 → `ChuaThanhToan`, `issued_at` = lúc đồng ý, rồi đi luồng thanh toán như hóa đơn định kỳ;
+- `total_amount` < 0 → `ChoHoanCoc`, sang `DaThanhToan` khi Chủ trọ ghi nhận hoàn cọc lúc hoàn tất thanh lý;
+- `total_amount` = 0 → `DaThanhToan`.
+
+Với hóa đơn thanh lý, `DaThanhToan` nghĩa là đã tất toán xong.
 
 **Kết chuyển công nợ (FR-92):** dòng `CongNoKyTruoc` và `KhauTruTienCoc` do server sinh khi lập hóa đơn thanh lý. Mỗi hóa đơn còn nợ của hợp đồng (`ChuaThanhToan`, `ThanhToanMotPhan`, `QuaHan`) thành một dòng `CongNoKyTruoc` bằng `total_amount − paid_amount`, `related_invoice_id` trỏ về nó, và hóa đơn đó chuyển sang `DaChuyenThanhLy` trong cùng transaction.
 

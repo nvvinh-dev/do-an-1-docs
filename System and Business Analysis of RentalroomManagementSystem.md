@@ -425,9 +425,9 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 **Luồng nghiệp vụ chính:**
 
 1. Người thuê hoặc Chủ trọ gửi **Thông báo trả phòng** trên hệ thống, ghi rõ ngày trả phòng dự kiến. Thời hạn báo trước tối thiểu: **30 ngày**. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận. Khi Người thuê là bên báo trước không đủ thời hạn, Chủ trọ được đưa phí phạt vào Hóa đơn thanh lý theo BR-22, tổng phí phạt không vượt tiền cọc.
-2. Hợp đồng chuyển sang **Đang thanh lý**.
+2. Hợp đồng chuyển sang **Đang thanh lý**. Trong thời gian báo trước, các tháng trọn vẫn lập hóa đơn định kỳ như thường.
 3. Đến ngày trả phòng, Chủ trọ **chốt chỉ số điện/nước lần cuối** và **kiểm tra cơ sở vật chất**, ghi nhận hư hỏng kèm ảnh nếu có.
-4. Chủ trọ lập **Hóa đơn thanh lý**, gồm các dòng rõ ràng:
+4. Chủ trọ lập **Hóa đơn thanh lý** cho khoảng từ sau kỳ hóa đơn định kỳ cuối cùng đến ngày trả phòng. Khoảng này phải nằm trong một tháng — còn thiếu tháng nào thì lập hóa đơn định kỳ tháng đó trước. Hóa đơn thanh lý gồm các dòng rõ ràng:
 
    | Khoản mục | Dấu |
    |---|---|
@@ -444,9 +444,9 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
    Dòng công nợ cũng do hệ thống tự thêm: mỗi hóa đơn còn thiếu tiền thành một dòng bằng phần còn phải trả, và hóa đơn đó chuyển sang *Đã chuyển vào thanh lý* — không còn bị nhắc quá hạn và không thanh toán riêng được nữa. Nếu còn lượt báo thanh toán đang chờ Chủ trọ xác nhận thì chưa lập được Hóa đơn thanh lý.
 
-5. Người thuê xem và **xác nhận** bảng thanh lý, hoặc **khiếu nại** từng khoản khấu trừ kèm lý do.
+5. Chủ trọ gửi bảng thanh lý cho Người thuê. Người thuê **Đồng ý**, hoặc **Chưa đồng ý** kèm lý do — bảng quay về để Chủ trọ sửa và gửi lại, không giới hạn số lần. Sau khi Người thuê đồng ý, bảng bị khóa, không sửa được nữa.
 6. Tất toán số dư:
-   - Số dư **dương** → Người thuê thanh toán phần chênh lệch, có thể chuyển khoản bằng mã VietQR của Chủ trọ (BR-26).
+   - Số dư **dương** → Người thuê thanh toán phần chênh lệch theo luồng báo đã thanh toán và Chủ trọ xác nhận như hóa đơn thường, có thể chuyển khoản bằng mã VietQR của Chủ trọ (BR-26). Hạn thanh toán tính từ lúc Người thuê đồng ý.
    - Số dư **âm** → Chủ trọ hoàn lại phần cọc còn dư và xác nhận đã hoàn, ghi rõ ngày hoàn và hình thức hoàn; số tiền hoàn do hệ thống tính từ số dư. Người thuê xem được thông tin hoàn cọc trên Hợp đồng.
 7. Chủ trọ **xác nhận hoàn tất thanh lý**.
 8. Hệ thống chuyển Hợp đồng sang **Đã thanh lý**.
@@ -454,7 +454,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 **Luồng thay thế:**
 
-- **A1 — Không thống nhất được khoản khấu trừ:** Người thuê tạo khiếu nại (BP-13) có liên kết tới hóa đơn thanh lý. Hợp đồng giữ nguyên trạng thái *Đang thanh lý* cho đến khi khiếu nại được xử lý.
+- **A1 — Không thống nhất được khoản khấu trừ:** Hợp đồng giữ nguyên trạng thái *Đang thanh lý*. Phase 1 chưa có khiếu nại nên hai bên tự giải quyết ngoài hệ thống, rồi Chủ trọ sửa bảng và gửi lại. Từ Phase 2, Người thuê tạo khiếu nại (BP-13) có liên kết tới hóa đơn thanh lý, và hợp đồng giữ *Đang thanh lý* cho đến khi khiếu nại được xử lý.
 - **A2 — Chấm dứt do vi phạm:** Chủ trọ chấm dứt hợp đồng do Người thuê vi phạm nghiêm trọng (không thanh toán quá 2 kỳ liên tiếp, gây hư hỏng nặng). Bắt buộc ghi lý do và bằng chứng; tiền cọc có thể bị khấu trừ toàn bộ theo BR-22.
 - **A3 — Hợp đồng bị hủy trước khi vào ở:** Hợp đồng chưa tới ngày bắt đầu → chuyển thẳng sang **Đã hủy**, phòng trở lại **Trống** ngay mà không cần chốt số. Chủ trọ hoàn **toàn bộ** tiền cọc đã nhận, không khấu trừ khoản nào và không lập Hóa đơn thanh lý; Chủ trọ ghi rõ ngày hoàn và hình thức hoàn, việc hoàn cọc được ghi nhật ký theo BR-23 (xem BR-22).
 
@@ -755,6 +755,19 @@ Các chuyển trạng thái hợp lệ:
 | **Đã thanh toán** | Chủ trọ đã xác nhận nhận đủ tiền. Không được sửa (BR-16). |
 | **Đã hủy** | Hóa đơn lập sai, hủy trước khi thanh toán, có ghi lý do. |
 | **Đã chuyển vào thanh lý** | Phần còn nợ đã được đưa vào Hóa đơn thanh lý để trừ vào tiền cọc; không còn là công nợ riêng. |
+| **Chờ người thuê xác nhận** | Chỉ với Hóa đơn thanh lý: Chủ trọ đã gửi bảng thanh lý, chờ Người thuê đồng ý. |
+| **Chờ hoàn cọc** | Chỉ với Hóa đơn thanh lý có số dư âm: Người thuê đã đồng ý, chờ Chủ trọ hoàn phần cọc dư. |
+
+**Hóa đơn thanh lý** đi qua thêm bước gửi và đồng ý trước khi vào luồng thanh toán:
+
+```
+Nháp ──► Chờ người thuê xác nhận ──┬──► Chưa thanh toán ──► … ──► Đã thanh toán   (số dư dương)
+  ▲                │                ├──► Chờ hoàn cọc ──► Đã thanh toán            (số dư âm)
+  └────────────────┘                └──► Đã thanh toán                             (số dư bằng 0)
+   (Người thuê chưa đồng ý, kèm lý do)
+```
+
+Với Hóa đơn thanh lý, *Đã thanh toán* nghĩa là đã tất toán xong: Người thuê trả đủ, Chủ trọ hoàn đủ, hoặc số dư bằng 0.
 
 ### 8.6 Vòng đời Sự cố / Yêu cầu sửa chữa
 
@@ -1083,6 +1096,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Kỳ hóa đơn theo tháng dương lịch, do hệ thống xác định (BR-15, BR-17) | Để Chủ trọ tự chọn ngày kỳ thì có thể lập chồng kỳ và thu tiền phòng hai lần. Phí dịch vụ tháng lẻ cũng tính theo tỷ lệ vì thu trọn tháng với người vào ở cuối tháng là bất hợp lý |
 | Điều chỉnh sai sót bằng dòng *Điều chỉnh* ở kỳ sau (BR-16) | Thực tế Chủ trọ cộng hoặc trừ phần chênh lệch vào tháng sau; sửa một hóa đơn cũ khi đã có kỳ sau sẽ làm gãy chuỗi chỉ số của BR-14 |
 | Kết chuyển công nợ cũ vào Hóa đơn thanh lý | Tiền cọc trước hết dùng để trừ nợ còn lại; để hóa đơn cũ tồn tại song song với dòng công nợ sẽ tính nợ hai lần |
+| Bảng thanh lý đi qua bước gửi — đồng ý — khóa | Thực tế hai bên trao đổi và sửa bảng tới khi thống nhất; Phase 1 chưa có khiếu nại nên cần đường quay lại để Chủ trọ sửa |
 
 ---
 
