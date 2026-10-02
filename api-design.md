@@ -339,7 +339,15 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 
 **`POST /rental-requests/{id}/reject`** — body gồm `reason` (bắt buộc). Nhận khi yêu cầu ở `ChoDuyet` chưa quá 168 giờ kể từ lúc gửi, hoặc ở `DaDuyet` mà chưa lập hợp đồng và chưa quá 72 giờ kể từ lúc duyệt (hủy duyệt — BP-06 A5); ngược lại trả `409`, kể cả khi tác vụ định kỳ chưa kịp chuyển yêu cầu sang `HetHan`. Hủy duyệt thì phòng về `Trong` trong cùng transaction. Người thuê nhận thông báo mức Cao kèm lý do (FR-29).
 
-**`POST /rental-requests/{id}/cancel`** nhận khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trạng thái khác trả `409`. Rút yêu cầu `DaDuyet` thì phòng về `Trong` trong cùng transaction và Chủ trọ nhận thông báo mức Cao (FR-27).
+**`POST /rental-requests/{id}/cancel`** — không có body. Nhận khi yêu cầu ở `ChoDuyet` chưa quá 168 giờ, hoặc ở `DaDuyet` mà chưa lập hợp đồng và chưa quá 72 giờ giữ chỗ; trạng thái khác trả `409`. Rút yêu cầu `DaDuyet` thì phòng về `Trong` trong cùng transaction và Chủ trọ nhận thông báo mức Cao (FR-27).
+
+`/approve`, `/reject`, `/cancel` trả `204` khi thành công.
+
+**Danh sách và chi tiết:**
+
+- `GET /rental-requests` — query `status` (tùy chọn), `roomId` (chỉ Chủ trọ), `page`, `pageSize`; mới gửi trước. Người thuê thấy yêu cầu của mình, Chủ trọ thấy yêu cầu gửi tới phòng của mình. Mỗi dòng gồm `id`, `room` (`id`, `code`, `propertyName`), `tenantName`, `expectedMoveInDate`, `expectedOccupants`, `status`, `submittedAt`, `expiresAt`, `holdExpiresAt`.
+- `GET /rental-requests/{id}` — thêm `note`, `processedAt`, `rejectReason`, `contractId` (khi `DaLapHopDong`) và `otherPartyPhoneNumber` theo quy tắc QR-07 bên dưới.
+- `expiresAt` = `submittedAt` + 168 giờ, chỉ có khi `ChoDuyet`; `holdExpiresAt` = `processedAt` + 72 giờ, chỉ có khi `DaDuyet`; các trạng thái khác là `null`. Hai trường này để giao diện đếm ngược.
 
 **Số điện thoại bên còn lại (QR-07):** `GET /rental-requests/{id}` trả kèm số điện thoại của bên còn lại khi yêu cầu ở `DaDuyet`; các trạng thái khác không trả. Sau khi hợp đồng được tạo, số điện thoại hai bên nằm trong `GET /contracts/{id}` cho tới khi hợp đồng kết thúc hẳn: `DaThanhLy` mà hóa đơn thanh lý không còn nợ, hoặc `DaHuy` mà không còn chờ hoàn cọc — để hai bên còn liên lạc được khi còn nghĩa vụ tiền.
 
@@ -387,6 +395,22 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 }
 ```
 
+Trả `201` kèm chi tiết hợp đồng ở `Nhap`. **Ràng buộc giá trị** — sai trả `400`: `rentPrice` > 0; `electricityUnitPrice`, `waterUnitPrice`, `depositAmount`, `initialElectricityIndex`, `initialWaterIndex` và `amount` của từng phí dịch vụ ≥ 0; `paymentDueDays` từ 1 tới 30; `serviceFees[].name` và `occupants[].fullName` bắt buộc; `occupants[].phoneNumber` tùy chọn, có thì theo cùng định dạng với số điện thoại tài khoản.
+
+**`PUT /contracts/{id}`** — body như `POST` nhưng không có `rentalRequestId`; thay toàn bộ điều khoản, `serviceFees` và `occupants` thay nguyên danh sách. Chỉ nhận ở `Nhap`, trạng thái khác trả `409`; trả `200` kèm chi tiết.
+
+**`POST /send`** — không có body. Chỉ nhận ở `Nhap`, trạng thái khác trả `409`. Hợp đồng sang `ChoNguoiThueXacNhan`, người thuê nhận thông báo mức Cao.
+
+**Danh sách và chi tiết:**
+
+- `GET /contracts` — query `status` (tùy chọn), `roomId` (chỉ Chủ trọ), `page`, `pageSize`; mới lập trước. Mỗi dòng gồm `id`, `room` (`id`, `code`, `propertyName`), `tenantName`, `landlordName`, `rentPrice`, `startDate`, `endDate`, `status`, `holdExpiresAt`.
+- `GET /contracts/{id}` — toàn bộ điều khoản như body `POST` (gồm `serviceFees`, `occupants`), cộng `id`, `rentalRequestId`, `room`, `tenant` và `landlord` (`fullName`, `phoneNumber` theo QR-07 ở Mục 7), `status`, `tenantConfirmedAt`, `depositReceivedAt`, `depositReceivedMethod`, `activatedAt`, `cancelReason`, `cancelledBy` (`Landlord` / `Tenant` / `System`), `cancelledAt`, `holdExpiresAt`, và các trường `paymentQr`, `depositRefund`, `depositRefundPending` mô tả bên dưới. Trường của thông báo trả phòng và thanh lý mô tả ở Mục 10.
+- `holdExpiresAt` = thời điểm duyệt yêu cầu thuê gốc + 72 giờ, chỉ có khi hợp đồng chưa hiệu lực (`Nhap`, `ChoNguoiThueXacNhan`, `ChoNhanCoc`).
+
+**Hình thức tiền:** `method` của `/deposit/confirm` và `refundMethod` của `/deposit/refund` (cũng như `/settlement/complete` ở Mục 10) chỉ nhận `TienMat` hoặc `ChuyenKhoan`; giá trị khác trả `400`.
+
+Các thao tác đổi trạng thái — `/send`, `/recall`, `/confirm`, `/request-changes`, `/deposit/confirm`, `/cancel`, `/deposit/refund`, `PATCH /initial-meter-readings` — trả `204` khi thành công.
+
 **Người thuê xem hợp đồng ở `Nhap`:** `GET /contracts` và `GET /contracts/{id}` trả cho người thuê đứng tên cả hợp đồng ở `Nhap` — chỉ đọc, giao diện ghi rõ Chủ trọ đang soạn. Lý do: hợp đồng quay về `Nhap` sau `/request-changes` và `/recall`, và người thuê cần chỗ để `/cancel` nếu đổi ý. Các thao tác `/confirm`, `/request-changes` chỉ mở từ `ChoNguoiThueXacNhan`.
 
 **Điều kiện chuyển sang `DangHieuLuc` (BR-21):** các bước đi tuần tự.
@@ -405,13 +429,13 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 
 `POST /deposit/confirm` ghi `audit_logs` theo BR-23.
 
-**Chỉ số đầu (BR-14, FR-90):** `initialElectricityIndex` và `initialWaterIndex` bắt buộc khi tạo hợp đồng, là chỉ số cũ của hóa đơn đầu tiên. Giá trị điền sẵn lấy từ `GET /rooms/{id}/meter-readings/latest`: chỉ số mới của hóa đơn chưa hủy gần nhất thuộc các hợp đồng của phòng, hoặc chỉ số đầu của hợp đồng gần nhất nếu hợp đồng đó chưa có hóa đơn; `null` khi phòng chưa từng có hợp đồng. `PATCH /contracts/{id}/initial-meter-readings` chỉ nhận khi hợp đồng ở `DangHieuLuc` và chưa có hóa đơn nào khác `DaHuy`, ngược lại trả `409`; mỗi lần sửa ghi `audit_logs` và gửi thông báo mức Cao cho người thuê.
+**Chỉ số đầu (BR-14, FR-90):** `initialElectricityIndex` và `initialWaterIndex` bắt buộc khi tạo hợp đồng, là chỉ số cũ của hóa đơn đầu tiên. Giá trị điền sẵn lấy từ `GET /rooms/{id}/meter-readings/latest`: chỉ số mới của hóa đơn chưa hủy gần nhất thuộc các hợp đồng của phòng, hoặc chỉ số đầu của hợp đồng gần nhất nếu hợp đồng đó chưa có hóa đơn; `null` khi phòng chưa từng có hợp đồng. `PATCH /contracts/{id}/initial-meter-readings` — body `{ "initialElectricityIndex": 1182.5, "initialWaterIndex": 76.0 }`, hai giá trị ≥ 0 — chỉ nhận khi hợp đồng ở `DangHieuLuc` và chưa có hóa đơn nào khác `DaHuy`, ngược lại trả `409`; mỗi lần sửa ghi `audit_logs` và gửi thông báo mức Cao cho người thuê.
 
 **`POST /request-changes`** — body gồm `reason` (bắt buộc). Chỉ nhận khi hợp đồng ở `ChoNguoiThueXacNhan`; hợp đồng quay về `Nhap` để Chủ trọ sửa bằng `PUT` rồi gửi lại bằng `/send`. Chủ trọ nhận thông báo mức Cao kèm lý do.
 
 **`POST /recall`** — không có body. Chủ trọ thu hồi hợp đồng đã gửi để sửa, chẳng hạn khi phát hiện gõ sai giá hoặc ngày. Chỉ nhận khi hợp đồng ở `ChoNguoiThueXacNhan` hoặc `ChoNhanCoc`; trạng thái khác trả `409`. Hợp đồng về `Nhap` và `tenantConfirmedAt` bị xóa — sau khi Chủ trọ sửa và gửi lại, người thuê phải xác nhận lại. Hạn giữ chỗ 72 giờ không đổi. Người thuê nhận thông báo mức Cao (FR-102).
 
-**Hạn giữ chỗ (BP-06 A3):** quá 72 giờ (3 ngày) kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này. Đã quá 72 giờ thì `POST /contracts`, `PUT`, `/send`, `/recall`, `/confirm`, `/deposit/confirm` trên hợp đồng chưa hiệu lực đều trả `409`, kể cả khi tác vụ chưa chạy.
+**Hạn giữ chỗ (BP-06 A3):** quá 72 giờ (3 ngày) kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này. Đã quá 72 giờ thì `POST /contracts`, `PUT`, `/send`, `/recall`, `/confirm`, `/request-changes`, `/deposit/confirm` trên hợp đồng chưa hiệu lực đều trả `409`, kể cả khi tác vụ chưa chạy.
 
 **Mã VietQR cho tiền cọc:** `GET /contracts/{id}` trả thêm trường `paymentQr` cho Người thuê đứng tên khi hợp đồng ở `ChoNhanCoc` và `depositAmount` > 0, với `amount` bằng `depositAmount` và `transferContent` dạng `SMARTRENT COC<contractId>`. Cấu trúc trường này mô tả ở Mục 9.1.
 

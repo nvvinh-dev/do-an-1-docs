@@ -230,10 +230,10 @@ Mỗi khu trọ và mỗi phòng có tối đa 10 ảnh; `display_order` bắt �
 | `status` | text | NOT NULL, CHECK | `Nhap` / `ChoNguoiThueXacNhan` / `ChoNhanCoc` / `DangHieuLuc` / `SapHetHan` / `DangThanhLy` / `DaThanhLy` / `DaHuy` |
 | `tenant_confirmed_at` | timestamptz | | Người thuê đồng ý điều khoản |
 | `deposit_received_at` | timestamptz | | Thời điểm nhận cọc thực tế, do Chủ trọ nhập khi xác nhận đã nhận cọc; không sau thời điểm xác nhận |
-| `deposit_received_method` | text | | Hình thức nhận cọc |
+| `deposit_received_method` | text | CHECK | Hình thức nhận cọc: `TienMat` / `ChuyenKhoan` |
 | `deposit_refunded_amount` | numeric(14,2) | | Số tiền cọc đã hoàn. Server tính khi Chủ trọ hủy (toàn bộ cọc) và khi hóa đơn thanh lý có số dư âm (phần cọc dư); Chủ trọ nhập, trong khoảng 0 tới `deposit_amount`, khi Người thuê hủy (BR-22) |
 | `deposit_refunded_at` | timestamptz | | Thời điểm Chủ trọ hoàn cọc |
-| `deposit_refund_method` | text | | Hình thức hoàn cọc |
+| `deposit_refund_method` | text | CHECK | Hình thức hoàn cọc: `TienMat` / `ChuyenKhoan` |
 | `deposit_refund_note` | text | | Lý do giữ lại cọc — bắt buộc khi Người thuê hủy và số hoàn nhỏ hơn tiền cọc |
 | `activated_at` | timestamptz | | Thời điểm chuyển sang `DangHieuLuc` |
 | `move_out_notice_at` | timestamptz | | Thời điểm gửi thông báo trả phòng |
