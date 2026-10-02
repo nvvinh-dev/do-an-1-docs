@@ -117,6 +117,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | Mã | Yêu cầu | Nguồn | Hiện thực |
 |---|---|---|---|
 | **FR-53** | Một trong hai bên gửi được thông báo trả phòng kèm ngày trả dự kiến; hợp đồng chuyển sang Đang thanh lý | BP-10 | `POST /contracts/{id}/move-out-notice` |
+| **FR-98** | Bên đã gửi thông báo trả phòng rút được thông báo khi Chủ trọ chưa lập hóa đơn thanh lý; hợp đồng quay về Sắp hết hạn nếu còn 15 ngày hoặc ít hơn tới ngày kết thúc, ngược lại về Đang hiệu lực, và bên còn lại nhận thông báo | BP-10 A4 | `POST /contracts/{id}/move-out-notice/withdraw` |
 | **FR-87** | Thông báo trả phòng gửi trước ít hơn 30 ngày vẫn được chấp nhận; hệ thống ghi nhận bên gửi. Dòng phí phạt trong hóa đơn thanh lý chỉ được phép khi người thuê là bên gửi, báo trước ít hơn 30 ngày và ngày trả phòng trước ngày kết thúc hợp đồng; tổng phí phạt không vượt số tiền cọc của hợp đồng | BP-10, BR-22 | `POST /contracts/{id}/move-out-notice`, `/settlement-invoice` · `contracts.move_out_notice_by_user_id` |
 | **FR-88** | Hợp đồng qua ngày kết thúc mà chưa có thông báo trả phòng thì vẫn hiệu lực theo điều khoản đã chốt và hóa đơn định kỳ tiếp tục được lập, cho tới khi một bên gửi thông báo trả phòng | BP-09, BP-10 | `contracts.status`, `POST /contracts/{id}/invoices` |
 | **FR-54** | Chủ trọ chốt được chỉ số điện nước lần cuối và lập hóa đơn thanh lý | BP-10 | `POST /contracts/{id}/settlement-invoice` |

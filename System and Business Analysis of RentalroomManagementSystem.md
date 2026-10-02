@@ -457,6 +457,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 - **A1 — Không thống nhất được khoản khấu trừ:** Hợp đồng giữ nguyên trạng thái *Đang thanh lý*. Phase 1 chưa có khiếu nại nên hai bên tự giải quyết ngoài hệ thống, rồi Chủ trọ sửa bảng và gửi lại; Người thuê không phản hồi thì Chủ trọ tự chốt sau 7 ngày như bước 5. Từ Phase 2, Người thuê tạo khiếu nại (BP-13) có liên kết tới hóa đơn thanh lý, và hợp đồng giữ *Đang thanh lý* cho đến khi khiếu nại được xử lý.
 - **A2 — Chấm dứt do vi phạm:** Chủ trọ chấm dứt hợp đồng do Người thuê vi phạm nghiêm trọng (không thanh toán quá 2 kỳ liên tiếp, gây hư hỏng nặng). Bắt buộc ghi lý do và bằng chứng. Trong Phase 1, Chủ trọ thực hiện bằng một thông báo trả phòng do chính mình gửi, kèm lý do; tiền cọc được khấu trừ cho công nợ và bồi thường hư hỏng theo BR-22, có thể tới toàn bộ, nhưng không có phí phạt.
 - **A3 — Hợp đồng bị hủy trước khi vào ở:** Một trong hai bên hủy hợp đồng chưa tới ngày bắt đầu, bắt buộc nhập lý do → hợp đồng chuyển thẳng sang **Đã hủy**, phòng trở lại **Trống** ngay mà không cần chốt số và không lập Hóa đơn thanh lý. Nếu cọc đã nộp, tiền cọc xử lý theo BR-22: Chủ trọ hủy thì hoàn **toàn bộ**; Người thuê hủy thì Chủ trọ được giữ lại tối đa toàn bộ, ghi số tiền hoàn thực tế và lý do giữ lại. Hủy và hoàn cọc là hai bước: bên nào cũng hủy được, còn chỉ Chủ trọ ghi nhận đã hoàn cọc, kèm ngày hoàn và hình thức hoàn; việc hoàn cọc được ghi nhật ký theo BR-23. Khoản đền thêm (nếu có) khi Chủ trọ hủy do hai bên tự thỏa thuận ngoài hệ thống.
+- **A4 — Rút thông báo trả phòng:** Bên đã gửi thông báo được rút khi Chủ trọ chưa lập Hóa đơn thanh lý — ví dụ Người thuê đổi ý, hoặc hai bên thỏa thuận ở tiếp. Hợp đồng quay về *Sắp hết hạn* nếu còn 15 ngày hoặc ít hơn tới ngày kết thúc (kể cả khi đã qua ngày kết thúc), ngược lại về *Đang hiệu lực*; bên còn lại nhận thông báo.
 
 **Kết quả:** Vòng đời thuê phòng kết thúc dứt điểm về tài chính; phòng được giải phóng.
 
@@ -704,6 +705,7 @@ Nháp ──► Chờ người thuê xác nhận ──► Chờ nhận cọc �
 
 Chờ người thuê xác nhận ──► Nháp  (Người thuê yêu cầu chỉnh sửa, kèm lý do)
 Chờ người thuê xác nhận ──► Đang hiệu lực  (tiền cọc bằng 0, Người thuê đồng ý)
+Đang thanh lý ──► Đang hiệu lực / Sắp hết hạn  (bên gửi rút thông báo trả phòng, chưa lập Hóa đơn thanh lý)
 ```
 
 | Trạng thái | Ý nghĩa |
@@ -849,6 +851,7 @@ Chờ xử lý ──► Đang xem xét ──► Đã xử lý
 | Hợp đồng sắp hết hạn (trước 15 ngày) | Cả hai bên | Cao |
 | Đề nghị gia hạn được gửi / được phản hồi | Bên còn lại | Cao |
 | Thông báo trả phòng được gửi | Bên còn lại | Cao |
+| Thông báo trả phòng bị rút | Bên còn lại | Cao |
 | Bảng thanh lý được gửi để xác nhận | Người thuê | Cao |
 | Người thuê chưa đồng ý bảng thanh lý (kèm lý do) | Chủ trọ | Cao |
 | Chủ trọ tự chốt bảng thanh lý | Người thuê | Cao |
@@ -1113,6 +1116,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Tháng trả phòng không có hóa đơn định kỳ; báo gấp sau khi đã lập thì thanh lý không tính tiền phòng | Quy tắc lập hóa đơn từ ngày 25 có thể đụng tháng trả phòng; thông báo dưới 30 ngày vẫn được chấp nhận, nên người thuê báo gấp đã trả trọn tháng — phù hợp với việc báo trước không đủ |
 | Ghi nhận bên gửi thông báo trả phòng; phí phạt chỉ khi Người thuê báo gấp (BR-22) | Không biết ai chấm dứt thì không kiểm được điều kiện phạt. "Chủ trọ chấm dứt phải hoàn toàn bộ cọc" được hiểu là không có phí phạt, vì tiền nợ và hư hỏng vẫn phải trừ |
 | Chưa được làm Chủ trọ khi còn hợp đồng hoặc yêu cầu thuê đang mở (BR-01) | Mỗi tài khoản một vai trò: đổi sang Chủ trọ giữa chừng làm người dùng mất quyền báo thanh toán, đồng ý thanh lý trên hợp đồng của chính mình |
+| Rút thông báo trả phòng (BP-10 A4) | Thực tế người thuê đổi ý hoặc hai bên thỏa thuận ở tiếp; không có đường quay lại thì hợp đồng buộc phải thanh lý dù không ai muốn |
 
 ---
 

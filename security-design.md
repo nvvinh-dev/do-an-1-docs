@@ -65,6 +65,8 @@ Một hệ quả thứ hai: khóa tài khoản không cắt được phiên đan
 | Xác nhận đã nhận tiền cọc | ✗ | ✗ | Sở hữu | ✗ |
 | Hủy hợp đồng trước ngày bắt đầu | ✗ | Đứng tên | Sở hữu | ✗ |
 | Ghi nhận đã hoàn cọc | ✗ | ✗ | Sở hữu | ✗ |
+| Gửi thông báo trả phòng | ✗ | Đứng tên | Sở hữu | ✗ |
+| Rút thông báo trả phòng | ✗ | Bên đã gửi | Bên đã gửi | ✗ |
 | Khai báo tài khoản ngân hàng nhận tiền | ✗ | ✗ | Của mình | ✗ |
 | Xem mã VietQR để chuyển khoản | ✗ | Đứng tên | ✗ | ✗ |
 | Chốt chỉ số, tạo và phát hành hóa đơn | ✗ | ✗ | Sở hữu | ✗ |

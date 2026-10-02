@@ -379,6 +379,7 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 | Method | Endpoint | Quyền | Mô tả |
 |---|---|---|---|
 | `POST` | `/api/v1/contracts/{id}/move-out-notice` | Landlord / Tenant | Gửi thông báo trả phòng |
+| `POST` | `/api/v1/contracts/{id}/move-out-notice/withdraw` | Bên đã gửi thông báo | Rút thông báo trả phòng |
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice` | Landlord (chủ sở hữu) | Lập hóa đơn thanh lý ở `Nhap` |
 | `PUT` | `/api/v1/contracts/{id}/settlement-invoice` | Landlord (chủ sở hữu) | Sửa khi còn ở `Nhap` |
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice/send` | Landlord (chủ sở hữu) | Gửi cho người thuê xác nhận |
@@ -388,6 +389,8 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 | `POST` | `/api/v1/contracts/{id}/settlement/complete` | Landlord (chủ sở hữu) | Xác nhận hoàn tất thanh lý |
 
 **`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Hợp đồng chuyển `DangThanhLy`; server ghi bên gửi vào `move_out_notice_by_user_id` và lý do vào `termination_reason`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
+
+**`POST /move-out-notice/withdraw`** — chỉ bên đã gửi thông báo được gọi, khi hợp đồng ở `DangThanhLy` và chưa có hóa đơn thanh lý; ngược lại trả `409`. Server xóa thông tin thông báo trả phòng, đưa hợp đồng về `SapHetHan` nếu còn 15 ngày hoặc ít hơn tới `endDate`, ngược lại về `DangHieuLuc`; bên còn lại nhận thông báo mức Cao (FR-98).
 
 **`POST /settlement-invoice`** tạo hóa đơn `type = "ThanhLy"` ở `Nhap`, gồm chỉ số điện nước lần cuối và các dòng chi tiết. Kỳ của hóa đơn thanh lý (FR-93):
 

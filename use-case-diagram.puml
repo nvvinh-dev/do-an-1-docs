@@ -70,7 +70,7 @@ rectangle "Hệ thống SmartRent" {
   }
 
   package "Chấm dứt hợp đồng" {
-    usecase "Gửi thông báo trả phòng" as UC31
+    usecase "Gửi / rút thông báo\ntrả phòng" as UC31
     usecase "Lập hóa đơn thanh lý" as UC32
     usecase "Xác nhận bảng thanh lý" as UC33
     usecase "Hoàn tất thanh lý\nvà tất toán cọc" as UC34

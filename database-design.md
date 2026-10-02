@@ -245,6 +245,8 @@ Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập 
 
 **Hủy trước ngày bắt đầu (BR-22):** hợp đồng ở `DangHieuLuc` nhưng chưa tới `start_date` được một trong hai bên chuyển sang `DaHuy`, ghi `cancelled_by_user_id`, phòng trở lại `Trong` — không tạo bản ghi `invoices` nào cho trường hợp này. Nếu đã có `deposit_received_at`: Chủ trọ hủy thì số hoàn bằng toàn bộ cọc; Người thuê hủy thì Chủ trọ nhập số hoàn từ 0 tới `deposit_amount`, kèm `deposit_refund_note` khi số hoàn nhỏ hơn. Việc hoàn cọc được Chủ trọ ghi nhận ở một bước riêng sau khi hủy, vào các cột `deposit_refund*`. Đây là transition `DangHieuLuc` → `DaHuy` duy nhất được phép; trong Phase 1, hợp đồng đã qua `start_date` chỉ kết thúc qua `DangThanhLy` → `DaThanhLy`.
 
+**Rút thông báo trả phòng (BP-10 A4):** khi hợp đồng chưa có hóa đơn `ThanhLy`, bên đã gửi được rút; `move_out_notice_at`, `move_out_notice_by_user_id`, `expected_move_out_date`, `termination_reason` được xóa, hợp đồng về `SapHetHan` nếu còn 15 ngày hoặc ít hơn tới `end_date`, ngược lại về `DangHieuLuc`.
+
 **Quá `end_date`:** hợp đồng chưa có thông báo trả phòng vẫn giữ trạng thái hiện tại và tiếp tục hiệu lực theo điều khoản đã chốt; hóa đơn định kỳ vẫn được lập cho tới khi một bên gửi thông báo trả phòng.
 
 ### 5.3 `contract_service_fees` — Phí dịch vụ đã chốt trong hợp đồng
@@ -422,6 +424,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `ThanhToanBiTuChoi` | Thanh toán bị từ chối xác nhận | Người thuê | `Invoice` |
 | `HopDongSapHetHan` | Hợp đồng còn 15 ngày tới ngày kết thúc | Cả hai bên | `Contract` |
 | `ThongBaoTraPhong` | Một bên gửi thông báo trả phòng | Bên còn lại | `Contract` |
+| `ThongBaoTraPhongBiRut` | Bên đã gửi rút thông báo trả phòng | Bên còn lại | `Contract` |
 | `BangThanhLyChoXacNhan` | Bảng thanh lý được gửi | Người thuê | `Invoice` |
 | `BangThanhLyCanChinhSua` | Người thuê chưa đồng ý bảng thanh lý | Chủ trọ | `Invoice` |
 | `BangThanhLyDuocTuChot` | Chủ trọ tự chốt bảng thanh lý sau 7 ngày không phản hồi | Người thuê | `Invoice` |
