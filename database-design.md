@@ -447,6 +447,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `ThongBaoTraPhongBiRut` | Bên đã gửi rút thông báo trả phòng | Bên còn lại | `Contract` |
 | `BangThanhLyChoXacNhan` | Bảng thanh lý được gửi | Người thuê | `Invoice` |
 | `BangThanhLyCanChinhSua` | Người thuê chưa đồng ý bảng thanh lý | Chủ trọ | `Invoice` |
+| `BangThanhLyDuocDongY` | Người thuê đồng ý bảng thanh lý, bảng bị khóa | Chủ trọ | `Invoice` |
 | `BangThanhLyDuocTuChot` | Chủ trọ tự chốt bảng thanh lý sau 7 ngày không phản hồi | Người thuê | `Invoice` |
 | `HoanTatThanhLy` | Hoàn tất thanh lý | Cả hai bên | `Contract` |
 

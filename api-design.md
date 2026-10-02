@@ -581,7 +581,7 @@ Dòng `PhiPhat` chỉ được nhận khi người thuê là bên gửi thông b
 **Gửi và xác nhận (FR-57):** `PUT /settlement-invoice` chỉ nhận khi hóa đơn ở `Nhap`, body giống lúc tạo; server tính lại toàn bộ số tiền. `/send` chuyển `Nhap` → `ChoNguoiThueXacNhan`, ghi `sentAt`, người thuê nhận thông báo mức Cao. Người thuê gọi:
 
 - `/request-changes` với `reason` (bắt buộc) → hóa đơn về `Nhap`, Chủ trọ nhận thông báo mức Cao kèm lý do;
-- `/confirm` → hóa đơn bị khóa. `totalAmount` > 0 thì sang `ChuaThanhToan` với `issuedAt` = lúc đồng ý, Người thuê thấy mã VietQR theo Mục 9.1 và thanh toán như hóa đơn thường. `totalAmount` < 0 thì sang `ChoHoanCoc`. `totalAmount` = 0 thì sang `DaThanhToan`.
+- `/confirm` → hóa đơn bị khóa, Chủ trọ nhận thông báo mức Cao. `totalAmount` > 0 thì sang `ChuaThanhToan` với `issuedAt` = lúc đồng ý, Người thuê thấy mã VietQR theo Mục 9.1 và thanh toán như hóa đơn thường. `totalAmount` < 0 thì sang `ChoHoanCoc`. `totalAmount` = 0 thì sang `DaThanhToan`.
 
 Hai endpoint của người thuê chỉ nhận khi hóa đơn ở `ChoNguoiThueXacNhan`, trạng thái khác trả `409`. Người thuê không thấy hóa đơn thanh lý khi nó còn ở `Nhap`.
 
