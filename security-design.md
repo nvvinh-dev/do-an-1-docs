@@ -172,7 +172,7 @@ Response chỉ chứa các trường mà chức năng đó thực sự cần. Ba
 |---|---|
 | `password_hash` và mọi trường kỹ thuật của Identity | Không bao giờ |
 | Số CCCD, ảnh CCCD, giấy tờ sở hữu | Admin đang xem chi tiết hồ sơ để duyệt, qua URL có chữ ký và có hạn |
-| Số điện thoại của bên còn lại | Giữa hai bên có yêu cầu thuê đã được Chủ trọ duyệt, hợp đồng chưa kết thúc, hoặc hợp đồng đã hủy còn chờ hoàn cọc (QR-07) |
+| Số điện thoại của bên còn lại | Giữa hai bên có yêu cầu thuê đã được Chủ trọ duyệt, hợp đồng chưa kết thúc, hợp đồng đã hủy còn chờ hoàn cọc, hoặc hợp đồng đã thanh lý mà hóa đơn thanh lý còn nợ (QR-07) |
 | Tài khoản ngân hàng của Chủ trọ | Chính Chủ trọ đó xem tài khoản của mình; hoặc Người thuê đứng tên hợp đồng của Chủ trọ, trong trường `paymentQr` khi có khoản cần chuyển khoản (BR-26) |
 
 Kết quả tìm kiếm phòng công khai không chứa thông tin liên hệ hay tài khoản ngân hàng của Chủ trọ.
@@ -249,7 +249,7 @@ Danh sách này được dùng làm checklist khi review code:
 7. Mọi thao tác thuộc danh sách của BR-23 đều ghi `audit_logs` với giá trị trước và sau.
 8. Khi không xác định được quyền, từ chối request.
 9. Thao tác đổi trạng thái chỉ chấp nhận các chuyển tiếp đã khai báo trong vòng đời tương ứng.
-10. Thao tác tạo hợp đồng và duyệt yêu cầu thuê chạy trong transaction.
+10. Mọi thao tác đổi trạng thái nhiều bản ghi cùng lúc chạy trong một transaction: duyệt yêu cầu thuê, rút yêu cầu đã duyệt, tạo và hủy hợp đồng, lập hóa đơn thanh lý (kết chuyển công nợ), hoàn tất thanh lý, lưu trữ khu trọ.
 11. Các nhóm endpoint ở Mục 6 đều được gắn rate limiting đúng ngưỡng đã quy định.
 12. Response trả về là DTO trong `Contracts/`, không phải entity của EF Core.
 13. File nhạy cảm nằm ở bucket riêng tư và chỉ truy cập qua URL có chữ ký, có hạn.

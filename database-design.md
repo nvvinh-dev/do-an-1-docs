@@ -97,7 +97,7 @@ Hồ sơ đăng ký làm Chủ trọ.
 | `reviewed_at` | timestamptz | | |
 | `reject_reason` | text | | Bắt buộc khi `status` = `TuChoi` |
 
-**Ràng buộc nghiệp vụ:** mỗi `user_id` chỉ có tối đa một hồ sơ ở trạng thái `ChoDuyet` tại một thời điểm. Hồ sơ bị từ chối được bổ sung và nộp lại thành bản ghi mới.
+**Ràng buộc nghiệp vụ:** mỗi `user_id` chỉ có tối đa một hồ sơ ở trạng thái `ChoDuyet` tại một thời điểm — unique index có điều kiện, để hai request nộp song song không tạo được hai hồ sơ. Hồ sơ bị từ chối được bổ sung và nộp lại thành bản ghi mới.
 
 **Ảnh giấy tờ (QR-04):** `id_card_front_url`, `id_card_back_url`, `ownership_document_url` chỉ được trả về cho Admin trong quá trình duyệt. Không endpoint nào khác được expose các cột này.
 
@@ -309,9 +309,9 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 
 **BR-16:** hóa đơn ở `DaThanhToan` không được sửa. Chỉ hóa đơn định kỳ mới nhất chưa hủy của hợp đồng mới được sửa hoặc hủy — sửa một hóa đơn cũ hơn sẽ làm gãy chuỗi chỉ số của BR-14. Sai sót ở hóa đơn không còn sửa được điều chỉnh bằng một dòng `DieuChinhKhac` có `related_invoice_id` trỏ về hóa đơn gốc, đặt ở hóa đơn kỳ kế tiếp hoặc hóa đơn thanh lý.
 
-**Hóa đơn thanh lý (BP-10):** `type = 'ThanhLy'`, các khoản cộng thêm và khoản trừ tiền cọc nằm ở `invoice_lines`. `total_amount` có thể âm — khi đó Chủ trọ phải hoàn lại phần cọc dư.
+**Hóa đơn thanh lý (BP-10):** `type = 'ThanhLy'`, các khoản cộng thêm và khoản trừ tiền cọc nằm ở `invoice_lines`. `total_amount` có thể âm — khi đó Chủ trọ phải hoàn lại phần cọc dư. Mỗi hợp đồng có tối đa một hóa đơn `ThanhLy` (unique index), chỉ lập khi hợp đồng ở `DangThanhLy` và từ ngày trả phòng thực tế trở đi.
 
-**Kỳ của hóa đơn thanh lý (FR-93):** `period_start` là ngày sau `period_end` của hóa đơn định kỳ chưa hủy gần nhất, hoặc `start_date` nếu chưa có; `period_end` là ngày trả phòng. Khi hóa đơn của tháng trả phòng đã lập trước khi có thông báo trả phòng, `period_start` = `period_end` = ngày trả phòng, `rent_amount` và `service_fee_amount` bằng 0.
+**Kỳ của hóa đơn thanh lý (FR-93):** `period_start` là ngày sau `period_end` của hóa đơn định kỳ chưa hủy gần nhất, hoặc `start_date` nếu chưa có; `period_end` là ngày trả phòng. Khi tháng trả phòng đã có hóa đơn định kỳ — lập trước khi có thông báo, hoặc người thuê dọn đi sớm hơn dự kiến — `period_start` = `period_end` = ngày trả phòng, `rent_amount` và `service_fee_amount` bằng 0.
 
 **Vòng đời hóa đơn thanh lý (FR-57, FR-95):** `Nhap` → `ChoNguoiThueXacNhan` khi Chủ trọ gửi, ghi `sent_at`; người thuê chưa đồng ý thì về `Nhap`, ghi `change_request_reason`. Hóa đơn bị khóa khi người thuê đồng ý (ghi `tenant_confirmed_at`), hoặc khi đã quá 7 ngày kể từ `sent_at` mà người thuê không phản hồi và Chủ trọ tự chốt (ghi `landlord_finalize_note`). Khi khóa:
 
@@ -334,6 +334,8 @@ Với hóa đơn thanh lý, `DaThanhToan` nghĩa là đã tất toán xong. Hợ
 | `amount` | numeric(14,2) | NOT NULL | Dương là khoản phải thu, âm là khoản trừ |
 | `evidence_url` | text | | Ảnh minh chứng hư hỏng |
 | `related_invoice_id` | bigint | FK → `invoices.id` | Hóa đơn gốc, thuộc cùng hợp đồng: bắt buộc với `CongNoKyTruoc`; với `DieuChinhKhac` khi dòng đó điều chỉnh sai sót của một hóa đơn trước (BR-16) |
+
+Hóa đơn định kỳ chỉ có dòng `DieuChinhKhac` và tổng không âm; các loại dòng còn lại chỉ dùng trong hóa đơn thanh lý.
 
 **BR-22:** mọi khoản khấu trừ tiền cọc phải là một dòng riêng có `description`. Không cho phép gộp thành một khoản không giải thích. Dòng `PhiPhat` chỉ hợp lệ khi `contracts.move_out_notice_by_user_id` là người thuê đứng tên, số ngày từ `move_out_notice_at` tới `expected_move_out_date` ít hơn 30, và `expected_move_out_date` trước `end_date`; tổng các dòng `PhiPhat` không vượt `deposit_amount`.
 
@@ -473,7 +475,9 @@ Mã dành cho Phase 2: `ThuHoiVaiTroChuTro`, `AnTinDang`.
 | `contracts` | `(room_id)` unique có điều kiện với trạng thái đang chiếm dụng | BR-07 |
 | `contracts` | `(tenant_user_id)` | Người thuê xem hợp đồng của mình |
 | `invoices` | `(contract_id, period_start, period_end)` unique khi `type = 'DinhKy'` và `status <> 'DaHuy'` | BR-17 |
+| `invoices` | `(contract_id)` unique khi `type = 'ThanhLy'` | Mỗi hợp đồng một hóa đơn thanh lý (FR-54) |
 | `invoices` | `(status, due_date)` | Quét hóa đơn quá hạn |
+| `landlord_applications` | `(user_id)` unique khi `status = 'ChoDuyet'` | Mỗi người một hồ sơ chờ duyệt (FR-07) |
 | `rental_requests` | `(room_id, status)` | BR-06 |
 | `rental_requests` | `(room_id, tenant_user_id)` unique khi `status = 'ChoDuyet'` | BR-27 |
 | `notifications` | `(recipient_user_id, is_read)` | Đếm thông báo chưa đọc |

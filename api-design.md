@@ -195,6 +195,8 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 
 Kết quả **chỉ** gồm phòng thỏa mãn đủ điều kiện BR-05. Response không chứa thông tin liên hệ của Chủ trọ (QR-07).
 
+`GET /rooms/{id}/public` cũng chỉ trả phòng đủ điều kiện BR-05, ngoài ra trả `404`. Người thuê xem lại phòng mình đã gửi yêu cầu hoặc đang thuê qua chi tiết yêu cầu thuê và hợp đồng.
+
 Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó là BP-04 A1 thuộc Phase 2.
 
 ---
@@ -216,11 +218,11 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 2. Chuyển `rooms.occupancy_status` sang `DangGiuCho` — phòng biến mất khỏi kết quả tìm kiếm.
 3. Chuyển **toàn bộ** yêu cầu khác của cùng phòng đang ở `ChoDuyet` sang `TuChoi` với lý do do hệ thống sinh (BR-06), và gửi thông báo cho từng người thuê bị từ chối.
 
-Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã có một yêu cầu `ChoDuyet` cho cùng phòng trả `409` (BR-27).
+Gửi yêu cầu cho phòng không đủ điều kiện BR-05 trả `404`, giống chi tiết công khai — không để lộ phòng đang ẩn qua việc dò id (FR-26). Người thuê đã có một yêu cầu `ChoDuyet` cho cùng phòng trả `409` (BR-27).
 
 **`POST /rental-requests/{id}/cancel`** nhận khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trạng thái khác trả `409`. Rút yêu cầu `DaDuyet` thì phòng về `Trong` trong cùng transaction và Chủ trọ nhận thông báo mức Cao (FR-27).
 
-**Số điện thoại bên còn lại (QR-07):** `GET /rental-requests/{id}` trả kèm số điện thoại của bên còn lại khi yêu cầu ở `DaDuyet`; các trạng thái khác không trả. Sau khi hợp đồng được tạo, số điện thoại hai bên nằm trong `GET /contracts/{id}` cho tới khi hợp đồng ở `DaThanhLy`, hoặc ở `DaHuy` mà không còn chờ hoàn cọc — để hai bên còn liên lạc được trong lúc chờ hoàn cọc.
+**Số điện thoại bên còn lại (QR-07):** `GET /rental-requests/{id}` trả kèm số điện thoại của bên còn lại khi yêu cầu ở `DaDuyet`; các trạng thái khác không trả. Sau khi hợp đồng được tạo, số điện thoại hai bên nằm trong `GET /contracts/{id}` cho tới khi hợp đồng kết thúc hẳn: `DaThanhLy` mà hóa đơn thanh lý không còn nợ, hoặc `DaHuy` mà không còn chờ hoàn cọc — để hai bên còn liên lạc được khi còn nghĩa vụ tiền.
 
 ---
 
@@ -337,6 +339,7 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 - Kỳ kế tiếp chưa tới — hôm nay trước ngày 25 của tháng đó — trả `409` (FR-91).
 - Hợp đồng ở `DangThanhLy` mà kỳ kế tiếp là tháng chứa `expectedMoveOutDate` trả `409` — tháng đó thuộc hóa đơn thanh lý.
 - Unique index BR-17 là lớp chặn cuối khi hai request tạo cùng một kỳ chạy song song; vi phạm trả `409`.
+- `adjustmentLines` chỉ nhận category `DieuChinhKhac`, loại khác trả `422`. `totalAmount` của hóa đơn định kỳ không được âm, âm trả `422` — khoản giảm lớn hơn tiền tháng thì chia sang các kỳ sau.
 - Kỳ đầu tiên và kỳ cuối không trọn tháng: `rentAmount` và `serviceFeeAmount` = giá × số ngày ở ÷ số ngày của tháng, tính cả ngày vào ở và ngày trả phòng, làm tròn đến đồng (BR-15). Ví dụ vào ở 15/10, giá 3.000.000 → 3.000.000 × 17 ÷ 31 = 1.645.161.
 - Kỳ nằm sau `endDate` vẫn lập được — hợp đồng tiếp tục hiệu lực theo điều khoản đã chốt (FR-88); khi đã có thông báo trả phòng thì áp quy tắc tháng trả phòng ở trên.
 
@@ -397,11 +400,11 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 
 **`POST /move-out-notice/withdraw`** — chỉ bên đã gửi thông báo được gọi, khi hợp đồng ở `DangThanhLy` và chưa có hóa đơn thanh lý; ngược lại trả `409`. Server xóa thông tin thông báo trả phòng, đưa hợp đồng về `SapHetHan` nếu còn 15 ngày hoặc ít hơn tới `endDate`, ngược lại về `DangHieuLuc`; bên còn lại nhận thông báo mức Cao (FR-98).
 
-**`POST /settlement-invoice`** tạo hóa đơn `type = "ThanhLy"` ở `Nhap`, gồm chỉ số điện nước lần cuối và các dòng chi tiết. Kỳ của hóa đơn thanh lý (FR-93):
+**`POST /settlement-invoice`** tạo hóa đơn `type = "ThanhLy"` ở `Nhap`, gồm chỉ số điện nước lần cuối và các dòng chi tiết. Chỉ nhận khi hợp đồng ở `DangThanhLy`, chưa có hóa đơn thanh lý, và `moveOutDate` không sau hôm nay — bảng thanh lý lập vào hoặc sau ngày trả phòng thực tế, khi đã chốt số lần cuối; ngược lại trả `409` (FR-54). Kỳ của hóa đơn thanh lý (FR-93):
 
 - `moveOutDate` thuộc tháng ngay sau kỳ định kỳ cuối cùng (hợp đồng chưa có hóa đơn định kỳ thì thuộc tháng của `startDate`): hóa đơn tính từ đầu khoảng đó tới `moveOutDate`.
-- `moveOutDate` thuộc chính tháng của kỳ định kỳ cuối cùng, và hóa đơn tháng đó đã lập trước thông báo trả phòng: hóa đơn thanh lý không có tiền phòng và phí dịch vụ, chỉ tính điện nước từ lần chốt gần nhất.
-- Trường hợp khác trả `409` — Chủ trọ lập trước hóa đơn định kỳ của các tháng còn thiếu. Hợp đồng còn hóa đơn định kỳ ở `Nhap` cũng trả `409`.
+- `moveOutDate` thuộc chính tháng của kỳ định kỳ cuối cùng — hóa đơn tháng đó đã lập trước thông báo, hoặc người thuê dọn đi sớm hơn dự kiến: hóa đơn thanh lý không có tiền phòng và phí dịch vụ, chỉ tính điện nước từ lần chốt gần nhất.
+- Trường hợp khác trả `409` — Chủ trọ lập trước hóa đơn định kỳ của các tháng còn thiếu. Hợp đồng còn hóa đơn định kỳ ở `Nhap` cũng trả `409`. Người thuê ở lại quá tháng của `expectedMoveOutDate` thì tháng đó bị chặn lập hóa đơn định kỳ; bên gửi rút thông báo rồi gửi lại với ngày mới.
 
 ```json
 {
