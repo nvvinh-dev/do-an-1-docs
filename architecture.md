@@ -184,4 +184,6 @@ Thời điểm được lưu theo UTC (`timestamptz`). Mọi "ngày" nghiệp v�
 | Axios | Gắn JWT vào header cho mọi request; token đọc từ `localStorage` |
 | qrcode | Vẽ mã VietQR ngay trong trình duyệt từ trường `paymentQr` do backend trả về (BR-26); không gọi dịch vụ tạo ảnh QR bên ngoài |
 
+Danh sách màn hình — đường dẫn, file trang, API gọi tới và thao tác theo trạng thái — nằm ở [Danh sách màn hình](frontend-screens.md).
+
 **Kiểm tra dữ liệu ở frontend là để người dùng đỡ phải gửi request sai, không phải để bảo vệ hệ thống.** Ẩn nút hay chặn route theo vai trò cũng vậy. Mọi kiểm soát thật nằm ở backend và được thực hiện lại cho từng request.

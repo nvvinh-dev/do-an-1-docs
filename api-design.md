@@ -81,7 +81,7 @@ Tài khoản có `isLocked = true` nhận `403` kèm lý do khóa — chỉ khi 
 
 Đăng nhập sai 5 lần liên tiếp trong 15 phút với cùng một cặp email + địa chỉ IP thì nhận `429` kèm `Retry-After` cho tới hết 15 phút, kể cả khi email không tồn tại (Thiết kế An toàn mục 6).
 
-**`POST /api/v1/auth/forgot-password`** luôn trả `200` với cùng một thông báo và trả về ngay, dù email có tồn tại hay không. Email được gửi nền; lỗi gửi chỉ ghi log, không làm request thất bại.
+**`POST /api/v1/auth/forgot-password`** luôn trả `200` với cùng một thông báo và trả về ngay, dù email có tồn tại hay không. Email được gửi nền; lỗi gửi chỉ ghi log, không làm request thất bại. Đường dẫn trong email có dạng `{Frontend:BaseUrl}/reset-password?email=...&token=...`, mở màn đặt lại mật khẩu (Danh sách màn hình, A4).
 
 **`PUT /api/v1/auth/me`** — body gồm `fullName` và `phoneNumber`. Đổi `phoneNumber` thì trạng thái đã xác thực của số điện thoại bị bỏ (BR-01).
 
