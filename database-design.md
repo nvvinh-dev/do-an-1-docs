@@ -266,8 +266,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 |---|---|---|---|
 | `id` | bigint | PK | |
 | `contract_id` | bigint | FK → `contracts.id`, NOT NULL | |
-| `type` | text | NOT NULL, CHECK | `DinhKy` / `ThanhLy` / `DieuChinh` |
-| `adjusted_invoice_id` | bigint | FK → `invoices.id` | Bắt buộc khi `type` = `DieuChinh` (BR-16) |
+| `type` | text | NOT NULL, CHECK | `DinhKy` / `ThanhLy` |
 | `period_start` | date | NOT NULL | Ngày đầu kỳ — do server xác định |
 | `period_end` | date | NOT NULL | Ngày cuối kỳ — do server xác định |
 | `previous_electricity_index` | numeric(12,2) | NOT NULL | |
@@ -296,7 +295,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 
 **BR-17:** mỗi `contract_id` chỉ có một hóa đơn `type = 'DinhKy'` chưa hủy cho mỗi cặp (`period_start`, `period_end`) — unique index có điều kiện `type = 'DinhKy' AND status <> 'DaHuy'`, để hóa đơn đã hủy không chặn việc lập lại kỳ đó.
 
-**BR-16:** hóa đơn ở `DaThanhToan` không được sửa. Mọi điều chỉnh tạo bản ghi mới với `type = 'DieuChinh'` và `adjusted_invoice_id` trỏ tới hóa đơn gốc.
+**BR-16:** hóa đơn ở `DaThanhToan` không được sửa. Chỉ hóa đơn định kỳ mới nhất chưa hủy của hợp đồng mới được sửa hoặc hủy — sửa một hóa đơn cũ hơn sẽ làm gãy chuỗi chỉ số của BR-14. Sai sót ở hóa đơn không còn sửa được điều chỉnh bằng một dòng `DieuChinhKhac` có `related_invoice_id` trỏ về hóa đơn gốc, đặt ở hóa đơn kỳ kế tiếp hoặc hóa đơn thanh lý.
 
 **Hóa đơn thanh lý (BP-10):** `type = 'ThanhLy'`, các khoản cộng thêm và khoản trừ tiền cọc nằm ở `invoice_lines`. `total_amount` có thể âm — khi đó Chủ trọ phải hoàn lại phần cọc dư.
 
@@ -310,6 +309,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `description` | text | NOT NULL | Lý do của khoản mục — bắt buộc theo BR-22 |
 | `amount` | numeric(14,2) | NOT NULL | Dương là khoản phải thu, âm là khoản trừ |
 | `evidence_url` | text | | Ảnh minh chứng hư hỏng |
+| `related_invoice_id` | bigint | FK → `invoices.id` | Hóa đơn gốc mà dòng này điều chỉnh (BR-16), thuộc cùng hợp đồng |
 
 **BR-22:** mọi khoản khấu trừ tiền cọc phải là một dòng riêng có `description`. Không cho phép gộp thành một khoản không giải thích.
 

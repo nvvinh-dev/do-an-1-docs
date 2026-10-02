@@ -62,7 +62,7 @@ rectangle "Hệ thống SmartRent" {
     usecase "Báo đã thanh toán\nkèm minh chứng" as UC27
     usecase "Xác nhận đã thu tiền" as UC28
     usecase "Từ chối xác nhận thanh toán" as UC29
-    usecase "Lập hóa đơn điều chỉnh" as UC30
+    usecase "Điều chỉnh sai sót\nhóa đơn kỳ trước" as UC30
     usecase "Sửa hóa đơn\nchưa thanh toán" as UC42
     usecase "Hủy hóa đơn\nchưa thanh toán" as UC43
     usecase "Khai báo tài khoản\nngân hàng nhận tiền" as UC39

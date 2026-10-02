@@ -294,7 +294,6 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 | `PUT` | `/api/v1/invoices/{id}` | Landlord (chủ sở hữu) | Sửa khi chưa được xác nhận thanh toán |
 | `POST` | `/api/v1/invoices/{id}/issue` | Landlord (chủ sở hữu) | Phát hành |
 | `POST` | `/api/v1/invoices/{id}/cancel` | Landlord (chủ sở hữu) | Hủy khi chưa thanh toán, bắt buộc có `reason` |
-| `POST` | `/api/v1/invoices/{id}/adjustments` | Landlord (chủ sở hữu) | Tạo hóa đơn điều chỉnh cho hóa đơn đã thanh toán |
 | `POST` | `/api/v1/invoices/{id}/payment-reports` | Tenant (người đứng tên) | Báo đã thanh toán kèm minh chứng |
 | `POST` | `/api/v1/invoices/{id}/payment-reports/{reportId}/confirm` | Landlord (chủ sở hữu) | Xác nhận đã thu |
 | `POST` | `/api/v1/invoices/{id}/payment-reports/{reportId}/reject` | Landlord (chủ sở hữu) | Từ chối xác nhận, bắt buộc có `reason` |
@@ -308,7 +307,7 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
   "electricityMeterPhotoPath": "...",
   "waterMeterPhotoPath": "...",
   "adjustmentLines": [
-    { "category": "DieuChinhKhac", "description": "Tru tien sua vòi nuoc thang truoc", "amount": -50000 }
+    { "category": "DieuChinhKhac", "description": "Thang 10 ghi du 20 so dien", "amount": -70000, "relatedInvoiceId": 128 }
   ]
 }
 ```
@@ -327,8 +326,8 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 
 **Sửa và điều chỉnh:**
 
-- `PUT /invoices/{id}` chỉ chấp nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan` hoặc `QuaHan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới, và gửi thông báo cho người thuê.
-- `POST /invoices/{id}/adjustments` tạo bản ghi mới `type = "DieuChinh"` với `adjustedInvoiceId` trỏ về hóa đơn gốc.
+- `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan` hoặc `QuaHan`; `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới, và gửi thông báo cho người thuê.
+- Hóa đơn cũ hơn hoặc đã thanh toán có sai sót: Chủ trọ thêm một dòng `DieuChinhKhac` có `relatedInvoiceId` vào `adjustmentLines` của hóa đơn kỳ kế tiếp, hoặc vào `lines` của hóa đơn thanh lý. `relatedInvoiceId` phải thuộc cùng hợp đồng, sai thì trả `422`.
 
 **Luồng thanh toán:**
 

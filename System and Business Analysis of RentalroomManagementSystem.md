@@ -358,8 +358,8 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 - **A1 — Quá hạn:** Quá hạn thanh toán ghi trong Hợp đồng mà hóa đơn vẫn ở *Chưa thanh toán*, hệ thống tự gắn cờ **Quá hạn** và gửi thông báo nhắc nhở tự động cho cả hai bên.
 - **A2 — Thanh toán một phần:** Chủ trọ ghi nhận số tiền đã thu < tổng hóa đơn → trạng thái **Thanh toán một phần**, phần còn lại vẫn theo dõi công nợ.
-- **A3 — Nhập sai chỉ số:** Với hóa đơn **chưa** được xác nhận thanh toán, Chủ trọ được **điều chỉnh**; hệ thống ghi nhật ký giá trị cũ/mới và thông báo cho Người thuê. Hóa đơn **đã** thanh toán **không được sửa** — phải tạo hóa đơn điều chỉnh riêng (xem BR-16).
-- **A4 — Hủy hóa đơn:** Chỉ áp dụng cho hóa đơn chưa thanh toán và bắt buộc nhập lý do.
+- **A3 — Nhập sai chỉ số:** Với hóa đơn **mới nhất** của hợp đồng và **chưa** được xác nhận thanh toán, Chủ trọ được sửa; hệ thống ghi nhật ký giá trị cũ/mới và thông báo cho Người thuê. Hóa đơn cũ hơn, hoặc hóa đơn **đã** thanh toán, **không được sửa** — sai sót được điều chỉnh bằng một dòng *Điều chỉnh* ở hóa đơn kỳ kế tiếp hoặc Hóa đơn thanh lý, ghi rõ hóa đơn gốc (xem BR-16).
+- **A4 — Hủy hóa đơn:** Chỉ áp dụng cho hóa đơn **mới nhất** của hợp đồng, chưa thanh toán, và bắt buộc nhập lý do.
 
 **Kết quả:** Chi phí được tính minh bạch, có đầy đủ dữ liệu đối chứng cho mọi tranh chấp.
 
@@ -610,7 +610,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 |---|---|
 | **BR-14** | Tiền điện/nước = (chỉ số mới − chỉ số cũ) × đơn giá đã chốt. Hệ thống **từ chối** lưu khi chỉ số mới < chỉ số cũ. Chỉ số cũ của một kỳ **bắt buộc bằng** chỉ số mới của kỳ liền trước. Kỳ đầu tiên lấy chỉ số lúc bàn giao phòng ghi trong Hợp đồng: Chủ trọ nhập khi lập hợp đồng, Người thuê thấy khi xác nhận điều khoản; nếu số thực tế lúc bàn giao khác, Chủ trọ sửa được cho tới khi lập hóa đơn đầu tiên, mỗi lần sửa ghi nhật ký và thông báo cho Người thuê. |
 | **BR-15** | Kỳ hóa đơn đầu tiên và kỳ cuối cùng không trọn tháng thì tiền phòng **và phí dịch vụ** được tính theo **tỷ lệ số ngày thực ở** trên tổng số ngày của tháng đó, tính cả ngày vào ở và ngày trả phòng. Mọi khoản tiền làm tròn đến đồng. Ví dụ: vào ở ngày 15/10, giá thuê 3.000.000đ → 3.000.000 × 17 ÷ 31 = 1.645.161đ. |
-| **BR-16** | Hóa đơn ở trạng thái *Đã thanh toán* **không được sửa đổi**. Mọi điều chỉnh sau đó phải thực hiện bằng một hóa đơn điều chỉnh riêng, có tham chiếu tới hóa đơn gốc. |
+| **BR-16** | Hóa đơn ở trạng thái *Đã thanh toán* **không được sửa đổi**. Chỉ hóa đơn mới nhất chưa thanh toán của hợp đồng mới được sửa hoặc hủy. Sai sót ở hóa đơn không còn sửa được thì điều chỉnh bằng một dòng *Điều chỉnh* có mô tả và tham chiếu tới hóa đơn gốc, đặt ở hóa đơn kỳ kế tiếp hoặc Hóa đơn thanh lý. |
 | **BR-17** | Mỗi Hợp đồng chỉ có **một** Hóa đơn chưa hủy cho mỗi Kỳ hóa đơn. Hệ thống chặn việc tạo trùng kỳ. Kỳ do hệ thống xác định theo thứ tự tháng, Chủ trọ không tự chọn ngày đầu và ngày cuối kỳ. |
 | **BR-06b** | Chỉ Chủ trọ mới có quyền xác nhận một Hóa đơn đã được thanh toán hoàn tất. Người thuê phải đính kèm minh chứng (ảnh biên lai/chuyển khoản) khi báo đã thanh toán, để Chủ trọ đối soát trước khi xác nhận. |
 | **BR-26** | Khi Chủ trọ đã khai báo tài khoản ngân hàng nhận tiền, hệ thống hiển thị cho Người thuê đứng tên **mã VietQR** gồm tài khoản của Chủ trọ, số tiền và nội dung chuyển khoản gắn với khoản cần trả, tại ba chỗ: hợp đồng ở *Chờ nhận cọc* có tiền cọc lớn hơn 0; hóa đơn ở *Chưa thanh toán*, *Quá hạn* hoặc *Thanh toán một phần* (số tiền là phần còn phải trả); hóa đơn thanh lý có số dư dương. Mã VietQR **chỉ** hỗ trợ chuyển khoản — việc quét mã hay chuyển tiền **không** làm thay đổi trạng thái hợp đồng hay hóa đơn; khoản tiền chỉ được ghi nhận qua xác nhận nhận cọc (BR-21) hoặc xác nhận thanh toán (BR-06b). Chủ trọ chưa khai báo tài khoản thì không hiển thị mã, Người thuê thanh toán theo cách khác. |
@@ -1075,6 +1075,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Phân kỳ Phase 1/2/3 | Đánh giá rủi ro nguồn lực theo CO-01 và CO-02 |
 | Chỉ số điện nước lúc bàn giao ghi trong Hợp đồng (BR-14) | Kỳ hóa đơn đầu tiên không có kỳ liền trước để lấy chỉ số cũ; thực tế hai bên chốt số đồng hồ lúc giao phòng |
 | Kỳ hóa đơn theo tháng dương lịch, do hệ thống xác định (BR-15, BR-17) | Để Chủ trọ tự chọn ngày kỳ thì có thể lập chồng kỳ và thu tiền phòng hai lần. Phí dịch vụ tháng lẻ cũng tính theo tỷ lệ vì thu trọn tháng với người vào ở cuối tháng là bất hợp lý |
+| Điều chỉnh sai sót bằng dòng *Điều chỉnh* ở kỳ sau (BR-16) | Thực tế Chủ trọ cộng hoặc trừ phần chênh lệch vào tháng sau; sửa một hóa đơn cũ khi đã có kỳ sau sẽ làm gãy chuỗi chỉ số của BR-14 |
 
 ---
 

@@ -180,7 +180,7 @@ Các luồng có thể bị lợi dụng trong hệ thống này và cách thi�
 | Hợp đồng được kích hoạt mà chưa nhận cọc | Chỉ chuyển sang *Đang hiệu lực* khi có đủ cả xác nhận của người thuê lẫn xác nhận đã nhận cọc |
 | Người thuê chụp màn hình mã VietQR rồi coi như đã trả tiền | Quét mã hay chuyển khoản không đổi trạng thái hóa đơn; tiền chỉ được ghi nhận khi Chủ trọ xác nhận (BR-06b, BR-26) |
 | Chủ trọ đánh dấu đã thu đủ trong khi người thuê mới trả một phần | Số tiền xác nhận được so với tổng hóa đơn; thiếu thì trạng thái là *Thanh toán một phần*, phần còn lại vẫn là công nợ |
-| Chủ trọ sửa chỉ số sau khi người thuê đã trả tiền | Hóa đơn ở *Đã thanh toán* không sửa được; muốn điều chỉnh phải lập hóa đơn điều chỉnh có tham chiếu tới hóa đơn gốc |
+| Chủ trọ sửa chỉ số sau khi người thuê đã trả tiền | Hóa đơn ở *Đã thanh toán* không sửa được; sai sót chỉ được điều chỉnh bằng một dòng riêng ở kỳ sau, có mô tả, tham chiếu tới hóa đơn gốc và được ghi nhật ký |
 | Khấu trừ hết tiền cọc mà không giải thích | Mỗi khoản khấu trừ bắt buộc là một dòng riêng có mô tả lý do |
 | Tạo hai hóa đơn cho cùng một kỳ để thu tiền hai lần | Kỳ hóa đơn do server xác định, client không gửi ngày kỳ; unique index trên hợp đồng và kỳ là lớp chặn cuối |
 | Xóa phòng để phi tang lịch sử hóa đơn | Không có endpoint xóa; phòng đã phát sinh giao dịch chỉ được chuyển sang *Lưu trữ* |
