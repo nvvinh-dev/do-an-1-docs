@@ -197,6 +197,8 @@ Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url`
 
 **Hết hạn:** yêu cầu ở `ChoDuyet` quá 7 ngày kể từ `submitted_at` chuyển sang `HetHan`. Yêu cầu ở `DaDuyet` quá 3 ngày kể từ `processed_at` mà chưa được lập hợp đồng cũng chuyển sang `HetHan` (BP-06 A3).
 
+**Rút yêu cầu:** người thuê chuyển yêu cầu sang `DaHuy` khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trường hợp sau phòng trở lại `Trong`.
+
 **Đã lập hợp đồng:** yêu cầu chuyển sang `DaLapHopDong` ngay khi hợp đồng được tạo từ nó. Hợp đồng bị hủy sau đó không làm đổi trạng thái này.
 
 ### 5.2 `contracts` — Hợp đồng
@@ -408,6 +410,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `YeuCauThueMoi` | Có yêu cầu thuê mới | Chủ trọ | `RentalRequest` |
 | `YeuCauThueDuocDuyet` | Yêu cầu thuê được duyệt | Người thuê | `RentalRequest` |
 | `YeuCauThueBiTuChoi` | Yêu cầu thuê bị từ chối, kể cả tự từ chối theo BR-06 | Người thuê | `RentalRequest` |
+| `YeuCauThueBiRut` | Người thuê rút yêu cầu thuê đã được duyệt | Chủ trọ | `RentalRequest` |
 | `HopDongChoXacNhan` | Hợp đồng được gửi để xác nhận | Người thuê | `Contract` |
 | `HopDongCanChinhSua` | Người thuê yêu cầu chỉnh sửa hợp đồng | Chủ trọ | `Contract` |
 | `NhacNopCoc` | Hạn giữ chỗ còn dưới 24 giờ; chỉ gửi khi hợp đồng đã được lập | Người thuê | `Contract` |

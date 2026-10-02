@@ -67,7 +67,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-25** | Người thuê gửi được yêu cầu thuê cho một phòng đang ở trạng thái Trống, kèm ngày dự kiến vào ở và số người dự kiến | BP-06 | `POST /rooms/{id}/rental-requests` |
 | **FR-26** | Hệ thống từ chối yêu cầu thuê cho phòng không ở trạng thái Trống | BP-06 | `rooms.occupancy_status` |
 | **FR-85** | Hệ thống từ chối yêu cầu thuê mới khi người thuê đã có một yêu cầu đang chờ duyệt cho cùng phòng | BR-27 | Unique index có điều kiện trên `rental_requests` |
-| **FR-27** | Người thuê rút được yêu cầu của mình khi Chủ trọ chưa xử lý | BP-06 A1 | `POST /rental-requests/{id}/cancel` |
+| **FR-27** | Người thuê rút được yêu cầu của mình khi Chủ trọ chưa xử lý, hoặc khi yêu cầu đã được duyệt nhưng chưa lập hợp đồng — khi đó phòng trở lại Trống ngay và Chủ trọ nhận thông báo | BP-06 A1 | `POST /rental-requests/{id}/cancel` |
 | **FR-28** | Yêu cầu thuê không được xử lý trong 7 ngày (đủ 168 giờ kể từ lúc gửi) tự chuyển sang Hết hạn và phòng không bị giữ chỗ | BP-06 A2 | Tác vụ định kỳ · `rental_requests.status` |
 | **FR-29** | Chủ trọ từ chối yêu cầu thuê thì **bắt buộc** nhập lý do | BP-06 | `POST /rental-requests/{id}/reject` |
 | **FR-30** | Khi một yêu cầu thuê được duyệt, hệ thống **đồng thời** chuyển phòng sang Đang giữ chỗ và tự từ chối toàn bộ yêu cầu khác đang chờ duyệt của cùng phòng, kèm lý do do hệ thống sinh | BR-06 | `POST /rental-requests/{id}/approve` chạy trong transaction |

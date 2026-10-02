@@ -324,7 +324,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 **Luồng thay thế:**
 
-- **A1 — Người thuê rút yêu cầu:** Trước khi Chủ trọ xử lý, Người thuê chủ động hủy → trạng thái **Đã hủy**.
+- **A1 — Người thuê rút yêu cầu:** Trước khi Chủ trọ xử lý, hoặc sau khi được duyệt nhưng Chủ trọ chưa lập hợp đồng, Người thuê chủ động hủy → trạng thái **Đã hủy**. Nếu yêu cầu đã được duyệt, phòng trở lại **Trống** ngay và Chủ trọ nhận thông báo.
 - **A2 — Yêu cầu hết hạn:** Yêu cầu thuê không được Chủ trọ xử lý trong **7 ngày** (tính đủ 168 giờ kể từ lúc gửi) tự động chuyển sang **Hết hạn**; phòng không bị giữ chỗ.
 - **A3 — Quá hạn giữ chỗ:** Hạn giữ chỗ là **3 ngày** (tính đủ 72 giờ) kể từ khi Chủ trọ duyệt yêu cầu thuê, gồm cả thời gian lập hợp đồng, xác nhận điều khoản và nộp cọc. Khi hạn giữ chỗ còn dưới 24 giờ, hệ thống nhắc Người thuê một lần. Hết hạn mà Hợp đồng chưa *Đang hiệu lực* thì: hợp đồng (nếu đã lập) chuyển sang **Đã hủy**; yêu cầu thuê chưa được lập hợp đồng chuyển sang **Hết hạn**; phòng trở lại **Trống** và hiển thị lại.
 - **A4 — Thuê ở ghép nhiều người:** Xem giới hạn tại BR-11 và Mục 13.2.
@@ -641,6 +641,8 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
                     │
 Chờ duyệt ──────────┼──► Đã duyệt ──┬──► Đã lập hợp đồng (kết thúc)
                     │               │
+                    │               ├──► Đã hủy (Người thuê rút khi chưa lập hợp đồng)
+                    │               │
                     │               └──► Hết hạn (quá 3 ngày giữ chỗ chưa lập hợp đồng)
                     │
                     ├──► Đã hủy (Người thuê rút yêu cầu)
@@ -654,7 +656,7 @@ Chờ duyệt ──────────┼──► Đã duyệt ──┬�
 | **Đã duyệt** | Chủ trọ đồng ý cho thuê; phòng đã được giữ chỗ; đang chuẩn bị hợp đồng. |
 | **Đã lập hợp đồng** | Hợp đồng đã được tạo từ yêu cầu này. Trạng thái kết thúc: hợp đồng bị hủy sau đó không làm đổi trạng thái này; Người thuê muốn thuê lại thì gửi yêu cầu mới. |
 | **Từ chối** | Chủ trọ không đồng ý, hoặc bị hệ thống tự từ chối do phòng đã có người thuê khác (BR-06). |
-| **Đã hủy** | Người thuê chủ động rút lại yêu cầu trước khi Chủ trọ xử lý. |
+| **Đã hủy** | Người thuê chủ động rút lại yêu cầu trước khi Chủ trọ xử lý, hoặc sau khi được duyệt nhưng chưa lập hợp đồng. |
 | **Hết hạn** | Quá 7 ngày không được xử lý; hoặc đã duyệt nhưng hết hạn giữ chỗ 3 ngày mà chưa lập hợp đồng (BP-06 A3). |
 
 ### 8.2 Vòng đời Phòng trọ — Trạng thái khai thác
@@ -830,6 +832,7 @@ Chờ xử lý ──► Đang xem xét ──► Đã xử lý
 | Nhắc nhở trước giờ hẹn xem phòng | Cả hai bên | Thường |
 | Có yêu cầu thuê mới | Chủ trọ | Cao |
 | Yêu cầu thuê được duyệt / bị từ chối | Người thuê | Cao |
+| Người thuê rút yêu cầu thuê đã được duyệt | Chủ trọ | Cao |
 | Yêu cầu thuê sắp hết hạn xử lý (còn 1 ngày) | Chủ trọ | Thường |
 | Hợp đồng nháp được gửi để xác nhận | Người thuê | Cao |
 | Người thuê yêu cầu chỉnh sửa hợp đồng (kèm lý do) | Chủ trọ | Cao |
@@ -1117,6 +1120,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Ghi nhận bên gửi thông báo trả phòng; phí phạt chỉ khi Người thuê báo gấp (BR-22) | Không biết ai chấm dứt thì không kiểm được điều kiện phạt. "Chủ trọ chấm dứt phải hoàn toàn bộ cọc" được hiểu là không có phí phạt, vì tiền nợ và hư hỏng vẫn phải trừ |
 | Chưa được làm Chủ trọ khi còn hợp đồng hoặc yêu cầu thuê đang mở (BR-01) | Mỗi tài khoản một vai trò: đổi sang Chủ trọ giữa chừng làm người dùng mất quyền báo thanh toán, đồng ý thanh lý trên hợp đồng của chính mình |
 | Rút thông báo trả phòng (BP-10 A4) | Thực tế người thuê đổi ý hoặc hai bên thỏa thuận ở tiếp; không có đường quay lại thì hợp đồng buộc phải thanh lý dù không ai muốn |
+| Người thuê rút được yêu cầu thuê đã duyệt khi chưa lập hợp đồng (BP-06 A1) | Người thuê đổi ý sau khi được duyệt thì phòng không phải bị giữ vô ích tới hết 72 giờ |
 
 ---
 

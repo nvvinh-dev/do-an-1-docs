@@ -216,6 +216,8 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 
 Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã có một yêu cầu `ChoDuyet` cho cùng phòng trả `409` (BR-27).
 
+**`POST /rental-requests/{id}/cancel`** nhận khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trạng thái khác trả `409`. Rút yêu cầu `DaDuyet` thì phòng về `Trong` trong cùng transaction và Chủ trọ nhận thông báo mức Cao (FR-27).
+
 **Số điện thoại bên còn lại (QR-07):** `GET /rental-requests/{id}` trả kèm số điện thoại của bên còn lại khi yêu cầu ở `DaDuyet`; các trạng thái khác không trả. Sau khi hợp đồng được tạo, số điện thoại hai bên nằm trong `GET /contracts/{id}` cho tới khi hợp đồng ở `DaThanhLy` hoặc `DaHuy`.
 
 ---
