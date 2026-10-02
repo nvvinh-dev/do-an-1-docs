@@ -19,7 +19,7 @@ Tài liệu này bám theo [Thiết kế Cơ sở dữ liệu](database-design.m
 | **Dữ liệu trả về** | Luôn là lớp DTO riêng trong `Contracts/`, **không** serialize thẳng entity |
 | **Lỗi** | `application/problem+json` theo chuẩn ProblemDetails của ASP.NET Core |
 | **Phân trang** | Query `page` (bắt đầu từ 1) và `pageSize`; response bọc trong `{ items, page, pageSize, totalItems, totalPages }` |
-| **Ngày giờ** | ISO 8601, múi giờ UTC |
+| **Ngày giờ** | Thời điểm: ISO 8601, múi giờ UTC. Trường chỉ có ngày (`startDate`, `dueDate`...): `YYYY-MM-DD` theo lịch Việt Nam (Kiến trúc mục 7.1) |
 | **Tiền** | Số, không định dạng, không kèm đơn vị. Số tiền do server tính được làm tròn đến đồng |
 
 ### 1.1 Mã trạng thái

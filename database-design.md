@@ -19,7 +19,7 @@ Các bảng phục vụ Phase 2 và Phase 3 (sự cố, ở ghép, khiếu nại
 | **Tiền** | `numeric(14,2)`. Số tiền do server tính được làm tròn đến đồng (`MidpointRounding.AwayFromZero`) |
 | **Chỉ số điện nước** | `numeric(12,2)` |
 | **Thời điểm** | `timestamptz` |
-| **Ngày** | `date` khi chỉ cần ngày (ngày bắt đầu hợp đồng, ngày trả phòng) |
+| **Ngày** | `date` khi chỉ cần ngày (ngày bắt đầu hợp đồng, ngày trả phòng), tính theo lịch Việt Nam |
 | **File** | Các cột `*_url` lưu đường dẫn nội bộ `path` do `POST /files` trả về (dạng `bucket/purpose/...`), không lưu URL. URL để xem được sinh ra lúc đọc — URL có chữ ký, có hạn với file riêng tư |
 
 **Về cột thời gian:** tài liệu này chỉ đưa vào các cột thời gian **có ý nghĩa nghiệp vụ** (`submitted_at`, `issued_at`, `deposit_received_at`...). Không thêm `created_at` / `updated_at` / `created_by` / `deleted_at` một cách mặc định cho mọi bảng. Nhu cầu truy vết ai thao tác lúc nào được đáp ứng bằng bảng `audit_logs` theo BR-23.

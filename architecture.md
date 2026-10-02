@@ -149,16 +149,24 @@ Chi tiết lý do và các quy tắc an toàn khác: [Thiết kế An toàn](sec
 
 ## 7. Tác vụ định kỳ
 
-Bốn hành vi của hệ thống xảy ra theo thời gian chứ không do người dùng kích hoạt:
+Năm hành vi của hệ thống xảy ra theo thời gian chứ không do người dùng kích hoạt:
 
-| Tác vụ | Chu kỳ | Kết quả |
-|---|---|---|
-| Hết hạn yêu cầu thuê quá 7 ngày chưa xử lý | Hằng ngày | Yêu cầu chuyển sang Hết hạn |
-| Hết hạn giữ chỗ: quá 3 ngày kể từ khi duyệt yêu cầu thuê mà hợp đồng chưa có hiệu lực | Hằng ngày | Hợp đồng (nếu đã lập) chuyển Đã hủy, yêu cầu thuê chưa lập hợp đồng chuyển Hết hạn, phòng trở lại Trống |
-| Gắn cờ hóa đơn chưa trả đủ đã quá hạn thanh toán | Hằng ngày | Hóa đơn chuyển Quá hạn, gửi thông báo cho hai bên |
-| Đánh dấu hợp đồng sắp hết hạn trước 15 ngày | Hằng ngày | Hợp đồng chuyển Sắp hết hạn, gửi thông báo |
+| Tác vụ | Kết quả |
+|---|---|
+| Hết hạn yêu cầu thuê: quá 168 giờ (7 ngày) kể từ lúc gửi mà chưa xử lý | Yêu cầu chuyển sang Hết hạn |
+| Nhắc nộp cọc: hạn giữ chỗ còn dưới 24 giờ mà hợp đồng chưa có hiệu lực | Người thuê nhận một thông báo nhắc |
+| Hết hạn giữ chỗ: quá 72 giờ (3 ngày) kể từ khi duyệt yêu cầu thuê mà hợp đồng chưa có hiệu lực | Hợp đồng (nếu đã lập) chuyển Đã hủy, yêu cầu thuê chưa lập hợp đồng chuyển Hết hạn, phòng trở lại Trống |
+| Gắn cờ quá hạn: hóa đơn chưa trả đủ đã sang ngày sau hạn thanh toán | Hóa đơn chuyển Quá hạn, gửi thông báo cho hai bên |
+| Đánh dấu hợp đồng còn 15 ngày tới ngày kết thúc | Hợp đồng chuyển Sắp hết hạn, gửi thông báo |
 
-Các tác vụ này chạy trong tiến trình của Backend API, không tách thành dịch vụ riêng.
+Các tác vụ chạy **mỗi giờ** trong tiến trình của Backend API, không tách thành dịch vụ riêng; một lần chạy xử lý cả năm loại, nên kết quả trễ tối đa một giờ. Mỗi tác vụ phải chạy lại được nhiều lần mà không gây tác dụng phụ lặp lại — ví dụ trước khi gửi lời nhắc nộp cọc, kiểm tra đã có thông báo cùng loại cho hợp đồng đó chưa.
+
+### 7.1 Quy ước thời gian
+
+Thời điểm được lưu theo UTC (`timestamptz`). Mọi "ngày" nghiệp vụ — ngày bắt đầu và kết thúc hợp đồng, hạn thanh toán, ngày trả phòng, "hôm nay" — tính theo giờ Việt Nam (`Asia/Ho_Chi_Minh`):
+
+- Hóa đơn quá hạn từ 0 giờ của ngày sau `due_date`.
+- Hạn tính bằng ngày nhưng bắt đầu từ một thời điểm thì tính đủ giờ: hạn xử lý yêu cầu thuê 7 ngày là 168 giờ kể từ lúc gửi, hạn giữ chỗ 3 ngày là 72 giờ kể từ lúc duyệt.
 
 ---
 
