@@ -16,7 +16,7 @@ Các bảng phục vụ Phase 2 và Phase 3 (sự cố, ở ghép, khiếu nại
 | **Khóa ngoại** | `<tên_bảng_số_ít>_id`, ví dụ `room_id`, `contract_id` |
 | **Đặt tên** | `snake_case` cho cả tên bảng và tên cột; tên bảng ở dạng số nhiều |
 | **Trạng thái** | Lưu dưới dạng chuỗi text đúng tên trạng thái, ví dụ `DangThue`, `ChuaThanhToan`. Mỗi cột trạng thái có ràng buộc `CHECK` giới hạn trong tập giá trị hợp lệ |
-| **Tiền** | `numeric(14,2)` |
+| **Tiền** | `numeric(14,2)`. Số tiền do server tính được làm tròn đến đồng (`MidpointRounding.AwayFromZero`) |
 | **Chỉ số điện nước** | `numeric(12,2)` |
 | **Thời điểm** | `timestamptz` |
 | **Ngày** | `date` khi chỉ cần ngày (ngày bắt đầu hợp đồng, ngày trả phòng) |
@@ -215,7 +215,6 @@ Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url`
 | `initial_water_index` | numeric(12,2) | NOT NULL | Chỉ số nước lúc bàn giao phòng |
 | `start_date` | date | NOT NULL | |
 | `end_date` | date | NOT NULL | |
-| `billing_cycle_day` | int | NOT NULL | Ngày chốt số hằng kỳ |
 | `payment_due_days` | int | NOT NULL | Số ngày được phép thanh toán kể từ khi phát hành |
 | `status` | text | NOT NULL, CHECK | `Nhap` / `ChoNguoiThueXacNhan` / `ChoNhanCoc` / `DangHieuLuc` / `SapHetHan` / `DangThanhLy` / `DaThanhLy` / `DaHuy` |
 | `tenant_confirmed_at` | timestamptz | | Người thuê đồng ý điều khoản |
@@ -269,8 +268,8 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `contract_id` | bigint | FK → `contracts.id`, NOT NULL | |
 | `type` | text | NOT NULL, CHECK | `DinhKy` / `ThanhLy` / `DieuChinh` |
 | `adjusted_invoice_id` | bigint | FK → `invoices.id` | Bắt buộc khi `type` = `DieuChinh` (BR-16) |
-| `period_start` | date | NOT NULL | |
-| `period_end` | date | NOT NULL | |
+| `period_start` | date | NOT NULL | Ngày đầu kỳ — do server xác định |
+| `period_end` | date | NOT NULL | Ngày cuối kỳ — do server xác định |
 | `previous_electricity_index` | numeric(12,2) | NOT NULL | |
 | `current_electricity_index` | numeric(12,2) | NOT NULL | |
 | `electricity_unit_price` | numeric(14,2) | NOT NULL | Bản sao đơn giá đã áp dụng (BR-13) |
@@ -280,7 +279,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `water_unit_price` | numeric(14,2) | NOT NULL | Bản sao đơn giá đã áp dụng (BR-13) |
 | `water_amount` | numeric(14,2) | NOT NULL | |
 | `rent_amount` | numeric(14,2) | NOT NULL | Tính theo tỷ lệ ngày ở với kỳ đầu/kỳ cuối (BR-15) |
-| `service_fee_amount` | numeric(14,2) | NOT NULL | Tổng phí dịch vụ của kỳ |
+| `service_fee_amount` | numeric(14,2) | NOT NULL | Tổng phí dịch vụ của kỳ, cũng tính theo tỷ lệ ngày ở với kỳ không trọn tháng (BR-15) |
 | `total_amount` | numeric(14,2) | NOT NULL | Tổng cộng, bao gồm các dòng ở `invoice_lines` |
 | `paid_amount` | numeric(14,2) | NOT NULL | Số tiền đã thu được xác nhận |
 | `status` | text | NOT NULL, CHECK | `Nhap` / `ChuaThanhToan` / `ChoXacNhan` / `ThanhToanMotPhan` / `QuaHan` / `DaThanhToan` / `DaHuy` |
@@ -291,9 +290,11 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `settled_at` | timestamptz | | Thời điểm chuyển sang `DaThanhToan` |
 | `cancel_reason` | text | | Bắt buộc khi `status` = `DaHuy` |
 
-**BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng; kỳ đầu tiên lấy `contracts.initial_*_index`.
+**BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng; kỳ đầu tiên lấy `contracts.initial_*_index`. "Kỳ liền trước" bỏ qua các hóa đơn `DaHuy`.
 
-**BR-17:** mỗi `contract_id` chỉ có một hóa đơn `type = 'DinhKy'` cho mỗi cặp (`period_start`, `period_end`) — unique index.
+**Kỳ hóa đơn (BR-15, BR-17):** mỗi kỳ là một tháng dương lịch, do server xác định — client không gửi `period_start`, `period_end`. Kỳ đầu tiên chạy từ `contracts.start_date` tới cuối tháng đó; mỗi kỳ sau là tháng liền sau kỳ chưa hủy gần nhất. Tháng có ngày trả phòng không có hóa đơn định kỳ mà thuộc hóa đơn thanh lý.
+
+**BR-17:** mỗi `contract_id` chỉ có một hóa đơn `type = 'DinhKy'` chưa hủy cho mỗi cặp (`period_start`, `period_end`) — unique index có điều kiện `type = 'DinhKy' AND status <> 'DaHuy'`, để hóa đơn đã hủy không chặn việc lập lại kỳ đó.
 
 **BR-16:** hóa đơn ở `DaThanhToan` không được sửa. Mọi điều chỉnh tạo bản ghi mới với `type = 'DieuChinh'` và `adjusted_invoice_id` trỏ tới hóa đơn gốc.
 
@@ -382,7 +383,7 @@ Phase 1 chỉ gửi thông báo trong ứng dụng, và chỉ cho các sự ki�
 | `properties` | `(landlord_user_id)` | Phân quyền theo sở hữu BR-04 |
 | `contracts` | `(room_id)` unique có điều kiện với trạng thái đang chiếm dụng | BR-07 |
 | `contracts` | `(tenant_user_id)` | Người thuê xem hợp đồng của mình |
-| `invoices` | `(contract_id, period_start, period_end)` unique khi `type = 'DinhKy'` | BR-17 |
+| `invoices` | `(contract_id, period_start, period_end)` unique khi `type = 'DinhKy'` và `status <> 'DaHuy'` | BR-17 |
 | `invoices` | `(status, due_date)` | Quét hóa đơn quá hạn |
 | `rental_requests` | `(room_id, status)` | BR-06 |
 | `rental_requests` | `(room_id, tenant_user_id)` unique khi `status = 'ChoDuyet'` | BR-27 |

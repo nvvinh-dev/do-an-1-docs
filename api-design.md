@@ -20,7 +20,7 @@ Tài liệu này bám theo [Thiết kế Cơ sở dữ liệu](database-design.m
 | **Lỗi** | `application/problem+json` theo chuẩn ProblemDetails của ASP.NET Core |
 | **Phân trang** | Query `page` (bắt đầu từ 1) và `pageSize`; response bọc trong `{ items, page, pageSize, totalItems, totalPages }` |
 | **Ngày giờ** | ISO 8601, múi giờ UTC |
-| **Tiền** | Số, không định dạng, không kèm đơn vị |
+| **Tiền** | Số, không định dạng, không kèm đơn vị. Số tiền do server tính được làm tròn đến đồng |
 
 ### 1.1 Mã trạng thái
 
@@ -248,7 +248,6 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
   "initialWaterIndex": 76.0,
   "startDate": "2026-10-01",
   "endDate": "2027-09-30",
-  "billingCycleDay": 30,
   "paymentDueDays": 7,
   "serviceFees": [
     { "name": "Rac", "amount": 50000 },
@@ -304,8 +303,6 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 
 ```json
 {
-  "periodStart": "2026-10-01",
-  "periodEnd": "2026-10-31",
   "currentElectricityIndex": 1250.0,
   "currentWaterIndex": 84.5,
   "electricityMeterPhotoPath": "...",
@@ -316,13 +313,16 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 }
 ```
 
-Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của kỳ liền trước, kỳ đầu tiên lấy chỉ số đầu ghi trong hợp đồng — client không gửi lên. Đơn giá lấy từ hợp đồng, không lấy từ phòng (BR-13). Server tính `electricityAmount`, `waterAmount`, `rentAmount` và `totalAmount`; client không được gửi các giá trị này.
+Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của kỳ liền trước, kỳ đầu tiên lấy chỉ số đầu ghi trong hợp đồng — client không gửi lên. Đơn giá lấy từ hợp đồng, không lấy từ phòng (BR-13). Server tính `electricityAmount`, `waterAmount`, `rentAmount`, `serviceFeeAmount` và `totalAmount`; client không được gửi các giá trị này.
+
+**Kỳ hóa đơn do server xác định (BR-15, BR-17):** endpoint luôn tạo hóa đơn cho **kỳ kế tiếp** của hợp đồng — tháng liền sau kỳ chưa hủy gần nhất, hoặc từ `startDate` tới cuối tháng đó nếu hợp đồng chưa có hóa đơn. Client không gửi `periodStart`, `periodEnd`; response trả về hai trường này.
 
 **Kiểm tra khi tạo:**
 
 - Chỉ số mới nhỏ hơn chỉ số cũ trả `422` (BR-14).
-- Kỳ trùng với một hóa đơn `DinhKy` đã có trả `409` (BR-17).
-- Kỳ đầu tiên và kỳ cuối không trọn tháng: `rentAmount` tính theo tỷ lệ số ngày thực ở (BR-15).
+- Kỳ kế tiếp chưa tới — hôm nay trước ngày 25 của tháng đó — trả `409` (FR-91).
+- Unique index BR-17 là lớp chặn cuối khi hai request tạo cùng một kỳ chạy song song; vi phạm trả `409`.
+- Kỳ đầu tiên và kỳ cuối không trọn tháng: `rentAmount` và `serviceFeeAmount` = giá × số ngày ở ÷ số ngày của tháng, tính cả ngày vào ở và ngày trả phòng, làm tròn đến đồng (BR-15). Ví dụ vào ở 15/10, giá 3.000.000 → 3.000.000 × 17 ÷ 31 = 1.645.161.
 - Kỳ nằm sau `endDate` vẫn lập được khi hợp đồng chưa có thông báo trả phòng — hợp đồng tiếp tục hiệu lực theo điều khoản đã chốt (FR-88).
 
 **Sửa và điều chỉnh:**

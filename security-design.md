@@ -141,6 +141,7 @@ Quyền sở hữu trong hệ thống này: hóa đơn thuộc hợp đồng, h�
 | Số tiền trừ cọc và số tiền hoàn cọc | Trừ hoặc hoàn khác với số cọc thật ghi trong hợp đồng |
 | Đường dẫn file gắn vào request nghiệp vụ | Gắn file của người khác, hoặc file sai loại, vào hồ sơ của mình |
 | Đơn giá điện, nước, giá thuê khi lập hóa đơn | Bỏ qua giá đã chốt trong hợp đồng |
+| Ngày đầu và ngày cuối kỳ hóa đơn | Lập chồng kỳ để thu tiền phòng hai lần |
 
 **Quy tắc:** danh tính và vai trò của người thao tác **luôn lấy từ token**. Chỉ số cũ **luôn lấy từ hóa đơn kỳ liền trước**. Đơn giá **luôn lấy từ hợp đồng**. Mọi số tiền **do server tính**. Client gửi các giá trị này lên thì bỏ qua, không dùng.
 
@@ -181,7 +182,7 @@ Các luồng có thể bị lợi dụng trong hệ thống này và cách thi�
 | Chủ trọ đánh dấu đã thu đủ trong khi người thuê mới trả một phần | Số tiền xác nhận được so với tổng hóa đơn; thiếu thì trạng thái là *Thanh toán một phần*, phần còn lại vẫn là công nợ |
 | Chủ trọ sửa chỉ số sau khi người thuê đã trả tiền | Hóa đơn ở *Đã thanh toán* không sửa được; muốn điều chỉnh phải lập hóa đơn điều chỉnh có tham chiếu tới hóa đơn gốc |
 | Khấu trừ hết tiền cọc mà không giải thích | Mỗi khoản khấu trừ bắt buộc là một dòng riêng có mô tả lý do |
-| Tạo hai hóa đơn cho cùng một kỳ để thu tiền hai lần | Unique index trên hợp đồng và kỳ hóa đơn |
+| Tạo hai hóa đơn cho cùng một kỳ để thu tiền hai lần | Kỳ hóa đơn do server xác định, client không gửi ngày kỳ; unique index trên hợp đồng và kỳ là lớp chặn cuối |
 | Xóa phòng để phi tang lịch sử hóa đơn | Không có endpoint xóa; phòng đã phát sinh giao dịch chỉ được chuyển sang *Lưu trữ* |
 | Chủ trọ tăng giá giữa chừng để tính lại hóa đơn cũ | Giá được chốt cứng vào hợp đồng; mỗi hóa đơn lưu bản sao đơn giá đã áp dụng |
 
