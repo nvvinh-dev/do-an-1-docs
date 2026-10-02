@@ -61,7 +61,7 @@ Service nằm ở `SmartRent.Api/Services/`, **chia theo vùng nghiệp vụ ch�
 | `LandlordBankAccountService` | Khai báo, sửa tài khoản ngân hàng nhận tiền của Chủ trọ |
 | `PropertyService` | Khu trọ, phòng, trạng thái khai thác và hiển thị |
 | `RentalRequestService` | Gửi, duyệt, từ chối, hết hạn yêu cầu thuê |
-| `ContractService` | Lập hợp đồng, xác nhận điều khoản, xác nhận cọc, kích hoạt |
+| `ContractService` | Lập hợp đồng, xác nhận điều khoản, xác nhận cọc, kích hoạt, hủy và ghi nhận hoàn cọc khi hủy |
 | `InvoiceService` | Chốt chỉ số, tạo và phát hành hóa đơn, ghi nhận thanh toán |
 | `SettlementService` | Thông báo trả phòng, hóa đơn thanh lý, tất toán cọc |
 

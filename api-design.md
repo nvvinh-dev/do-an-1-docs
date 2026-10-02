@@ -232,6 +232,7 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 | `POST` | `/api/v1/contracts/{id}/request-changes` | Tenant (người đứng tên) | Yêu cầu chỉnh sửa, bắt buộc có `reason` |
 | `POST` | `/api/v1/contracts/{id}/deposit/confirm` | Landlord (chủ sở hữu) | Xác nhận đã nhận cọc |
 | `POST` | `/api/v1/contracts/{id}/cancel` | Landlord / Tenant | Hủy trước ngày bắt đầu hợp đồng, bắt buộc có `reason` |
+| `POST` | `/api/v1/contracts/{id}/deposit/refund` | Landlord (chủ sở hữu) | Ghi nhận đã hoàn cọc cho hợp đồng đã hủy |
 | `GET` | `/api/v1/rooms/{id}/meter-readings/latest` | Landlord (chủ sở hữu) | Chỉ số điện nước cuối cùng đã ghi nhận của phòng, dùng điền sẵn chỉ số đầu khi lập hợp đồng |
 | `PATCH` | `/api/v1/contracts/{id}/initial-meter-readings` | Landlord (chủ sở hữu) | Sửa chỉ số đầu khi hợp đồng đã hiệu lực và chưa có hóa đơn |
 
@@ -277,9 +278,11 @@ Gửi yêu cầu cho phòng không ở `Trong` trả `409`. Người thuê đã 
 
 **Mã VietQR cho tiền cọc:** `GET /contracts/{id}` trả thêm trường `paymentQr` cho Người thuê đứng tên khi hợp đồng ở `ChoNhanCoc` và `depositAmount` > 0, với `amount` bằng `depositAmount` và `transferContent` dạng `SMARTRENT COC<contractId>`. Cấu trúc trường này mô tả ở Mục 9.1.
 
-**`POST /api/v1/contracts/{id}/cancel`** — áp dụng cho hợp đồng ở `Nhap`, `ChoNguoiThueXacNhan`, `ChoNhanCoc`, và cả `DangHieuLuc` khi **chưa tới** `startDate`; gọi trên hợp đồng đã qua `startDate` trả `409` — trường hợp đó phải đi theo luồng thanh lý (BP-10). Hợp đồng chuyển `DaHuy`, phòng trở lại `Trong` và hiển thị lại. Nếu đã có `deposit_received_at`, Chủ trọ hoàn **toàn bộ** cọc: hệ thống không tạo hóa đơn thanh lý và không nhận bất kỳ khoản khấu trừ nào (BR-22, FR-76). Khi đó body phải có thêm `refundedAt` và `refundMethod`; số tiền hoàn do server đặt bằng `depositAmount` và lưu vào `deposit_refunded_*` (FR-86). Việc hoàn cọc ghi `audit_logs` theo BR-23.
+**`POST /api/v1/contracts/{id}/cancel`** — body gồm `reason`. Áp dụng cho hợp đồng ở `Nhap`, `ChoNguoiThueXacNhan`, `ChoNhanCoc`, và cả `DangHieuLuc` khi **chưa tới** `startDate`; gọi trên hợp đồng đã qua `startDate` trả `409` — trường hợp đó phải đi theo luồng thanh lý (BP-10). Hợp đồng chuyển `DaHuy`, ghi bên hủy vào `cancelled_by_user_id`, phòng trở lại `Trong` và hiển thị lại, bên còn lại nhận thông báo mức Cao. Hệ thống không tạo hóa đơn thanh lý (BR-22, FR-76).
 
-**Thông tin hoàn cọc:** `GET /contracts/{id}` trả thêm `depositRefund` (`amount`, `refundedAt`, `method`) khi cọc đã được hoàn, `null` khi chưa.
+**`POST /api/v1/contracts/{id}/deposit/refund`** — chỉ nhận khi hợp đồng ở `DaHuy`, đã có `deposit_received_at` và chưa ghi nhận hoàn cọc; ngược lại trả `409`. Body gồm `refundedAt`, `refundMethod`, và hai trường chỉ dùng khi **Người thuê** là bên hủy: `amount` (từ 0 tới `depositAmount`, sai trả `422`) và `note` (bắt buộc khi `amount` nhỏ hơn `depositAmount`). Khi Chủ trọ là bên hủy, server đặt số hoàn bằng `depositAmount` và bỏ qua `amount`. Lưu vào `deposit_refund*`, ghi `audit_logs` theo BR-23, người thuê nhận thông báo mức Cao (FR-86).
+
+**Thông tin hoàn cọc:** `GET /contracts/{id}` trả thêm `depositRefund` (`amount`, `refundedAt`, `method`, `note`) khi cọc đã được hoàn, `null` khi chưa; và `depositRefundPending` = `true` khi hợp đồng ở `DaHuy`, đã nhận cọc mà chưa ghi nhận hoàn.
 
 ---
 

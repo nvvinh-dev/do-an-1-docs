@@ -220,15 +220,17 @@ Cùng cấu trúc: `id` (PK), khóa ngoại tới khu trọ hoặc phòng, `url`
 | `tenant_confirmed_at` | timestamptz | | Người thuê đồng ý điều khoản |
 | `deposit_received_at` | timestamptz | | Chủ trọ xác nhận đã nhận cọc |
 | `deposit_received_method` | text | | Hình thức nhận cọc |
-| `deposit_refunded_amount` | numeric(14,2) | | Số tiền cọc đã hoàn — do server tính: toàn bộ cọc khi hủy trước ngày bắt đầu, phần cọc dư khi hóa đơn thanh lý có số dư âm |
+| `deposit_refunded_amount` | numeric(14,2) | | Số tiền cọc đã hoàn. Server tính khi Chủ trọ hủy (toàn bộ cọc) và khi hóa đơn thanh lý có số dư âm (phần cọc dư); Chủ trọ nhập, trong khoảng 0 tới `deposit_amount`, khi Người thuê hủy (BR-22) |
 | `deposit_refunded_at` | timestamptz | | Thời điểm Chủ trọ hoàn cọc |
 | `deposit_refund_method` | text | | Hình thức hoàn cọc |
+| `deposit_refund_note` | text | | Lý do giữ lại cọc — bắt buộc khi Người thuê hủy và số hoàn nhỏ hơn tiền cọc |
 | `activated_at` | timestamptz | | Thời điểm chuyển sang `DangHieuLuc` |
 | `move_out_notice_at` | timestamptz | | Thời điểm gửi thông báo trả phòng |
 | `expected_move_out_date` | date | | Ngày trả phòng dự kiến |
 | `terminated_at` | timestamptz | | Thời điểm hoàn tất thanh lý |
 | `termination_reason` | text | | |
 | `cancel_reason` | text | | Bắt buộc khi `status` = `DaHuy` |
+| `cancelled_by_user_id` | bigint | FK → `users.id` | Bên hủy hợp đồng; NULL khi hệ thống tự hủy do hết hạn giữ chỗ |
 
 Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập giá trị hợp lệ của Phase 1.
 
@@ -240,7 +242,7 @@ Trạng thái `DaKetThucGiaHan` thuộc BP-09 (Phase 3), chưa đưa vào tập 
 
 **Hạn giữ chỗ (BP-06 A3):** quá 3 ngày kể từ `rental_requests.processed_at` của yêu cầu gốc mà hợp đồng chưa ở `DangHieuLuc` thì hợp đồng chuyển sang `DaHuy`, phòng trở lại `Trong`.
 
-**Hủy trước ngày bắt đầu (BR-22):** hợp đồng ở `DangHieuLuc` nhưng chưa tới `start_date` được chuyển sang `DaHuy`, phòng trở lại `Trong`. Cọc đã nhận được hoàn toàn bộ và ghi vào ba cột `deposit_refunded_*` — không tạo bản ghi `invoices` nào cho trường hợp này. Đây là transition `DangHieuLuc` → `DaHuy` duy nhất được phép; trong Phase 1, hợp đồng đã qua `start_date` chỉ kết thúc qua `DangThanhLy` → `DaThanhLy`.
+**Hủy trước ngày bắt đầu (BR-22):** hợp đồng ở `DangHieuLuc` nhưng chưa tới `start_date` được một trong hai bên chuyển sang `DaHuy`, ghi `cancelled_by_user_id`, phòng trở lại `Trong` — không tạo bản ghi `invoices` nào cho trường hợp này. Nếu đã có `deposit_received_at`: Chủ trọ hủy thì số hoàn bằng toàn bộ cọc; Người thuê hủy thì Chủ trọ nhập số hoàn từ 0 tới `deposit_amount`, kèm `deposit_refund_note` khi số hoàn nhỏ hơn. Việc hoàn cọc được Chủ trọ ghi nhận ở một bước riêng sau khi hủy, vào các cột `deposit_refund*`. Đây là transition `DangHieuLuc` → `DaHuy` duy nhất được phép; trong Phase 1, hợp đồng đã qua `start_date` chỉ kết thúc qua `DangThanhLy` → `DaThanhLy`.
 
 **Quá `end_date`:** hợp đồng chưa có thông báo trả phòng vẫn giữ trạng thái hiện tại và tiếp tục hiệu lực theo điều khoản đã chốt; hóa đơn định kỳ vẫn được lập cho tới khi một bên gửi thông báo trả phòng.
 

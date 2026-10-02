@@ -74,6 +74,7 @@ rectangle "Hệ thống SmartRent" {
     usecase "Lập hóa đơn thanh lý" as UC32
     usecase "Xác nhận bảng thanh lý" as UC33
     usecase "Hoàn tất thanh lý\nvà tất toán cọc" as UC34
+    usecase "Ghi nhận hoàn cọc\nkhi hợp đồng bị hủy" as UC46
   }
 
   package "Thông báo, nhật ký, thống kê" {
@@ -133,6 +134,7 @@ Landlord --> UC39
 Landlord --> UC31
 Landlord --> UC32
 Landlord --> UC34
+Landlord --> UC46
 Landlord --> UC35
 Landlord --> UC36
 
@@ -163,7 +165,7 @@ UC28 ..> UC38 : <<include>>
 UC30 ..> UC38 : <<include>>
 UC32 ..> UC38 : <<include>>
 UC34 ..> UC38 : <<include>>
-UC41 ..> UC38 : <<include>>
+UC46 ..> UC38 : <<include>>
 UC42 ..> UC38 : <<include>>
 UC43 ..> UC38 : <<include>>
 UC39 ..> UC38 : <<include>>

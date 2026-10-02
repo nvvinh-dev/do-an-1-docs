@@ -456,7 +456,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 - **A1 — Không thống nhất được khoản khấu trừ:** Hợp đồng giữ nguyên trạng thái *Đang thanh lý*. Phase 1 chưa có khiếu nại nên hai bên tự giải quyết ngoài hệ thống, rồi Chủ trọ sửa bảng và gửi lại. Từ Phase 2, Người thuê tạo khiếu nại (BP-13) có liên kết tới hóa đơn thanh lý, và hợp đồng giữ *Đang thanh lý* cho đến khi khiếu nại được xử lý.
 - **A2 — Chấm dứt do vi phạm:** Chủ trọ chấm dứt hợp đồng do Người thuê vi phạm nghiêm trọng (không thanh toán quá 2 kỳ liên tiếp, gây hư hỏng nặng). Bắt buộc ghi lý do và bằng chứng; tiền cọc có thể bị khấu trừ toàn bộ theo BR-22.
-- **A3 — Hợp đồng bị hủy trước khi vào ở:** Hợp đồng chưa tới ngày bắt đầu → chuyển thẳng sang **Đã hủy**, phòng trở lại **Trống** ngay mà không cần chốt số. Chủ trọ hoàn **toàn bộ** tiền cọc đã nhận, không khấu trừ khoản nào và không lập Hóa đơn thanh lý; Chủ trọ ghi rõ ngày hoàn và hình thức hoàn, việc hoàn cọc được ghi nhật ký theo BR-23 (xem BR-22).
+- **A3 — Hợp đồng bị hủy trước khi vào ở:** Một trong hai bên hủy hợp đồng chưa tới ngày bắt đầu, bắt buộc nhập lý do → hợp đồng chuyển thẳng sang **Đã hủy**, phòng trở lại **Trống** ngay mà không cần chốt số và không lập Hóa đơn thanh lý. Nếu cọc đã nộp, tiền cọc xử lý theo BR-22: Chủ trọ hủy thì hoàn **toàn bộ**; Người thuê hủy thì Chủ trọ được giữ lại tối đa toàn bộ, ghi số tiền hoàn thực tế và lý do giữ lại. Hủy và hoàn cọc là hai bước: bên nào cũng hủy được, còn chỉ Chủ trọ ghi nhận đã hoàn cọc, kèm ngày hoàn và hình thức hoàn; việc hoàn cọc được ghi nhật ký theo BR-23. Khoản đền thêm (nếu có) khi Chủ trọ hủy do hai bên tự thỏa thuận ngoài hệ thống.
 
 **Kết quả:** Vòng đời thuê phòng kết thúc dứt điểm về tài chính; phòng được giải phóng.
 
@@ -604,7 +604,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **BR-12** | Giá thuê, đơn giá điện, đơn giá nước và phí dịch vụ được **chốt cứng vào Hợp đồng** tại thời điểm tạo. Việc Chủ trọ thay đổi giá ở mức Phòng sau đó **không** ảnh hưởng tới các Hợp đồng đang hiệu lực. |
 | **BR-13** | Mỗi Hóa đơn lưu lại **bản sao đơn giá đã áp dụng** tại thời điểm phát hành. Hóa đơn đã phát hành không bị tính lại khi giá thay đổi. |
 | **BR-21** | Mọi Hợp đồng bắt buộc ghi nhận **số tiền cọc** (có thể bằng 0 nếu hai bên thỏa thuận không cọc). Hợp đồng chỉ chuyển sang *Đang hiệu lực* khi Chủ trọ đã xác nhận nhận đủ cọc **và** Người thuê đã xác nhận đồng ý điều khoản. |
-| **BR-22** | Tiền cọc chỉ được khấu trừ qua **Hóa đơn thanh lý**, và mọi khoản khấu trừ phải là **một dòng riêng có mô tả lý do**. Không cho phép khấu trừ một cục không giải thích. Nếu Người thuê đơn phương chấm dứt trước hạn mà không báo trước đủ thời hạn quy định, Chủ trọ được khấu trừ tối đa **toàn bộ** tiền cọc; nếu Chủ trọ đơn phương chấm dứt, Chủ trọ phải hoàn **toàn bộ** cọc. Việc khấu trừ chỉ áp dụng khi Người thuê **đã vào ở**: hợp đồng bị hủy trước ngày bắt đầu thì Chủ trọ hoàn **toàn bộ** cọc, không khấu trừ và không lập Hóa đơn thanh lý. |
+| **BR-22** | Tiền cọc chỉ được khấu trừ qua **Hóa đơn thanh lý**, và mọi khoản khấu trừ phải là **một dòng riêng có mô tả lý do**. Không cho phép khấu trừ một cục không giải thích. Nếu Người thuê đơn phương chấm dứt trước hạn mà không báo trước đủ thời hạn quy định, Chủ trọ được khấu trừ tối đa **toàn bộ** tiền cọc; nếu Chủ trọ đơn phương chấm dứt, Chủ trọ phải hoàn **toàn bộ** cọc. Hợp đồng bị hủy trước ngày bắt đầu thì **không** lập Hóa đơn thanh lý: Chủ trọ hủy thì hoàn **toàn bộ** cọc; Người thuê hủy sau khi đã nộp cọc thì Chủ trọ được giữ lại tối đa **toàn bộ** cọc, ghi rõ số tiền hoàn thực tế và lý do giữ lại. |
 
 ### 7.4 Hóa đơn và thanh toán
 
@@ -715,7 +715,7 @@ Chờ người thuê xác nhận ──► Nháp  (Người thuê yêu cầu ch�
 | **Đang thanh lý** | Đã có thông báo trả phòng; đang chốt số cuối và tất toán cọc. |
 | **Đã thanh lý** | Hoàn tất thủ tục trả phòng, đã chốt phí cuối và xử lý xong tiền cọc. |
 | **Đã kết thúc (gia hạn)** | Kết thúc do được thay thế bởi hợp đồng gia hạn; không phải trả phòng. |
-| **Đã hủy** | Hủy trước ngày bắt đầu hợp đồng: người thuê không đồng ý điều khoản, hết hạn giữ chỗ mà hợp đồng chưa đủ điều kiện hiệu lực, hoặc một trong hai bên hủy sau khi hợp đồng đã hiệu lực nhưng chưa tới ngày vào ở. Cọc đã nhận được hoàn **toàn bộ** (BR-22). |
+| **Đã hủy** | Hủy trước ngày bắt đầu hợp đồng: người thuê không đồng ý điều khoản, hết hạn giữ chỗ mà hợp đồng chưa đủ điều kiện hiệu lực, hoặc một trong hai bên hủy sau khi hợp đồng đã hiệu lực nhưng chưa tới ngày vào ở. Tiền cọc đã nhận xử lý theo BR-22: Chủ trọ hủy thì hoàn **toàn bộ**; Người thuê hủy thì Chủ trọ được giữ lại tối đa toàn bộ. |
 
 ### 8.5 Vòng đời Hóa đơn
 
@@ -1097,6 +1097,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Điều chỉnh sai sót bằng dòng *Điều chỉnh* ở kỳ sau (BR-16) | Thực tế Chủ trọ cộng hoặc trừ phần chênh lệch vào tháng sau; sửa một hóa đơn cũ khi đã có kỳ sau sẽ làm gãy chuỗi chỉ số của BR-14 |
 | Kết chuyển công nợ cũ vào Hóa đơn thanh lý | Tiền cọc trước hết dùng để trừ nợ còn lại; để hóa đơn cũ tồn tại song song với dòng công nợ sẽ tính nợ hai lần |
 | Bảng thanh lý đi qua bước gửi — đồng ý — khóa | Thực tế hai bên trao đổi và sửa bảng tới khi thống nhất; Phase 1 chưa có khiếu nại nên cần đường quay lại để Chủ trọ sửa |
+| Người thuê hủy sau khi đặt cọc có thể mất cọc (BR-22) | Thực tế người thuê đổi ý sau khi đặt cọc thì mất cọc, vì phòng đã được giữ và gỡ khỏi tìm kiếm cho họ; khớp với vế "Người thuê đơn phương chấm dứt" vốn có trong BR-22 |
 
 ---
 

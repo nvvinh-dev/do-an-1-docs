@@ -64,6 +64,8 @@ Một hệ quả thứ hai: khóa tài khoản không cắt được phiên đan
 | Lập và sửa hợp đồng | ✗ | ✗ | Sở hữu | ✗ |
 | Xác nhận điều khoản hợp đồng | ✗ | Đứng tên | ✗ | ✗ |
 | Xác nhận đã nhận tiền cọc | ✗ | ✗ | Sở hữu | ✗ |
+| Hủy hợp đồng trước ngày bắt đầu | ✗ | Đứng tên | Sở hữu | ✗ |
+| Ghi nhận đã hoàn cọc | ✗ | ✗ | Sở hữu | ✗ |
 | Khai báo tài khoản ngân hàng nhận tiền | ✗ | ✗ | Của mình | ✗ |
 | Xem mã VietQR để chuyển khoản | ✗ | Đứng tên | ✗ | ✗ |
 | Chốt chỉ số, tạo và phát hành hóa đơn | ✗ | ✗ | Sở hữu | ✗ |
@@ -144,7 +146,9 @@ Quyền sở hữu trong hệ thống này: hóa đơn thuộc hợp đồng, h�
 | Đơn giá điện, nước, giá thuê khi lập hóa đơn | Bỏ qua giá đã chốt trong hợp đồng |
 | Ngày đầu và ngày cuối kỳ hóa đơn | Lập chồng kỳ để thu tiền phòng hai lần |
 
-**Quy tắc:** danh tính và vai trò của người thao tác **luôn lấy từ token**. Chỉ số cũ **luôn lấy từ hóa đơn kỳ liền trước**. Đơn giá **luôn lấy từ hợp đồng**. Mọi số tiền **do server tính**. Client gửi các giá trị này lên thì bỏ qua, không dùng.
+**Quy tắc:** danh tính và vai trò của người thao tác **luôn lấy từ token**. Chỉ số cũ **luôn lấy từ hóa đơn kỳ liền trước**, kỳ đầu tiên lấy chỉ số đầu ghi trong hợp đồng. Đơn giá **luôn lấy từ hợp đồng**. Mọi số tiền **do server tính**. Client gửi các giá trị này lên thì bỏ qua, không dùng.
+
+**Ngoại lệ duy nhất về số tiền:** khi Người thuê hủy hợp đồng trước ngày bắt đầu, số tiền hoàn cọc do Chủ trọ nhập (BR-22). Server chỉ nhận giá trị trong khoảng 0 tới tiền cọc ghi trong hợp đồng, bắt buộc kèm lý do khi số hoàn nhỏ hơn tiền cọc, và ghi nhật ký.
 
 ### 5.3 Hardcoded Secret
 
@@ -231,7 +235,7 @@ Danh sách này được dùng làm checklist khi review code:
 1. Danh tính và vai trò của người thao tác lấy từ token, không bao giờ từ body hoặc query.
 2. Mọi endpoint thao tác trên tài nguyên cụ thể đều kiểm tra quyền sở hữu trước khi thực hiện.
 3. Tài nguyên có thể bị dò id — hợp đồng, hóa đơn, hồ sơ Chủ trọ — trả `404` khi người gọi không có quyền, không trả `403`.
-4. Mọi số tiền và chỉ số cũ do server tính hoặc tra ra, không nhận từ client — kể cả số tiền trong mã VietQR.
+4. Mọi số tiền và chỉ số cũ do server tính hoặc tra ra, không nhận từ client — kể cả số tiền trong mã VietQR. Ngoại lệ duy nhất là số tiền hoàn cọc khi Người thuê hủy hợp đồng, xem 5.2.
 5. Response không chứa `password_hash`, số CCCD, ảnh giấy tờ, tài khoản ngân hàng của Chủ trọ, ngoài đúng ngữ cảnh đã nêu ở 5.4.
 6. Secret đọc từ User Secrets hoặc biến môi trường, không nằm trong file được commit.
 7. Mọi thao tác thuộc danh sách của BR-23 đều ghi `audit_logs` với giá trị trước và sau.
