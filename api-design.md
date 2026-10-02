@@ -140,6 +140,8 @@ Duyệt và từ chối đều ghi `audit_logs` theo BR-23. Người nộp nhậ
 
 Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người bị xử lý.
 
+`GET /admin/users` trả thêm `activeContractCount` — số hợp đồng chưa kết thúc — với tài khoản Chủ trọ, để giao diện cảnh báo trước khi khóa (FR-09). **Giới hạn được chấp nhận ở Phase 1:** Chủ trọ bị khóa không đăng nhập được, nên các hóa đơn của người thuê dừng ở `ChoXacNhan` cho tới khi được mở khóa, còn hợp đồng ở `ChoNhanCoc` không được xác nhận cọc và có thể hết hạn giữ chỗ (BP-01 A2).
+
 ---
 
 ## 5. Khu trọ và phòng trọ — BP-02, BP-03

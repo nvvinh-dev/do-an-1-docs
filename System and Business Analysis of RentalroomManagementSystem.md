@@ -192,6 +192,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 **Luồng thay thế:**
 
 - **A1 — Thu hồi quyền Chủ trọ:** Sau khi xử lý khiếu nại (BP-13), Admin có thể thu hồi vai trò Chủ trọ. Các hợp đồng đang hiệu lực **không** bị hủy tự động; tài khoản bị chặn đăng tin mới nhưng vẫn truy cập được để hoàn tất nghĩa vụ với người thuê hiện tại.
+- **A2 — Khóa tài khoản Chủ trọ đang có người thuê:** Admin được cảnh báo trước khi khóa. Trong lúc bị khóa, Chủ trọ không đăng nhập được nên không xác nhận được thanh toán và nhận cọc; người thuê phải chờ tới khi được mở khóa. Đây là giới hạn được chấp nhận ở Phase 1 — khác với thu hồi vai trò ở A1, nơi Chủ trọ vẫn truy cập được để hoàn tất nghĩa vụ.
 
 **Kết quả:** Danh tính và vai trò của mọi bên tham gia được xác lập và có thể truy vết.
 
@@ -1121,6 +1122,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Chưa được làm Chủ trọ khi còn hợp đồng hoặc yêu cầu thuê đang mở (BR-01) | Mỗi tài khoản một vai trò: đổi sang Chủ trọ giữa chừng làm người dùng mất quyền báo thanh toán, đồng ý thanh lý trên hợp đồng của chính mình |
 | Rút thông báo trả phòng (BP-10 A4) | Thực tế người thuê đổi ý hoặc hai bên thỏa thuận ở tiếp; không có đường quay lại thì hợp đồng buộc phải thanh lý dù không ai muốn |
 | Người thuê rút được yêu cầu thuê đã duyệt khi chưa lập hợp đồng (BP-06 A1) | Người thuê đổi ý sau khi được duyệt thì phòng không phải bị giữ vô ích tới hết 72 giờ |
+| Khóa Chủ trọ đang có người thuê là giới hạn được chấp nhận ở Phase 1 (BP-01 A2) | Cho tài khoản bị khóa vẫn thao tác được một phần cần cơ chế phân quyền riêng; Phase 1 chọn cảnh báo Admin trước khi khóa |
 
 ---
 
