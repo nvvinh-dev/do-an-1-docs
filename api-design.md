@@ -489,6 +489,7 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 - Hợp đồng không ở `DangHieuLuc`, `SapHetHan`, `DangThanhLy`, hoặc chưa tới `startDate`, trả `409` (FR-91).
 - Kỳ kế tiếp chưa tới — hôm nay trước ngày 25 của tháng đó — trả `409` (FR-91).
 - Hợp đồng ở `DangThanhLy` mà kỳ kế tiếp là tháng chứa `expectedMoveOutDate` trả `409` — tháng đó thuộc hóa đơn thanh lý.
+- Hợp đồng còn hóa đơn định kỳ ở `Nhap` trả `409` — Chủ trọ phát hành, sửa hoặc hủy hóa đơn đó trước. Mỗi hợp đồng chỉ có một hóa đơn định kỳ nháp tại một thời điểm, nên hóa đơn nháp luôn là hóa đơn mới nhất và luôn sửa được.
 - Unique index BR-17 là lớp chặn cuối khi hai request tạo cùng một kỳ chạy song song; vi phạm trả `409`.
 - `adjustmentLines` chỉ nhận category `DieuChinhKhac`, loại khác trả `422`. `totalAmount` của hóa đơn định kỳ không được âm, âm trả `422` — khoản giảm lớn hơn tiền tháng thì chia sang các kỳ sau.
 - Kỳ đầu tiên và kỳ cuối không trọn tháng: `rentAmount` và `serviceFeeAmount` = giá × số ngày ở ÷ số ngày của tháng, tính cả ngày vào ở và ngày trả phòng, làm tròn đến đồng (BR-15). Ví dụ vào ở 15/10, giá 3.000.000 → 3.000.000 × 17 ÷ 31 = 1.645.161.

@@ -314,7 +314,7 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 
 **BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng; kỳ đầu tiên lấy `contracts.initial_*_index`. "Kỳ liền trước" bỏ qua các hóa đơn `DaHuy`.
 
-**Kỳ hóa đơn (BR-15, BR-17):** mỗi kỳ là một tháng dương lịch, do server xác định — client không gửi `period_start`, `period_end`. Kỳ đầu tiên chạy từ `contracts.start_date` tới cuối tháng đó; mỗi kỳ sau là tháng liền sau kỳ chưa hủy gần nhất. Chỉ lập hóa đơn định kỳ khi hợp đồng đã tới `start_date` và ở `DangHieuLuc`, `SapHetHan` hoặc `DangThanhLy`. Tháng chứa `expected_move_out_date` không có hóa đơn định kỳ mà thuộc hóa đơn thanh lý.
+**Kỳ hóa đơn (BR-15, BR-17):** mỗi kỳ là một tháng dương lịch, do server xác định — client không gửi `period_start`, `period_end`. Kỳ đầu tiên chạy từ `contracts.start_date` tới cuối tháng đó; mỗi kỳ sau là tháng liền sau kỳ chưa hủy gần nhất. Chỉ lập hóa đơn định kỳ khi hợp đồng đã tới `start_date` và ở `DangHieuLuc`, `SapHetHan` hoặc `DangThanhLy`. Tháng chứa `expected_move_out_date` không có hóa đơn định kỳ mà thuộc hóa đơn thanh lý. Mỗi hợp đồng có tối đa một hóa đơn định kỳ ở `Nhap`; còn hóa đơn nháp thì chưa lập được kỳ kế tiếp.
 
 **BR-17:** mỗi `contract_id` chỉ có một hóa đơn `type = 'DinhKy'` chưa hủy cho mỗi cặp (`period_start`, `period_end`) — unique index có điều kiện `type = 'DinhKy' AND status <> 'DaHuy'`, để hóa đơn đã hủy không chặn việc lập lại kỳ đó.
 

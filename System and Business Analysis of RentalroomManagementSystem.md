@@ -352,7 +352,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
    - Tiền nước = (chỉ số nước mới − chỉ số nước cũ) × đơn giá nước đã chốt trong Hợp đồng
 3. Hệ thống tạo **Hóa đơn tổng hợp** = tiền phòng + tiền điện + tiền nước + phí dịch vụ cố định + khoản điều chỉnh khác (nếu có, kèm mô tả).
    - Với kỳ đầu tiên hoặc kỳ cuối cùng không trọn tháng, **tiền phòng và phí dịch vụ tính theo tỷ lệ số ngày thực ở** (xem BR-15).
-4. Chủ trọ **phát hành** hóa đơn → trạng thái **Chưa thanh toán**; hệ thống thông báo cho Người thuê.
+4. Chủ trọ **phát hành** hóa đơn → trạng thái **Chưa thanh toán**; hệ thống thông báo cho Người thuê. Hóa đơn còn ở *Nháp* thì chưa lập được hóa đơn kỳ kế tiếp của cùng hợp đồng.
 5. Người thuê xem hóa đơn (thấy đủ chỉ số cũ/mới, đơn giá, cách tính), tiến hành thanh toán ngoài hệ thống — tiền mặt, hoặc chuyển khoản bằng mã VietQR của Chủ trọ hiển thị trên hóa đơn (BR-26) — rồi **báo đã thanh toán** kèm ảnh biên lai/minh chứng chuyển khoản → trạng thái **Chờ xác nhận**.
 6. Chủ trọ đối soát và **Xác nhận đã thu đủ** → trạng thái **Đã thanh toán**; hoặc **Từ chối xác nhận** kèm lý do → quay lại *Chưa thanh toán*, *Thanh toán một phần* hoặc *Quá hạn* tùy số đã thu và hạn thanh toán (xem Mục 8.5).
 7. Hệ thống ghi nhận vào lịch sử thanh toán và số liệu doanh thu.
@@ -1140,6 +1140,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 | Chủ trọ hủy duyệt yêu cầu thuê khi chưa lập hợp đồng (BP-06 A5) | Thực tế người thuê được duyệt rồi không đến hoặc không liên lạc được; không có đường này thì phòng bị giữ vô ích tới hết 72 giờ, hoặc Chủ trọ phải lập hợp đồng rồi hủy cho nhanh |
+| Mỗi hợp đồng chỉ có một hóa đơn định kỳ nháp tại một thời điểm | Nháp tháng trước mà đã lập tháng sau thì nháp cũ không còn là hóa đơn mới nhất nên không sửa được nữa, trong khi chưa ai thấy nó; lập lần lượt từng tháng cũng đúng cách Chủ trọ thu tiền |
 | Danh sách hóa đơn của mọi phòng, lọc theo trạng thái và tháng | Đầu tháng Chủ trọ cần biết ngay phòng nào chưa đóng tiền mà không phải mở từng hợp đồng; Người thuê cần một chỗ xem mọi hóa đơn của mình |
 | Mục "việc cần xử lý" trên dashboard Chủ trọ và Người thuê | Việc cần làm ngay là phần được mở dashboard xem nhiều nhất; chỉ là các con số đếm dẫn tới danh sách tương ứng, không cần thêm bảng dữ liệu |
 | Dashboard Chủ trọ hiện doanh thu 6 tháng gần nhất | Chủ trọ nhỏ chủ yếu xem tháng này và so với vài tháng gần đây; 6 tháng đủ thấy xu hướng mà biểu đồ vẫn gọn |
