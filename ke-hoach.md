@@ -90,6 +90,8 @@ BP-05 (đặt lịch xem phòng) và BP-09 (gia hạn hợp đồng) thuộc Pha
 
 ## 6. Quy tắc phối hợp
 
+**Tiến độ theo dõi trên Google Drive.** Nhóm 2 người nên không dùng công cụ quản lý công việc riêng: một bảng tiến độ chung trên Google Drive ghi việc từng người đang làm, hạn, trạng thái, và các vấn đề phát hiện ở BP khác để xử lý khi tới lượt BP đó.
+
 **Không chờ nhau khi chưa cần.** BP-06 cần có phòng trong database để kiểm thử, nhưng bảng `rooms` đã tồn tại — chèn vài dòng trực tiếp trên Supabase là kiểm thử được, không phải đợi BP-02 xong.
 
 **Migration phải báo trước.** Hai người dùng chung một database, nên trước khi chạy `dotnet ef migrations add` phải nhắn cho người kia, và người kia phải `git pull` lấy migration mới nhất trước khi đổi schema.

@@ -1072,7 +1072,9 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | **Trợ lý AI** | Google Gemini API |
 | **Frontend** | React + TypeScript, Tailwind CSS, React Hook Form, TanStack Query, Axios |
 | **Kiến trúc** | Web không truy cập database trực tiếp, giao tiếp hoàn toàn qua Backend API |
-| **Công cụ hỗ trợ** | Trello (tiến độ), GitHub (mã nguồn), Postman (kiểm thử), PlantUML (thiết kế CSDL/UML) |
+| **Công cụ hỗ trợ** | Google Drive (tiến độ), GitHub (mã nguồn), Postman (kiểm thử), PlantUML (thiết kế CSDL/UML) |
+
+> Riêng công cụ quản lý tiến độ: tài liệu mô tả gốc định hướng dùng Trello; nhóm chỉ có 2 thành viên nên quản lý tiến độ bằng Google Drive thay thế (xem Mục 16).
 
 **Nguyên tắc kiểm soát phạm vi:** Không tự ý thêm chức năng nằm ngoài nghiệp vụ. Mọi chức năng mới phải có cơ sở từ nghiệp vụ, yêu cầu của hệ thống hoặc tiêu chí môn học.
 
@@ -1126,6 +1128,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Khóa Chủ trọ đang có người thuê là giới hạn được chấp nhận ở Phase 1 (BP-01 A2) | Cho tài khoản bị khóa vẫn thao tác được một phần cần cơ chế phân quyền riêng; Phase 1 chọn cảnh báo Admin trước khi khóa |
 | Địa chỉ theo đơn vị hành chính 2 cấp (tỉnh/thành, phường/xã) | Từ 01/07/2025 không còn cấp quận/huyện; chọn từ danh mục chính thức để bộ lọc khu vực không lệch vì cách gõ tên khác nhau |
 | Phòng phải có ít nhất một ảnh mới được đăng tin | Tin không ảnh gần như vô dụng với người tìm phòng và dễ là tin ảo (G-04) |
+| Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 
 ---
