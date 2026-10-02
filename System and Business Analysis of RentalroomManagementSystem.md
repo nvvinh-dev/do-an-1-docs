@@ -119,7 +119,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 - Khai báo tài khoản ngân hàng nhận tiền (không bắt buộc) để hệ thống hiển thị mã VietQR cho Người thuê chuyển khoản.
 - Tiếp nhận, xử lý yêu cầu sửa chữa và gửi thông báo cho người thuê.
 - Thực hiện thủ tục gia hạn, chấm dứt hợp đồng và tất toán tiền cọc.
-- Xem thống kê doanh thu, phòng trống/đang thuê qua Dashboard.
+- Xem thống kê doanh thu, phòng trống/đang thuê và các việc cần xử lý qua Dashboard.
 
 #### 4.1.3 Người thuê trọ — Tenant
 
@@ -139,7 +139,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 - Nhận thông báo từ Chủ trọ và từ hệ thống.
 - Tạo hồ sơ ở ghép và sử dụng tính năng tìm kiếm, kết nối với người có nhu cầu ở ghép.
 - Gửi báo cáo/khiếu nại lên Admin.
-- Xem thống kê cá nhân qua Dashboard.
+- Xem thống kê cá nhân và các việc cần xử lý qua Dashboard.
 
 #### 4.1.4 Trợ lý ảo — AI Assistant
 
@@ -1140,6 +1140,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 | Chủ trọ hủy duyệt yêu cầu thuê khi chưa lập hợp đồng (BP-06 A5) | Thực tế người thuê được duyệt rồi không đến hoặc không liên lạc được; không có đường này thì phòng bị giữ vô ích tới hết 72 giờ, hoặc Chủ trọ phải lập hợp đồng rồi hủy cho nhanh |
+| Mục "việc cần xử lý" trên dashboard Chủ trọ và Người thuê | Việc cần làm ngay là phần được mở dashboard xem nhiều nhất; chỉ là các con số đếm dẫn tới danh sách tương ứng, không cần thêm bảng dữ liệu |
 | Dashboard Chủ trọ hiện doanh thu 6 tháng gần nhất | Chủ trọ nhỏ chủ yếu xem tháng này và so với vài tháng gần đây; 6 tháng đủ thấy xu hướng mà biểu đồ vẫn gọn |
 | Báo Chủ trọ khi Người thuê đồng ý bảng thanh lý | Đây là lúc Chủ trọ phải làm tiếp — hoàn cọc dư hoặc chờ thu số dư rồi hoàn tất thanh lý; không có thông báo thì Chủ trọ chỉ biết khi tự mở lại hợp đồng |
 | Người thuê xem được hợp đồng ở *Nháp* (chỉ đọc) | Hợp đồng quay về *Nháp* sau khi Người thuê yêu cầu chỉnh sửa hoặc Chủ trọ thu hồi; Người thuê đã thấy điều khoản từ trước và cần chỗ để hủy nếu đổi ý |

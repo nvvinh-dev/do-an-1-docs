@@ -615,8 +615,8 @@ Thông báo chỉ được sinh bởi backend khi sự kiện nghiệp vụ xả
 | Method | Endpoint | Quyền | Mô tả |
 |---|---|---|---|
 | `GET` | `/api/v1/dashboard/admin` | Admin | Tổng người dùng, chủ trọ, người thuê, khu trọ, phòng, hồ sơ chờ duyệt |
-| `GET` | `/api/v1/dashboard/landlord` | Landlord | Số phòng trống/đang thuê, hóa đơn chưa thu, doanh thu đã xác nhận theo tháng |
-| `GET` | `/api/v1/dashboard/tenant` | Tenant | Hợp đồng hiện tại, hóa đơn chưa thanh toán, tổng đã thanh toán |
+| `GET` | `/api/v1/dashboard/landlord` | Landlord | Số phòng trống/đang thuê, hóa đơn chưa thu, doanh thu đã xác nhận theo tháng, việc cần xử lý |
+| `GET` | `/api/v1/dashboard/tenant` | Tenant | Hợp đồng hiện tại, hóa đơn chưa thanh toán, tổng đã thanh toán, việc cần xử lý |
 
 Doanh thu chỉ tính từ các khoản đã được Chủ trọ xác nhận thu.
 
@@ -624,6 +624,7 @@ Doanh thu chỉ tính từ các khoản đã được Chủ trọ xác nhận th
 
 - **Doanh thu tháng** của Chủ trọ: tổng `confirmedAmount` của các lượt báo thanh toán được xác nhận trong tháng đó, theo thời điểm xác nhận và giờ Việt Nam. Tiền cọc không phải doanh thu. Dashboard trả 6 tháng gần nhất tính cả tháng hiện tại; tháng không có khoản thu nào ghi 0.
 - **Hóa đơn chưa thu**: số hóa đơn và tổng phần còn phải trả của các hóa đơn ở `ChuaThanhToan`, `ChoXacNhan`, `ThanhToanMotPhan`, `QuaHan`. Không tính `Nhap` và `DaChuyenThanhLy` — phần nợ của hóa đơn đã chuyển nằm trong hóa đơn thanh lý.
+- **Việc cần xử lý** — chỉ là các con số đếm, giao diện dẫn tới danh sách tương ứng. Chủ trọ: yêu cầu thuê ở `ChoDuyet`, lượt báo thanh toán ở `ChoXacNhan`, hợp đồng ở `ChoNhanCoc`, trên khu trọ của mình. Người thuê: hợp đồng ở `ChoNguoiThueXacNhan` và hóa đơn thanh lý ở `ChoNguoiThueXacNhan` của mình.
 - **Tổng đã thanh toán** của Người thuê: tổng số tiền đã được xác nhận thu trên các hóa đơn của mình, không tính tiền cọc.
 
 ---
