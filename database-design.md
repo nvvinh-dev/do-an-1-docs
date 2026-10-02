@@ -193,7 +193,7 @@ Mỗi khu trọ và mỗi phòng có tối đa 10 ảnh; `display_order` bắt �
 | `note` | text | | |
 | `status` | text | NOT NULL, CHECK | `ChoDuyet` / `DaDuyet` / `DaLapHopDong` / `TuChoi` / `DaHuy` / `HetHan` |
 | `submitted_at` | timestamptz | NOT NULL | |
-| `processed_at` | timestamptz | | Thời điểm Chủ trọ duyệt hoặc từ chối |
+| `processed_at` | timestamptz | | Thời điểm Chủ trọ duyệt, từ chối hoặc hủy duyệt — lần xử lý gần nhất |
 | `reject_reason` | text | | Bắt buộc khi `status` = `TuChoi` |
 
 **BR-06:** khi một yêu cầu của phòng được duyệt, toàn bộ yêu cầu khác của cùng phòng đang ở `ChoDuyet` phải tự động chuyển sang `TuChoi` với `reject_reason` do hệ thống sinh.
@@ -203,6 +203,8 @@ Mỗi khu trọ và mỗi phòng có tối đa 10 ảnh; `display_order` bắt �
 **Hết hạn:** yêu cầu ở `ChoDuyet` quá 7 ngày kể từ `submitted_at` chuyển sang `HetHan`. Yêu cầu ở `DaDuyet` quá 3 ngày kể từ `processed_at` mà chưa được lập hợp đồng cũng chuyển sang `HetHan` (BP-06 A3).
 
 **Rút yêu cầu:** người thuê chuyển yêu cầu sang `DaHuy` khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trường hợp sau phòng trở lại `Trong`.
+
+**Hủy duyệt (BP-06 A5):** Chủ trọ chuyển yêu cầu ở `DaDuyet` mà chưa lập hợp đồng sang `TuChoi`, bắt buộc có `reject_reason`; phòng trở lại `Trong`.
 
 **Đã lập hợp đồng:** yêu cầu chuyển sang `DaLapHopDong` ngay khi hợp đồng được tạo từ nó. Hợp đồng bị hủy sau đó không làm đổi trạng thái này.
 
@@ -417,7 +419,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `TaiKhoanDuocMoKhoa` | Tài khoản được mở khóa | Người được mở khóa | `AppUser` |
 | `YeuCauThueMoi` | Có yêu cầu thuê mới | Chủ trọ | `RentalRequest` |
 | `YeuCauThueDuocDuyet` | Yêu cầu thuê được duyệt | Người thuê | `RentalRequest` |
-| `YeuCauThueBiTuChoi` | Yêu cầu thuê bị từ chối, kể cả tự từ chối theo BR-06 | Người thuê | `RentalRequest` |
+| `YeuCauThueBiTuChoi` | Yêu cầu thuê bị từ chối, kể cả tự từ chối theo BR-06 và Chủ trọ hủy duyệt | Người thuê | `RentalRequest` |
 | `YeuCauThueBiRut` | Người thuê rút yêu cầu thuê đã được duyệt | Chủ trọ | `RentalRequest` |
 | `YeuCauThueHetHan` | Yêu cầu thuê hết hạn — quá 7 ngày chưa xử lý, hoặc đã duyệt mà hết hạn giữ chỗ khi chưa lập hợp đồng | Người thuê; thêm Chủ trọ khi hết hạn giữ chỗ | `RentalRequest` |
 | `HopDongChoXacNhan` | Hợp đồng được gửi để xác nhận | Người thuê | `Contract` |

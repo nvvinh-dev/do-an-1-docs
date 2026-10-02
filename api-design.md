@@ -316,7 +316,7 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 | `GET` | `/api/v1/rental-requests` | Tenant / Landlord | Danh sách theo vai trò người gọi |
 | `GET` | `/api/v1/rental-requests/{id}` | Bên liên quan | Chi tiết |
 | `POST` | `/api/v1/rental-requests/{id}/approve` | Landlord (chủ sở hữu) | Duyệt |
-| `POST` | `/api/v1/rental-requests/{id}/reject` | Landlord (chủ sở hữu) | Từ chối, bắt buộc có `reason` |
+| `POST` | `/api/v1/rental-requests/{id}/reject` | Landlord (chủ sở hữu) | Từ chối, hoặc hủy duyệt khi chưa lập hợp đồng; bắt buộc có `reason` |
 | `POST` | `/api/v1/rental-requests/{id}/cancel` | Tenant (người gửi) | Rút yêu cầu |
 
 **`POST /rooms/{roomId}/rental-requests`** — trả `201` kèm chi tiết yêu cầu, Chủ trọ nhận thông báo mức Cao:
@@ -336,6 +336,8 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 1. Chuyển yêu cầu sang `DaDuyet`.
 2. Chuyển `rooms.occupancy_status` sang `DangGiuCho` — phòng biến mất khỏi kết quả tìm kiếm.
 3. Chuyển **toàn bộ** yêu cầu khác của cùng phòng đang ở `ChoDuyet` sang `TuChoi` với lý do do hệ thống sinh (BR-06), và gửi thông báo cho từng người thuê bị từ chối.
+
+**`POST /rental-requests/{id}/reject`** — body gồm `reason` (bắt buộc). Nhận khi yêu cầu ở `ChoDuyet` chưa quá 168 giờ kể từ lúc gửi, hoặc ở `DaDuyet` mà chưa lập hợp đồng và chưa quá 72 giờ kể từ lúc duyệt (hủy duyệt — BP-06 A5); ngược lại trả `409`, kể cả khi tác vụ định kỳ chưa kịp chuyển yêu cầu sang `HetHan`. Hủy duyệt thì phòng về `Trong` trong cùng transaction. Người thuê nhận thông báo mức Cao kèm lý do (FR-29).
 
 **`POST /rental-requests/{id}/cancel`** nhận khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trạng thái khác trả `409`. Rút yêu cầu `DaDuyet` thì phòng về `Trong` trong cùng transaction và Chủ trọ nhận thông báo mức Cao (FR-27).
 
