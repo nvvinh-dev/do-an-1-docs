@@ -154,7 +154,7 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 | `PUT` | `/api/v1/properties/{id}` | Landlord (chủ sở hữu) | Cập nhật |
 | `POST` | `/api/v1/properties/{id}/archive` | Landlord (chủ sở hữu) | Lưu trữ khu trọ |
 
-`archive` trả `409` khi còn phòng ở `DangGiuCho` hoặc `DangThue` (BR-10). Không có endpoint `DELETE` (BR-09).
+`archive` trả `409` khi còn phòng ở `DangGiuCho` hoặc `DangThue` (BR-10). Lưu trữ khu trọ thì mọi phòng của khu chuyển `LuuTru` theo, trong cùng transaction. Không có endpoint `DELETE` (BR-09).
 
 ### 5.2 Phòng trọ
 
@@ -173,7 +173,8 @@ Cả hai thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người
 
 - `POST /properties/{propertyId}/rooms` tạo phòng ở `occupancyStatus = Trong` và `visibilityStatus = DaAnBoiChuTro` — phòng chưa hiển thị cho tới khi Chủ trọ bật (BP-03).
 - `PUT /rooms/{id}` sửa giá chỉ ảnh hưởng hợp đồng lập **sau đó** (BR-12); thao tác này ghi `audit_logs`.
-- `PATCH /rooms/{id}/visibility` chỉ nhận `DangHienThi` và `DaAnBoiChuTro`. Phòng đang ở `DaAnBoiAdmin` trả `403` — Chủ trọ không tự bật lại được.
+- `PATCH /rooms/{id}/visibility` chỉ nhận `DangHienThi` và `DaAnBoiChuTro`. Phòng đang ở `DaAnBoiAdmin` trả `409` — Chủ trọ không tự bật lại được.
+- `POST /rooms/{id}/archive` chỉ nhận phòng ở `Trong` hoặc `BaoTri`, trạng thái khác trả `409`. Lưu trữ là vĩnh viễn — không có thao tác bỏ lưu trữ.
 - `PATCH /rooms/{id}/occupancy-status` chỉ nhận hai chuyển tiếp `Trong` → `BaoTri` và `BaoTri` → `Trong`; chuyển tiếp khác trả `409`. Chuyển về `Trong` mà hợp đồng hiện tại chưa ở `DaThanhLy` hoặc `DaHuy` cũng trả `409` (BR-08).
 - Không có endpoint `DELETE /rooms/{id}` (BR-09).
 - Ẩn tin vi phạm theo từng phòng (`DaAnBoiAdmin`) thuộc Phase 2, làm cùng khiếu nại BP-13. Phase 1 Admin xử lý vi phạm bằng cách khóa tài khoản Chủ trọ — toàn bộ phòng của Chủ trọ đó rời khỏi kết quả tìm kiếm theo BR-05.
@@ -279,7 +280,7 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 
 **`POST /request-changes`** — body gồm `reason` (bắt buộc). Chỉ nhận khi hợp đồng ở `ChoNguoiThueXacNhan`; hợp đồng quay về `Nhap` để Chủ trọ sửa bằng `PUT` rồi gửi lại bằng `/send`. Chủ trọ nhận thông báo mức Cao kèm lý do.
 
-**Hạn giữ chỗ (BP-06 A3):** quá 3 ngày kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này.
+**Hạn giữ chỗ (BP-06 A3):** quá 72 giờ (3 ngày) kể từ khi yêu cầu thuê được duyệt mà hợp đồng chưa `DangHieuLuc`, tác vụ định kỳ chuyển hợp đồng (nếu đã lập) sang `DaHuy`, yêu cầu thuê chưa được lập hợp đồng sang `HetHan`, và phòng về `Trong`. Không có endpoint cho việc này.
 
 **Mã VietQR cho tiền cọc:** `GET /contracts/{id}` trả thêm trường `paymentQr` cho Người thuê đứng tên khi hợp đồng ở `ChoNhanCoc` và `depositAmount` > 0, với `amount` bằng `depositAmount` và `transferContent` dạng `SMARTRENT COC<contractId>`. Cấu trúc trường này mô tả ở Mục 9.1.
 
@@ -299,9 +300,9 @@ Khi hợp đồng sang `DangHieuLuc`, phòng chuyển `DangThue` và cả hai b�
 | `GET` | `/api/v1/contracts/{contractId}/invoices` | Bên liên quan | Danh sách hóa đơn của hợp đồng |
 | `GET` | `/api/v1/contracts/{contractId}/meter-readings/latest` | Landlord (chủ sở hữu) | Chỉ số cũ của kỳ kế tiếp: chỉ số mới của hóa đơn chưa hủy gần nhất, hoặc chỉ số đầu của hợp đồng nếu chưa có hóa đơn |
 | `GET` | `/api/v1/invoices/{id}` | Bên liên quan | Chi tiết, gồm chỉ số, đơn giá và cách tính |
-| `PUT` | `/api/v1/invoices/{id}` | Landlord (chủ sở hữu) | Sửa khi chưa được xác nhận thanh toán |
+| `PUT` | `/api/v1/invoices/{id}` | Landlord (chủ sở hữu) | Sửa hóa đơn mới nhất của hợp đồng khi chưa thanh toán |
 | `POST` | `/api/v1/invoices/{id}/issue` | Landlord (chủ sở hữu) | Phát hành |
-| `POST` | `/api/v1/invoices/{id}/cancel` | Landlord (chủ sở hữu) | Hủy khi chưa thanh toán, bắt buộc có `reason` |
+| `POST` | `/api/v1/invoices/{id}/cancel` | Landlord (chủ sở hữu) | Hủy hóa đơn mới nhất của hợp đồng khi chưa thanh toán, bắt buộc có `reason` |
 | `POST` | `/api/v1/invoices/{id}/payment-reports` | Tenant (người đứng tên) | Báo đã thanh toán kèm minh chứng |
 | `POST` | `/api/v1/invoices/{id}/payment-reports/{reportId}/confirm` | Landlord (chủ sở hữu) | Xác nhận đã thu |
 | `POST` | `/api/v1/invoices/{id}/payment-reports/{reportId}/reject` | Landlord (chủ sở hữu) | Từ chối xác nhận, bắt buộc có `reason` |
@@ -337,6 +338,8 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 - `PUT /invoices/{id}` và `POST /invoices/{id}/cancel` chỉ chấp nhận với hóa đơn định kỳ **mới nhất** chưa hủy của hợp đồng; hóa đơn cũ hơn trả `409`. `PUT` nhận khi hóa đơn ở `Nhap`, `ChuaThanhToan` hoặc `QuaHan`; `cancel` nhận khi hóa đơn ở `ChuaThanhToan`. Hóa đơn ở `DaThanhToan` trả `409` (BR-16). Mỗi lần sửa ghi `audit_logs` với giá trị cũ và mới, và gửi thông báo cho người thuê.
 - Hóa đơn cũ hơn hoặc đã thanh toán có sai sót: Chủ trọ thêm một dòng `DieuChinhKhac` có `relatedInvoiceId` vào `adjustmentLines` của hóa đơn kỳ kế tiếp, hoặc vào `lines` của hóa đơn thanh lý. `relatedInvoiceId` phải thuộc cùng hợp đồng, sai thì trả `422`.
 
+**Người thuê không thấy hóa đơn Nháp:** hóa đơn ở `Nhap` không có trong danh sách của người thuê, và `GET /invoices/{id}` trả `404` với người thuê. Người thuê thấy hóa đơn từ khi phát hành.
+
 **Luồng thanh toán:**
 
 1. Người thuê gọi `/payment-reports` kèm `proofImagePath` (bắt buộc, BR-06b) khi hóa đơn ở `ChuaThanhToan`, `ThanhToanMotPhan` hoặc `QuaHan` → hóa đơn chuyển `ChoXacNhan`. Trạng thái khác trả `409`.
@@ -345,7 +348,7 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 
 Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai trò khác trả `403` (BR-06b). Thao tác xác nhận ghi `audit_logs`.
 
-**Quá hạn:** tác vụ định kỳ của hệ thống gắn cờ `QuaHan` cho hóa đơn ở `ChuaThanhToan` hoặc `ThanhToanMotPhan` đã quá `dueDate`, và gửi thông báo mức Cao cho cả hai bên. Không có endpoint cho việc này.
+**Quá hạn:** tác vụ định kỳ của hệ thống gắn cờ `QuaHan` cho hóa đơn ở `ChuaThanhToan` hoặc `ThanhToanMotPhan` khi đã sang ngày sau `dueDate` (giờ Việt Nam), và gửi thông báo mức Cao cho cả hai bên. Không có endpoint cho việc này.
 
 ### 9.1 Mã VietQR — BR-26
 
@@ -448,6 +451,12 @@ Thông báo chỉ được sinh bởi backend khi sự kiện nghiệp vụ xả
 | `GET` | `/api/v1/dashboard/tenant` | Tenant | Hợp đồng hiện tại, hóa đơn chưa thanh toán, tổng đã thanh toán |
 
 Doanh thu chỉ tính từ các khoản đã được Chủ trọ xác nhận thu.
+
+**Cách tính:**
+
+- **Doanh thu tháng** của Chủ trọ: tổng `confirmedAmount` của các lượt báo thanh toán được xác nhận trong tháng đó, theo thời điểm xác nhận và giờ Việt Nam. Tiền cọc không phải doanh thu.
+- **Hóa đơn chưa thu**: số hóa đơn và tổng phần còn phải trả của các hóa đơn ở `ChuaThanhToan`, `ChoXacNhan`, `ThanhToanMotPhan`, `QuaHan`. Không tính `Nhap` và `DaChuyenThanhLy` — phần nợ của hóa đơn đã chuyển nằm trong hóa đơn thanh lý.
+- **Tổng đã thanh toán** của Người thuê: tổng số tiền đã được xác nhận thu trên các hóa đơn của mình, không tính tiền cọc.
 
 ---
 

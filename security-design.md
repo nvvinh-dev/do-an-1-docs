@@ -208,7 +208,9 @@ Rate limiting là kiểm soát **bắt buộc**, không phải tùy chọn. Khô
 
 Các nhóm tính theo tài khoản đăng nhập đọc id người dùng từ token, nên middleware rate limiting chạy sau bước xác thực JWT.
 
-**Hành vi khi vượt ngưỡng:** trả `429 Too Many Requests` kèm header `Retry-After`. Lượt vượt ngưỡng ở nhóm đăng nhập được ghi log để Admin đối chiếu khi nghi ngờ tài khoản bị tấn công.
+**Mỗi endpoint đếm riêng.** Ngưỡng trong bảng áp dụng cho từng endpoint của nhóm, không cộng dồn — đăng ký và đặt lại mật khẩu không dùng chung 3 lượt. Ngưỡng đọc từ cấu hình: bảng trên là giá trị cho môi trường thật, môi trường Development được nới để kiểm thử bằng Postman.
+
+**Hành vi khi vượt ngưỡng:** trả `429 Too Many Requests` kèm header `Retry-After`, thân phản hồi dạng ProblemDetails như mọi lỗi khác. Lượt vượt ngưỡng ở nhóm đăng nhập được ghi log để Admin đối chiếu khi nghi ngờ tài khoản bị tấn công.
 
 **Đếm theo lần sai, không theo lần gọi.** Ở nhóm đăng nhập, chỉ những lần đăng nhập **thất bại** mới tính vào ngưỡng. Đăng nhập thành công không làm người dùng thật cạn lượt.
 

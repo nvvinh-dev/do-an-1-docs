@@ -8,6 +8,8 @@ Tài liệu chính thức về yêu cầu chức năng của hệ thống SmartR
 
 Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi FR đều truy ngược được về một BP hoặc BR đã có.
 
+**Thứ tự ưu tiên:** khi tài liệu phân tích và các tài liệu thiết kế (đặc tả này, [thiết kế API](api-design.md), [thiết kế CSDL](database-design.md), [thiết kế an toàn](security-design.md)) lệch nhau về chi tiết, tài liệu thiết kế là căn cứ để hiện thực, và tài liệu phân tích được sửa theo.
+
 ---
 
 ## 1. Tài khoản, xác thực và phân quyền
@@ -42,7 +44,7 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-18** | Hệ thống từ chối chuyển phòng về trạng thái Trống khi hợp đồng hiện tại của phòng chưa ở Đã thanh lý hoặc Đã hủy | BR-08 | `PATCH /rooms/{id}/occupancy-status` |
 | **FR-89** | Chủ trọ chỉ tự chuyển được trạng thái khai thác của phòng giữa Trống và Bảo trì; các trạng thái khai thác còn lại do hệ thống chuyển theo yêu cầu thuê, hợp đồng và thanh lý, ngoài thao tác lưu trữ | BP-02 | `PATCH /rooms/{id}/occupancy-status` |
 | **FR-19** | Phòng hoặc khu trọ đã từng phát sinh hợp đồng hay hóa đơn **không** xóa được, chỉ chuyển sang trạng thái Lưu trữ | BR-09 | Không có endpoint `DELETE` |
-| **FR-20** | Hệ thống từ chối lưu trữ khu trọ khi còn phòng ở trạng thái Đang giữ chỗ hoặc Đang thuê | BR-10 | `POST /properties/{id}/archive` |
+| **FR-20** | Hệ thống từ chối lưu trữ khu trọ khi còn phòng ở trạng thái Đang giữ chỗ hoặc Đang thuê; lưu trữ khu trọ thì các phòng của khu chuyển sang Lưu trữ theo. Phòng chỉ lưu trữ được khi đang Trống hoặc Bảo trì. Lưu trữ là vĩnh viễn, không có thao tác bỏ lưu trữ | BR-10 | `POST /properties/{id}/archive`, `/rooms/{id}/archive` |
 
 ---
 
@@ -140,8 +142,8 @@ Tài liệu này **không** định nghĩa quy tắc nghiệp vụ mới. Mọi 
 | **FR-64** | Admin tra cứu được nhật ký theo đối tượng, người thực hiện và khoảng thời gian | BP-01 | `GET /admin/audit-logs` |
 | **FR-65** | Admin xem được dashboard tổng quan: tổng người dùng, chủ trọ, người thuê, khu trọ, phòng và số hồ sơ chờ duyệt | BP-01 | `GET /dashboard/admin` |
 | **FR-66** | Chủ trọ xem được dashboard: số phòng trống và đang thuê, hóa đơn chưa thu, doanh thu theo tháng | BP-02, BP-07 | `GET /dashboard/landlord` |
-| **FR-67** | Doanh thu trên dashboard **chỉ** tính các khoản đã được Chủ trọ xác nhận thu | BP-07 | `invoices.paid_amount` |
-| **FR-68** | Người thuê xem được dashboard: hợp đồng hiện tại, hóa đơn chưa thanh toán và tổng đã thanh toán | BP-07 | `GET /dashboard/tenant` |
+| **FR-67** | Doanh thu trên dashboard **chỉ** tính các khoản đã được Chủ trọ xác nhận thu, gom theo tháng của thời điểm xác nhận; tiền cọc không phải doanh thu | BP-07 | `invoices.paid_amount` |
+| **FR-68** | Người thuê xem được dashboard: hợp đồng hiện tại, hóa đơn chưa thanh toán và tổng đã thanh toán (không tính tiền cọc) | BP-07 | `GET /dashboard/tenant` |
 
 ---
 
@@ -155,7 +157,7 @@ Các yêu cầu dưới đây là bắt buộc và kiểm chứng được như 
 | **FR-70** | Danh tính và vai trò của người thao tác luôn lấy từ token; giá trị vai trò gửi kèm trong body hoặc query bị bỏ qua | Security design 5.2 |
 | **FR-71** | Người thuê không xem được hợp đồng, hóa đơn của người thuê khác; Chủ trọ không xem được dữ liệu của khu trọ không thuộc mình | BR-04 |
 | **FR-72** | Admin không có chức năng đọc hợp đồng và hóa đơn của người dùng trong Phase 1 | BR-24 |
-| **FR-73** | Đăng nhập sai quá 5 lần trong 15 phút, tính theo cặp email + địa chỉ IP, bị tạm chặn; các nhóm endpoint còn lại tuân theo ngưỡng rate limiting đã quy định | Security design 6 |
+| **FR-73** | Đăng nhập sai 5 lần liên tiếp với cùng cặp email + địa chỉ IP thì từ lần thứ sáu bị tạm chặn, tới hết 15 phút kể từ lần sai đầu tiên; đăng nhập đúng xóa bộ đếm; các nhóm endpoint còn lại tuân theo ngưỡng rate limiting đã quy định | Security design 6 |
 | **FR-74** | Số điện thoại của bên còn lại chỉ hiển thị khi giữa hai bên có yêu cầu thuê đã được Chủ trọ duyệt, hoặc có hợp đồng chưa kết thúc (chưa Đã thanh lý hoặc Đã hủy) | QR-07 |
 | **FR-82** | Tài khoản ngân hàng của Chủ trọ chỉ xuất hiện với chính Chủ trọ đó và trong mã VietQR gửi cho Người thuê đứng tên hợp đồng của Chủ trọ; không xuất hiện trong kết quả tìm kiếm, chi tiết phòng công khai hay bất kỳ response nào khác | BR-26, QR-07 |
 | **FR-75** | Mọi thao tác không thể hoàn tác — hủy hợp đồng, xác nhận thanh lý, khóa tài khoản — đều có bước xác nhận rõ ràng trước khi thực hiện | QR-06 |

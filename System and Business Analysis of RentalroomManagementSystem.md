@@ -351,12 +351,12 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
    - Với kỳ đầu tiên hoặc kỳ cuối cùng không trọn tháng, **tiền phòng và phí dịch vụ tính theo tỷ lệ số ngày thực ở** (xem BR-15).
 4. Chủ trọ **phát hành** hóa đơn → trạng thái **Chưa thanh toán**; hệ thống thông báo cho Người thuê.
 5. Người thuê xem hóa đơn (thấy đủ chỉ số cũ/mới, đơn giá, cách tính), tiến hành thanh toán ngoài hệ thống — tiền mặt, hoặc chuyển khoản bằng mã VietQR của Chủ trọ hiển thị trên hóa đơn (BR-26) — rồi **báo đã thanh toán** kèm ảnh biên lai/minh chứng chuyển khoản → trạng thái **Chờ xác nhận**.
-6. Chủ trọ đối soát và **Xác nhận đã thu đủ** → trạng thái **Đã thanh toán**; hoặc **Từ chối xác nhận** kèm lý do → quay lại **Chưa thanh toán**.
+6. Chủ trọ đối soát và **Xác nhận đã thu đủ** → trạng thái **Đã thanh toán**; hoặc **Từ chối xác nhận** kèm lý do → quay lại *Chưa thanh toán*, *Thanh toán một phần* hoặc *Quá hạn* tùy số đã thu và hạn thanh toán (xem Mục 8.5).
 7. Hệ thống ghi nhận vào lịch sử thanh toán và số liệu doanh thu.
 
 **Luồng thay thế:**
 
-- **A1 — Quá hạn:** Quá hạn thanh toán ghi trong Hợp đồng mà hóa đơn vẫn ở *Chưa thanh toán*, hệ thống tự gắn cờ **Quá hạn** và gửi thông báo nhắc nhở tự động cho cả hai bên.
+- **A1 — Quá hạn:** Quá hạn thanh toán ghi trong Hợp đồng mà hóa đơn chưa được trả đủ (*Chưa thanh toán* hoặc *Thanh toán một phần*), hệ thống tự gắn cờ **Quá hạn** và gửi thông báo nhắc nhở tự động cho cả hai bên.
 - **A2 — Thanh toán một phần:** Chủ trọ ghi nhận số tiền đã thu < tổng hóa đơn → trạng thái **Thanh toán một phần**, phần còn lại vẫn theo dõi công nợ.
 - **A3 — Nhập sai chỉ số:** Với hóa đơn **mới nhất** của hợp đồng và **chưa** được xác nhận thanh toán, Chủ trọ được sửa; hệ thống ghi nhật ký giá trị cũ/mới và thông báo cho Người thuê. Hóa đơn cũ hơn, hoặc hóa đơn **đã** thanh toán, **không được sửa** — sai sót được điều chỉnh bằng một dòng *Điều chỉnh* ở hóa đơn kỳ kế tiếp hoặc Hóa đơn thanh lý, ghi rõ hóa đơn gốc (xem BR-16).
 - **A4 — Hủy hóa đơn:** Chỉ áp dụng cho hóa đơn **mới nhất** của hợp đồng, chưa thanh toán, và bắt buộc nhập lý do.
@@ -590,7 +590,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 |---|---|
 | **BR-05** | Một Phòng chỉ hiển thị trong kết quả tìm kiếm khi **đồng thời**: trạng thái khai thác là *Trống*, trạng thái hiển thị là *Đang hiển thị*, Khu trọ chứa phòng đang khai thác (chưa *Lưu trữ*), và Chủ trọ sở hữu đang ở trạng thái hoạt động bình thường. |
 | **BR-06** | Khi một Yêu cầu thuê được duyệt, **toàn bộ Yêu cầu thuê khác đang chờ duyệt của cùng phòng phải tự động chuyển sang *Từ chối*** kèm lý do hệ thống. |
-| **BR-07** | Tại một thời điểm, một Phòng chỉ có **tối đa một Hợp đồng** ở trạng thái *Đang hiệu lực* hoặc *Đang thanh lý*. |
+| **BR-07** | Tại một thời điểm, một Phòng chỉ có **tối đa một Hợp đồng** ở trạng thái *Đang hiệu lực*, *Sắp hết hạn* hoặc *Đang thanh lý*. |
 | **BR-08** | Hệ thống chỉ cho phép chuyển trạng thái Phòng về *Trống* khi Hợp đồng hiện tại của phòng đó đã ở trạng thái *Đã thanh lý* hoặc *Đã hủy*. |
 | **BR-09** | **Không được xóa vĩnh viễn** Phòng hoặc Khu trọ đã từng phát sinh Hợp đồng hoặc Hóa đơn. Chỉ được chuyển sang trạng thái *Lưu trữ*. Dữ liệu lịch sử phải được bảo toàn. |
 | **BR-10** | Không được lưu trữ một Khu trọ khi còn phòng ở trạng thái *Đang giữ chỗ* hoặc *Đang thuê*. |

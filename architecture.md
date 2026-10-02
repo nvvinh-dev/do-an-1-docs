@@ -99,7 +99,7 @@ Lấy `POST /api/v1/invoices/{id}/payment-reports/{reportId}/confirm` làm ví d
 | 8 | Api — service | Cập nhật hóa đơn, ghi `audit_logs`, tạo thông báo — trong **một transaction** | Ghi một nửa, mất dấu vết |
 | 9 | Database | Ràng buộc `CHECK`, `UNIQUE`, khóa ngoại | Lớp chặn cuối khi 7 tầng trên sót |
 
-**Bốn lớp kiểm soát độc lập** nằm ở bước 1 và 3 (ai), bước 6 (tài nguyên của ai), bước 7 (nghiệp vụ có cho phép không), bước 9 (dữ liệu có hợp lệ không). Không lớp nào được bỏ vì "lớp kia kiểm rồi".
+**Năm lớp kiểm soát độc lập**, khớp với [Thiết kế An toàn](security-design.md) mục 7: bước 1 (xác thực — ai), bước 3 và 6 (phân quyền — vai trò nào, tài nguyên của ai), bước 4 (dữ liệu vào có đúng định dạng không), bước 7 (nghiệp vụ có cho phép không), bước 9 (dữ liệu lưu có hợp lệ không). Không lớp nào được bỏ vì "lớp kia kiểm rồi".
 
 ---
 

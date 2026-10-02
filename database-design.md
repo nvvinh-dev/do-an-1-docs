@@ -119,7 +119,7 @@ Hồ sơ đăng ký làm Chủ trọ.
 | `description` | text | | |
 | `status` | text | NOT NULL, CHECK | `DangKhaiThac` / `LuuTru` |
 
-**BR-10:** không được chuyển `status` sang `LuuTru` khi còn phòng có `occupancy_status` là `DangGiuCho` hoặc `DangThue`.
+**BR-10:** không được chuyển `status` sang `LuuTru` khi còn phòng có `occupancy_status` là `DangGiuCho` hoặc `DangThue`. Lưu trữ khu trọ thì mọi phòng của khu chuyển `occupancy_status` sang `LuuTru` theo. Lưu trữ là vĩnh viễn, với cả khu trọ lẫn phòng.
 
 ### 4.2 `rooms` — Phòng trọ
 
