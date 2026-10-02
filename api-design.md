@@ -328,7 +328,9 @@ Chỉ số cũ **do hệ thống tự điền** bằng chỉ số mới của k�
 **Kiểm tra khi tạo:**
 
 - Chỉ số mới nhỏ hơn chỉ số cũ trả `422` (BR-14).
+- Hợp đồng không ở `DangHieuLuc`, `SapHetHan`, `DangThanhLy`, hoặc chưa tới `startDate`, trả `409` (FR-91).
 - Kỳ kế tiếp chưa tới — hôm nay trước ngày 25 của tháng đó — trả `409` (FR-91).
+- Hợp đồng ở `DangThanhLy` mà kỳ kế tiếp là tháng chứa `expectedMoveOutDate` trả `409` — tháng đó thuộc hóa đơn thanh lý.
 - Unique index BR-17 là lớp chặn cuối khi hai request tạo cùng một kỳ chạy song song; vi phạm trả `409`.
 - Kỳ đầu tiên và kỳ cuối không trọn tháng: `rentAmount` và `serviceFeeAmount` = giá × số ngày ở ÷ số ngày của tháng, tính cả ngày vào ở và ngày trả phòng, làm tròn đến đồng (BR-15). Ví dụ vào ở 15/10, giá 3.000.000 → 3.000.000 × 17 ÷ 31 = 1.645.161.
 - Kỳ nằm sau `endDate` vẫn lập được khi hợp đồng chưa có thông báo trả phòng — hợp đồng tiếp tục hiệu lực theo điều khoản đã chốt (FR-88).
@@ -387,7 +389,11 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 
 **`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Hợp đồng chuyển `DangThanhLy`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
 
-**`POST /settlement-invoice`** tạo hóa đơn `type = "ThanhLy"` ở `Nhap`, gồm chỉ số điện nước lần cuối và các dòng chi tiết. Hóa đơn tính từ sau kỳ định kỳ cuối cùng đến `moveOutDate`; khoảng này không nằm trong một tháng thì trả `409` — Chủ trọ lập trước hóa đơn định kỳ của các tháng còn thiếu (FR-93).
+**`POST /settlement-invoice`** tạo hóa đơn `type = "ThanhLy"` ở `Nhap`, gồm chỉ số điện nước lần cuối và các dòng chi tiết. Kỳ của hóa đơn thanh lý (FR-93):
+
+- `moveOutDate` thuộc tháng ngay sau kỳ định kỳ cuối cùng (hợp đồng chưa có hóa đơn định kỳ thì thuộc tháng của `startDate`): hóa đơn tính từ đầu khoảng đó tới `moveOutDate`.
+- `moveOutDate` thuộc chính tháng của kỳ định kỳ cuối cùng, và hóa đơn tháng đó đã lập trước thông báo trả phòng: hóa đơn thanh lý không có tiền phòng và phí dịch vụ, chỉ tính điện nước từ lần chốt gần nhất.
+- Trường hợp khác trả `409` — Chủ trọ lập trước hóa đơn định kỳ của các tháng còn thiếu. Hợp đồng còn hóa đơn định kỳ ở `Nhap` cũng trả `409`.
 
 ```json
 {

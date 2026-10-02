@@ -297,13 +297,15 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 
 **BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng; kỳ đầu tiên lấy `contracts.initial_*_index`. "Kỳ liền trước" bỏ qua các hóa đơn `DaHuy`.
 
-**Kỳ hóa đơn (BR-15, BR-17):** mỗi kỳ là một tháng dương lịch, do server xác định — client không gửi `period_start`, `period_end`. Kỳ đầu tiên chạy từ `contracts.start_date` tới cuối tháng đó; mỗi kỳ sau là tháng liền sau kỳ chưa hủy gần nhất. Tháng có ngày trả phòng không có hóa đơn định kỳ mà thuộc hóa đơn thanh lý.
+**Kỳ hóa đơn (BR-15, BR-17):** mỗi kỳ là một tháng dương lịch, do server xác định — client không gửi `period_start`, `period_end`. Kỳ đầu tiên chạy từ `contracts.start_date` tới cuối tháng đó; mỗi kỳ sau là tháng liền sau kỳ chưa hủy gần nhất. Chỉ lập hóa đơn định kỳ khi hợp đồng đã tới `start_date` và ở `DangHieuLuc`, `SapHetHan` hoặc `DangThanhLy`. Tháng chứa `expected_move_out_date` không có hóa đơn định kỳ mà thuộc hóa đơn thanh lý.
 
 **BR-17:** mỗi `contract_id` chỉ có một hóa đơn `type = 'DinhKy'` chưa hủy cho mỗi cặp (`period_start`, `period_end`) — unique index có điều kiện `type = 'DinhKy' AND status <> 'DaHuy'`, để hóa đơn đã hủy không chặn việc lập lại kỳ đó.
 
 **BR-16:** hóa đơn ở `DaThanhToan` không được sửa. Chỉ hóa đơn định kỳ mới nhất chưa hủy của hợp đồng mới được sửa hoặc hủy — sửa một hóa đơn cũ hơn sẽ làm gãy chuỗi chỉ số của BR-14. Sai sót ở hóa đơn không còn sửa được điều chỉnh bằng một dòng `DieuChinhKhac` có `related_invoice_id` trỏ về hóa đơn gốc, đặt ở hóa đơn kỳ kế tiếp hoặc hóa đơn thanh lý.
 
 **Hóa đơn thanh lý (BP-10):** `type = 'ThanhLy'`, các khoản cộng thêm và khoản trừ tiền cọc nằm ở `invoice_lines`. `total_amount` có thể âm — khi đó Chủ trọ phải hoàn lại phần cọc dư.
+
+**Kỳ của hóa đơn thanh lý (FR-93):** `period_start` là ngày sau `period_end` của hóa đơn định kỳ chưa hủy gần nhất, hoặc `start_date` nếu chưa có; `period_end` là ngày trả phòng. Khi hóa đơn của tháng trả phòng đã lập trước khi có thông báo trả phòng, `period_start` = `period_end` = ngày trả phòng, `rent_amount` và `service_fee_amount` bằng 0.
 
 **Vòng đời hóa đơn thanh lý (FR-57, FR-95):** `Nhap` → `ChoNguoiThueXacNhan` khi Chủ trọ gửi, ghi `sent_at`; người thuê chưa đồng ý thì về `Nhap`, ghi `change_request_reason`. Hóa đơn bị khóa khi người thuê đồng ý (ghi `tenant_confirmed_at`), hoặc khi đã quá 7 ngày kể từ `sent_at` mà người thuê không phản hồi và Chủ trọ tự chốt (ghi `landlord_finalize_note`). Khi khóa:
 

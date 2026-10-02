@@ -339,7 +339,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 
 **Actor chính:** Chủ trọ, Người thuê.
 
-**Trigger:** Cuối tháng. Kỳ hóa đơn là một tháng dương lịch; Chủ trọ lập được hóa đơn của một tháng từ ngày 25 của tháng đó trở đi.
+**Trigger:** Cuối tháng. Kỳ hóa đơn là một tháng dương lịch; Chủ trọ lập được hóa đơn của một tháng từ ngày 25 của tháng đó trở đi. Chỉ lập hóa đơn định kỳ cho hợp đồng đã tới ngày bắt đầu và đang ở *Đang hiệu lực*, *Sắp hết hạn* hoặc *Đang thanh lý*.
 
 **Luồng nghiệp vụ chính:**
 
@@ -425,9 +425,9 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 **Luồng nghiệp vụ chính:**
 
 1. Người thuê hoặc Chủ trọ gửi **Thông báo trả phòng** trên hệ thống, ghi rõ ngày trả phòng dự kiến. Thời hạn báo trước tối thiểu: **30 ngày**. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận. Khi Người thuê là bên báo trước không đủ thời hạn, Chủ trọ được đưa phí phạt vào Hóa đơn thanh lý theo BR-22, tổng phí phạt không vượt tiền cọc.
-2. Hợp đồng chuyển sang **Đang thanh lý**. Trong thời gian báo trước, các tháng trọn vẫn lập hóa đơn định kỳ như thường.
+2. Hợp đồng chuyển sang **Đang thanh lý**. Trong thời gian báo trước, các tháng trọn vẫn lập hóa đơn định kỳ như thường; riêng tháng chứa ngày trả phòng dự kiến không lập hóa đơn định kỳ.
 3. Đến ngày trả phòng, Chủ trọ **chốt chỉ số điện/nước lần cuối** và **kiểm tra cơ sở vật chất**, ghi nhận hư hỏng kèm ảnh nếu có.
-4. Chủ trọ lập **Hóa đơn thanh lý** cho khoảng từ sau kỳ hóa đơn định kỳ cuối cùng đến ngày trả phòng. Khoảng này phải nằm trong một tháng — còn thiếu tháng nào thì lập hóa đơn định kỳ tháng đó trước. Hóa đơn thanh lý gồm các dòng rõ ràng:
+4. Chủ trọ lập **Hóa đơn thanh lý** cho khoảng từ sau kỳ hóa đơn định kỳ cuối cùng đến ngày trả phòng. Khoảng này phải nằm trong một tháng — còn thiếu tháng nào thì lập hóa đơn định kỳ tháng đó trước. Nếu hóa đơn của tháng trả phòng đã lập từ trước khi có thông báo trả phòng (báo gấp), Hóa đơn thanh lý không tính tiền phòng và phí dịch vụ, chỉ tính điện nước từ lần chốt gần nhất. Hóa đơn định kỳ còn ở *Nháp* phải được phát hành trước. Hóa đơn thanh lý gồm các dòng rõ ràng:
 
    | Khoản mục | Dấu |
    |---|---|
@@ -559,7 +559,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **Hợp đồng** | Thỏa thuận số hóa chứng nhận quyền lưu trú của Người thuê tại Phòng trọ. **Chốt cứng** giá thuê, đơn giá điện/nước, phí dịch vụ, số tiền cọc, thời hạn và hạn thanh toán tại thời điểm tạo. |
 | **Tiền cọc** | Khoản tiền Người thuê nộp trước khi vào ở, do Chủ trọ giữ để bảo đảm nghĩa vụ hợp đồng. Được khấu trừ cho các khoản còn nợ, phí bồi thường hư hỏng và phí phạt khi thanh lý; phần dư được hoàn trả. Mức mặc định: **01 tháng tiền phòng**. |
 | **Người ở cùng** | Người sinh sống trong phòng nhưng không đứng tên Hợp đồng. Chỉ được ghi nhận thông tin (họ tên, số điện thoại) đính kèm Hợp đồng; không có tài khoản riêng trong Phase 1. |
-| **Kỳ hóa đơn** | Khoảng thời gian một hóa đơn bao phủ: một tháng dương lịch, do hệ thống xác định. Kỳ đầu tiên tính từ ngày vào ở tới cuối tháng đó; tháng có ngày trả phòng thuộc Hóa đơn thanh lý. |
+| **Kỳ hóa đơn** | Khoảng thời gian một hóa đơn bao phủ: một tháng dương lịch, do hệ thống xác định. Kỳ đầu tiên tính từ ngày vào ở tới cuối tháng đó; tháng có ngày trả phòng thuộc Hóa đơn thanh lý, trừ khi hóa đơn tháng đó đã lập trước khi có thông báo trả phòng. |
 | **Chỉ số điện/nước** | Cặp giá trị (chỉ số cũ, chỉ số mới) được ghi nhận tại mỗi kỳ hóa đơn. Chỉ số mới của kỳ này là chỉ số cũ của kỳ kế tiếp; kỳ đầu tiên dùng chỉ số lúc bàn giao phòng ghi trong Hợp đồng. |
 | **Hóa đơn** | Chứng từ ghi nhận khoản phải thu của một kỳ: tiền phòng + tiền điện + tiền nước + phí dịch vụ + khoản điều chỉnh. Lưu kèm chỉ số và đơn giá đã áp dụng. |
 | **Hóa đơn thanh lý** | Hóa đơn đặc biệt lập khi kết thúc hợp đồng, có thêm các dòng khấu trừ tiền cọc, bồi thường hư hỏng và phí phạt; kết quả có thể là số dư dương hoặc âm. |
@@ -1110,6 +1110,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Người thuê hủy sau khi đặt cọc có thể mất cọc (BR-22) | Thực tế người thuê đổi ý sau khi đặt cọc thì mất cọc, vì phòng đã được giữ và gỡ khỏi tìm kiếm cho họ; khớp với vế "Người thuê đơn phương chấm dứt" vốn có trong BR-22 |
 | Admin ẩn tin vi phạm (BP-03 A1) dời sang Phase 2 | Phase 1 chưa có kênh báo cáo nên Admin không có căn cứ tìm tin vi phạm; khóa tài khoản Chủ trọ đã gỡ được toàn bộ tin của người đó theo BR-05 |
 | Chủ trọ tự chốt bảng thanh lý sau 7 ngày; hoàn tất thanh lý khi người thuê còn nợ | Thực tế người thuê dọn đi rồi không phản hồi hoặc không trả nốt tiền là chuyện thường gặp; nếu phải chờ người thuê thì hợp đồng kẹt ở *Đang thanh lý* và BR-08 khiến phòng không cho thuê lại được |
+| Tháng trả phòng không có hóa đơn định kỳ; báo gấp sau khi đã lập thì thanh lý không tính tiền phòng | Quy tắc lập hóa đơn từ ngày 25 có thể đụng tháng trả phòng; thông báo dưới 30 ngày vẫn được chấp nhận, nên người thuê báo gấp đã trả trọn tháng — phù hợp với việc báo trước không đủ |
 
 ---
 
