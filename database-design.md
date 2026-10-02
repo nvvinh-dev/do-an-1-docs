@@ -97,7 +97,7 @@ Hồ sơ đăng ký làm Chủ trọ.
 | `reviewed_at` | timestamptz | | |
 | `reject_reason` | text | | Bắt buộc khi `status` = `TuChoi` |
 
-**Ràng buộc nghiệp vụ:** mỗi `user_id` chỉ có tối đa một hồ sơ ở trạng thái `ChoDuyet` tại một thời điểm — unique index có điều kiện, để hai request nộp song song không tạo được hai hồ sơ. Hồ sơ bị từ chối được bổ sung và nộp lại thành bản ghi mới.
+**Ràng buộc nghiệp vụ:** mỗi `user_id` chỉ có tối đa một hồ sơ ở trạng thái `ChoDuyet` tại một thời điểm — unique index có điều kiện `ux_landlord_applications_user_cho_duyet`, để hai request nộp song song không tạo được hai hồ sơ. Hồ sơ bị từ chối được bổ sung và nộp lại thành bản ghi mới.
 
 **Ảnh giấy tờ (QR-04):** `id_card_front_url`, `id_card_back_url`, `ownership_document_url` chỉ được trả về cho Admin trong quá trình duyệt. Không endpoint nào khác được expose các cột này.
 
@@ -472,6 +472,7 @@ Mã dành cho Phase 2: `ThuHoiVaiTroChuTro`, `AnTinDang`.
 
 | Bảng | Chỉ mục | Mục đích |
 |---|---|---|
+| `landlord_applications` | `(user_id)` unique khi `status = 'ChoDuyet'` | FR-07: một hồ sơ chờ duyệt mỗi người |
 | `rooms` | `(occupancy_status, visibility_status)` | Lọc điều kiện hiển thị BR-05 |
 | `rooms` | `(property_id)` | Liệt kê phòng theo khu trọ |
 | `rooms` | `(rent_price)`, `(area)`, `(max_occupants)` | Bộ lọc tìm kiếm BP-04 |
@@ -482,7 +483,6 @@ Mã dành cho Phase 2: `ThuHoiVaiTroChuTro`, `AnTinDang`.
 | `invoices` | `(contract_id, period_start, period_end)` unique khi `type = 'DinhKy'` và `status <> 'DaHuy'` | BR-17 |
 | `invoices` | `(contract_id)` unique khi `type = 'ThanhLy'` | Mỗi hợp đồng một hóa đơn thanh lý (FR-54) |
 | `invoices` | `(status, due_date)` | Quét hóa đơn quá hạn |
-| `landlord_applications` | `(user_id)` unique khi `status = 'ChoDuyet'` | Mỗi người một hồ sơ chờ duyệt (FR-07) |
 | `rental_requests` | `(room_id, status)` | BR-06 |
 | `rental_requests` | `(room_id, tenant_user_id)` unique khi `status = 'ChoDuyet'` | BR-27 |
 | `notifications` | `(recipient_user_id, is_read)` | Đếm thông báo chưa đọc |

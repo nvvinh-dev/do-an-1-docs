@@ -130,10 +130,10 @@ Hai dịch vụ ngoài được gọi từ `Infrastructure`, mỗi cái nằm sa
 
 | Dịch vụ | Cách gọi | Dùng cho |
 |---|---|---|
-| **Supabase Storage** | `HttpClient` gọi thẳng REST API, không dùng thư viện ngoài | Tải file lên, tạo URL có chữ ký cho file riêng tư, xoá file |
-| **SMTP Gmail** | MailKit | Gửi email chứa đường dẫn đặt lại mật khẩu |
+| **Supabase Storage** | `HttpClient` gọi thẳng REST API, không dùng thư viện ngoài | Tải file lên, kiểm tra file tồn tại, tạo URL có chữ ký cho file riêng tư, xoá file |
+| **SMTP Gmail** | MailKit | Gửi email chứa đường dẫn đặt lại mật khẩu — gửi nền, để phản hồi không phụ thuộc thời gian gửi email |
 
-Lý do không dùng thư viện client của Supabase: hệ thống chỉ cần ba thao tác với Storage, trong khi .NET 10 còn mới và thư viện cộng đồng có thể chưa kịp hỗ trợ. Gọi thẳng REST giữ được quyền kiểm soát và không thêm rủi ro tương thích.
+Lý do không dùng thư viện client của Supabase: hệ thống chỉ cần vài thao tác với Storage, trong khi .NET 10 còn mới và thư viện cộng đồng có thể chưa kịp hỗ trợ. Gọi thẳng REST giữ được quyền kiểm soát và không thêm rủi ro tương thích.
 
 Khi dịch vụ ngoài lỗi, thao tác nghiệp vụ tương ứng **thất bại rõ ràng** chứ không âm thầm bỏ qua — không lưu được ảnh giấy tờ thì hồ sơ không được tạo.
 
