@@ -387,6 +387,8 @@ Phase 1 không có endpoint tìm kiếm bằng ngôn ngữ tự nhiên — đó 
 }
 ```
 
+**Người thuê xem hợp đồng ở `Nhap`:** `GET /contracts` và `GET /contracts/{id}` trả cho người thuê đứng tên cả hợp đồng ở `Nhap` — chỉ đọc, giao diện ghi rõ Chủ trọ đang soạn. Lý do: hợp đồng quay về `Nhap` sau `/request-changes` và `/recall`, và người thuê cần chỗ để `/cancel` nếu đổi ý. Các thao tác `/confirm`, `/request-changes` chỉ mở từ `ChoNguoiThueXacNhan`.
+
 **Điều kiện chuyển sang `DangHieuLuc` (BR-21):** các bước đi tuần tự.
 
 - `/confirm` chỉ nhận ở `ChoNguoiThueXacNhan`. Tiền cọc > 0 thì hợp đồng sang `ChoNhanCoc`; tiền cọc = 0 thì sang thẳng `DangHieuLuc`.
