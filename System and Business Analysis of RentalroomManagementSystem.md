@@ -312,7 +312,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 2. Yêu cầu chuyển sang trạng thái **Chờ duyệt**; hệ thống thông báo cho Chủ trọ.
 3. Chủ trọ xem xét và quyết định:
    - **Từ chối** → bắt buộc nhập lý do, kết thúc luồng.
-   - **Duyệt** → sang bước 4.
+   - **Duyệt** → sang bước 4. Chỉ duyệt được khi Người thuê không đang giữ phòng khác (BR-28).
 4. Khi Chủ trọ duyệt, hệ thống **đồng thời**:
    - Chuyển trạng thái khai thác của Phòng sang **Đang giữ chỗ**;
    - Gỡ phòng khỏi kết quả tìm kiếm;
@@ -598,6 +598,7 @@ Hệ thống phục vụ mô hình kết nối **đa bên** giữa Chủ trọ v
 | **BR-09** | **Không được xóa vĩnh viễn** Phòng hoặc Khu trọ đã từng phát sinh Hợp đồng hoặc Hóa đơn. Chỉ được chuyển sang trạng thái *Lưu trữ*. Dữ liệu lịch sử phải được bảo toàn. |
 | **BR-10** | Không được lưu trữ một Khu trọ khi còn phòng ở trạng thái *Đang giữ chỗ* hoặc *Đang thuê*. |
 | **BR-27** | Một Người thuê chỉ có tối đa **một** Yêu cầu thuê ở trạng thái *Chờ duyệt* cho mỗi Phòng. |
+| **BR-28** | Một Người thuê chỉ **giữ một phòng** tại một thời điểm: Chủ trọ không duyệt được yêu cầu thuê của người đang có một yêu cầu khác ở *Đã duyệt*, hoặc một hợp đồng chưa có hiệu lực (*Nháp*, *Chờ người thuê xác nhận*, *Chờ nhận cọc*). Người thuê vẫn gửi được yêu cầu cho nhiều phòng. |
 
 ### 7.3 Hợp đồng và tiền cọc
 
@@ -1134,6 +1135,7 @@ Thông tin dưới đây được giữ nguyên theo tài liệu mô tả dự �
 | Quản lý tiến độ bằng Google Drive thay cho Trello | Nhóm chỉ có 2 thành viên; một bảng tiến độ chung trên Google Drive đủ dùng, không cần thêm công cụ quản lý công việc riêng |
 | Sửa phí dịch vụ của phòng cũng ghi nhật ký (BR-23) | Phí dịch vụ được chốt vào hợp đồng như giá thuê (BR-12) và ảnh hưởng trực tiếp tới tiền người thuê trả |
 | Chủ trọ hủy duyệt yêu cầu thuê khi chưa lập hợp đồng (BP-06 A5) | Thực tế người thuê được duyệt rồi không đến hoặc không liên lạc được; không có đường này thì phòng bị giữ vô ích tới hết 72 giờ, hoặc Chủ trọ phải lập hợp đồng rồi hủy cho nhanh |
+| Một Người thuê chỉ giữ một phòng tại một thời điểm (BR-28) | Thực tế người tìm phòng gửi yêu cầu nhiều nơi cùng lúc; nếu mấy Chủ trọ cùng duyệt thì một người giữ mấy phòng suốt 72 giờ và các phòng kia mất khách |
 | Kiểm tra ngày vào ở và số người ngay khi gửi yêu cầu thuê | Số người vượt sức chứa thì đằng nào cũng không lập được hợp đồng (BR-11); chặn từ đầu để Chủ trọ không duyệt rồi giữ phòng vô ích |
 
 ---

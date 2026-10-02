@@ -186,6 +186,7 @@ Các luồng có thể bị lợi dụng trong hệ thống này và cách thi�
 | Kịch bản lạm dụng | Thiết kế chặn lại |
 |---|---|
 | Hai yêu cầu thuê cùng một phòng được duyệt gần như đồng thời, tạo hai hợp đồng | Thao tác duyệt chạy trong một transaction, chuyển phòng sang *Đang giữ chỗ* và tự từ chối các yêu cầu còn lại; unique index chặn hai hợp đồng cùng chiếm dụng một phòng |
+| Một người thuê được nhiều Chủ trọ duyệt cùng lúc, giữ nhiều phòng suốt 72 giờ | `/approve` từ chối khi người thuê đang giữ phòng khác (BR-28); unique index một yêu cầu `DaDuyet` mỗi người thuê chặn hai lượt duyệt gửi gần như đồng thời |
 | Hợp đồng được kích hoạt mà chưa nhận cọc | Chỉ chuyển sang *Đang hiệu lực* khi có đủ cả xác nhận của người thuê lẫn xác nhận đã nhận cọc |
 | Người thuê chụp màn hình mã VietQR rồi coi như đã trả tiền | Quét mã hay chuyển khoản không đổi trạng thái hóa đơn; tiền chỉ được ghi nhận khi Chủ trọ xác nhận (BR-06b, BR-26) |
 | Chủ trọ đánh dấu đã thu đủ trong khi người thuê mới trả một phần | Số tiền xác nhận được so với tổng hóa đơn; thiếu thì trạng thái là *Thanh toán một phần*, phần còn lại vẫn là công nợ |

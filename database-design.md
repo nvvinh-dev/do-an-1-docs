@@ -200,6 +200,8 @@ Mỗi khu trọ và mỗi phòng có tối đa 10 ảnh; `display_order` bắt �
 
 **BR-27:** mỗi cặp (`room_id`, `tenant_user_id`) chỉ có tối đa một yêu cầu ở `ChoDuyet` — unique index có điều kiện.
 
+**BR-28:** mỗi `tenant_user_id` chỉ có tối đa một yêu cầu ở `DaDuyet` — unique index có điều kiện, chặn hai lượt duyệt gửi gần như đồng thời. Phần còn lại của quy tắc — không duyệt khi người thuê có hợp đồng ở `Nhap`, `ChoNguoiThueXacNhan`, `ChoNhanCoc` — kiểm tra trong transaction duyệt.
+
 **Hết hạn:** yêu cầu ở `ChoDuyet` quá 7 ngày kể từ `submitted_at` chuyển sang `HetHan`. Yêu cầu ở `DaDuyet` quá 3 ngày kể từ `processed_at` mà chưa được lập hợp đồng cũng chuyển sang `HetHan` (BP-06 A3).
 
 **Rút yêu cầu:** người thuê chuyển yêu cầu sang `DaHuy` khi yêu cầu ở `ChoDuyet`, hoặc ở `DaDuyet` mà chưa lập hợp đồng; trường hợp sau phòng trở lại `Trong`.
@@ -487,6 +489,7 @@ Mã dành cho Phase 2: `ThuHoiVaiTroChuTro`, `AnTinDang`.
 | `invoices` | `(status, due_date)` | Quét hóa đơn quá hạn |
 | `rental_requests` | `(room_id, status)` | BR-06 |
 | `rental_requests` | `(room_id, tenant_user_id)` unique khi `status = 'ChoDuyet'` | BR-27 |
+| `rental_requests` | `(tenant_user_id)` unique khi `status = 'DaDuyet'` | BR-28 |
 | `notifications` | `(recipient_user_id, is_read)` | Đếm thông báo chưa đọc |
 | `audit_logs` | `(entity_type, entity_id)` | Tra cứu khi xử lý khiếu nại |
 
