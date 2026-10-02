@@ -382,6 +382,7 @@ Chỉ Chủ trọ sở hữu mới xác nhận được thanh toán; mọi vai t
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice/send` | Landlord (chủ sở hữu) | Gửi cho người thuê xác nhận |
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice/confirm` | Tenant (người đứng tên) | Đồng ý bảng thanh lý |
 | `POST` | `/api/v1/contracts/{id}/settlement-invoice/request-changes` | Tenant (người đứng tên) | Chưa đồng ý, bắt buộc có `reason` |
+| `POST` | `/api/v1/contracts/{id}/settlement-invoice/finalize` | Landlord (chủ sở hữu) | Tự chốt khi người thuê không phản hồi quá 7 ngày, bắt buộc có `note` |
 | `POST` | `/api/v1/contracts/{id}/settlement/complete` | Landlord (chủ sở hữu) | Xác nhận hoàn tất thanh lý |
 
 **`POST /move-out-notice`** — body gồm `expectedMoveOutDate` và `reason`. Hợp đồng chuyển `DangThanhLy`; bên còn lại nhận thông báo mức Cao. Thông báo gửi trước ít hơn 30 ngày vẫn được chấp nhận (FR-87); response ghi rõ số ngày báo trước để hai bên thấy.
@@ -412,16 +413,18 @@ Tổng các dòng `PhiPhat` không được vượt `depositAmount`, vượt tr�
 
 `totalAmount` âm nghĩa là Chủ trọ phải hoàn lại phần cọc dư.
 
-**Gửi và xác nhận (FR-57):** `PUT /settlement-invoice` chỉ nhận khi hóa đơn ở `Nhap`, body giống lúc tạo; server tính lại toàn bộ số tiền. `/send` chuyển `Nhap` → `ChoNguoiThueXacNhan`, người thuê nhận thông báo mức Cao. Người thuê gọi:
+**Gửi và xác nhận (FR-57):** `PUT /settlement-invoice` chỉ nhận khi hóa đơn ở `Nhap`, body giống lúc tạo; server tính lại toàn bộ số tiền. `/send` chuyển `Nhap` → `ChoNguoiThueXacNhan`, ghi `sentAt`, người thuê nhận thông báo mức Cao. Người thuê gọi:
 
 - `/request-changes` với `reason` (bắt buộc) → hóa đơn về `Nhap`, Chủ trọ nhận thông báo mức Cao kèm lý do;
 - `/confirm` → hóa đơn bị khóa. `totalAmount` > 0 thì sang `ChuaThanhToan` với `issuedAt` = lúc đồng ý, Người thuê thấy mã VietQR theo Mục 9.1 và thanh toán như hóa đơn thường. `totalAmount` < 0 thì sang `ChoHoanCoc`. `totalAmount` = 0 thì sang `DaThanhToan`.
 
 Hai endpoint của người thuê chỉ nhận khi hóa đơn ở `ChoNguoiThueXacNhan`, trạng thái khác trả `409`. Người thuê không thấy hóa đơn thanh lý khi nó còn ở `Nhap`.
 
-**`POST /settlement/complete`** chỉ thực hiện được khi người thuê đã đồng ý bảng thanh lý, và:
+**Tự chốt (FR-95):** `/finalize` chỉ nhận khi hóa đơn ở `ChoNguoiThueXacNhan` và đã quá 7 ngày kể từ `sentAt`, ngược lại trả `409`; body có `note` bắt buộc. Kết quả giống `/confirm`. Thao tác ghi `audit_logs` và gửi thông báo mức Cao cho người thuê.
 
-- `totalAmount` dương: hóa đơn thanh lý đã `DaThanhToan`;
+**`POST /settlement/complete`** chỉ thực hiện được khi bảng thanh lý đã khóa — người thuê đồng ý hoặc Chủ trọ tự chốt — và:
+
+- `totalAmount` dương: không cần đã trả đủ. Phần chưa trả giữ nguyên trên hóa đơn thanh lý như một khoản nợ — người thuê vẫn báo thanh toán được, hóa đơn vẫn bị gắn cờ quá hạn (FR-96);
 - `totalAmount` âm: hóa đơn ở `ChoHoanCoc`, body có `refundedAt` và `refundMethod`; số tiền hoàn do server đặt bằng −`totalAmount`, lưu vào `deposit_refunded_*` (FR-86), hóa đơn chuyển `DaThanhToan`;
 - `totalAmount` bằng 0: hóa đơn đã `DaThanhToan`.
 

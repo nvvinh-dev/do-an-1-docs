@@ -291,6 +291,8 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 | `settled_at` | timestamptz | | Thời điểm chuyển sang `DaThanhToan` |
 | `tenant_confirmed_at` | timestamptz | | Chỉ với `ThanhLy`: thời điểm người thuê đồng ý bảng thanh lý |
 | `change_request_reason` | text | | Chỉ với `ThanhLy`: lý do người thuê chưa đồng ý ở lần gần nhất |
+| `sent_at` | timestamptz | | Chỉ với `ThanhLy`: lần gửi gần nhất cho người thuê — mốc tính 7 ngày tự chốt |
+| `landlord_finalize_note` | text | | Chỉ với `ThanhLy`: ghi chú bắt buộc khi Chủ trọ tự chốt |
 | `cancel_reason` | text | | Bắt buộc khi `status` = `DaHuy` |
 
 **BR-14:** `current_electricity_index` ≥ `previous_electricity_index` và `current_water_index` ≥ `previous_water_index` — ràng buộc `CHECK` ở mức database. `previous_*` của một kỳ bắt buộc bằng `current_*` của kỳ liền trước của cùng hợp đồng; kỳ đầu tiên lấy `contracts.initial_*_index`. "Kỳ liền trước" bỏ qua các hóa đơn `DaHuy`.
@@ -303,13 +305,13 @@ Theo BR-11, người ở cùng chỉ được ghi nhận thông tin, không có 
 
 **Hóa đơn thanh lý (BP-10):** `type = 'ThanhLy'`, các khoản cộng thêm và khoản trừ tiền cọc nằm ở `invoice_lines`. `total_amount` có thể âm — khi đó Chủ trọ phải hoàn lại phần cọc dư.
 
-**Vòng đời hóa đơn thanh lý (FR-57):** `Nhap` → `ChoNguoiThueXacNhan` khi Chủ trọ gửi; người thuê chưa đồng ý thì về `Nhap`, ghi `change_request_reason`. Người thuê đồng ý thì ghi `tenant_confirmed_at`, hóa đơn bị khóa và:
+**Vòng đời hóa đơn thanh lý (FR-57, FR-95):** `Nhap` → `ChoNguoiThueXacNhan` khi Chủ trọ gửi, ghi `sent_at`; người thuê chưa đồng ý thì về `Nhap`, ghi `change_request_reason`. Hóa đơn bị khóa khi người thuê đồng ý (ghi `tenant_confirmed_at`), hoặc khi đã quá 7 ngày kể từ `sent_at` mà người thuê không phản hồi và Chủ trọ tự chốt (ghi `landlord_finalize_note`). Khi khóa:
 
-- `total_amount` > 0 → `ChuaThanhToan`, `issued_at` = lúc đồng ý, rồi đi luồng thanh toán như hóa đơn định kỳ;
+- `total_amount` > 0 → `ChuaThanhToan`, `issued_at` = lúc khóa, rồi đi luồng thanh toán như hóa đơn định kỳ;
 - `total_amount` < 0 → `ChoHoanCoc`, sang `DaThanhToan` khi Chủ trọ ghi nhận hoàn cọc lúc hoàn tất thanh lý;
 - `total_amount` = 0 → `DaThanhToan`.
 
-Với hóa đơn thanh lý, `DaThanhToan` nghĩa là đã tất toán xong.
+Với hóa đơn thanh lý, `DaThanhToan` nghĩa là đã tất toán xong. Hợp đồng hoàn tất thanh lý được ngay khi hóa đơn đã khóa, kể cả khi số dư dương chưa trả đủ (FR-96); hóa đơn khi đó vẫn ở `ChuaThanhToan`, `ThanhToanMotPhan` hoặc `QuaHan` như một khoản nợ.
 
 **Kết chuyển công nợ (FR-92):** dòng `CongNoKyTruoc` và `KhauTruTienCoc` do server sinh khi lập hóa đơn thanh lý. Mỗi hóa đơn còn nợ của hợp đồng (`ChuaThanhToan`, `ThanhToanMotPhan`, `QuaHan`) thành một dòng `CongNoKyTruoc` bằng `total_amount − paid_amount`, `related_invoice_id` trỏ về nó, và hóa đơn đó chuyển sang `DaChuyenThanhLy` trong cùng transaction.
 
@@ -419,6 +421,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `ThongBaoTraPhong` | Một bên gửi thông báo trả phòng | Bên còn lại | `Contract` |
 | `BangThanhLyChoXacNhan` | Bảng thanh lý được gửi | Người thuê | `Invoice` |
 | `BangThanhLyCanChinhSua` | Người thuê chưa đồng ý bảng thanh lý | Chủ trọ | `Invoice` |
+| `BangThanhLyDuocTuChot` | Chủ trọ tự chốt bảng thanh lý sau 7 ngày không phản hồi | Người thuê | `Invoice` |
 | `HoanTatThanhLy` | Hoàn tất thanh lý | Cả hai bên | `Contract` |
 
 **Mã thao tác nhật ký — BR-23:**
@@ -440,6 +443,7 @@ Tác vụ định kỳ không ghi `audit_logs` — không thao tác nào của c
 | `HuyHoaDon` | Hủy hóa đơn | `Invoice` |
 | `XacNhanThanhToan` | Chủ trọ xác nhận đã thu | `Invoice` |
 | `TuChoiThanhToan` | Chủ trọ từ chối xác nhận thanh toán | `Invoice` |
+| `TuChotBangThanhLy` | Chủ trọ tự chốt bảng thanh lý khi người thuê không phản hồi | `Invoice` |
 | `HoanTatThanhLy` | Hoàn tất thanh lý, gồm thông tin hoàn cọc nếu có | `Contract` |
 
 Mã dành cho Phase 2: `ThuHoiVaiTroChuTro`, `AnTinDang`.
